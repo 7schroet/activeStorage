@@ -1,0 +1,19 @@
+{
+  "author": {
+    "from_git": true
+  },
+  "license": "Apache-2.0",
+  "title": false,
+  "force_license": true,
+  "include": [
+    "**/*.c",
+    "**/*.h",
+    "**/*.cpp"
+  ],
+  "exclude": [
+      "^build.*",
+      "^\\.git[^/]+",
+      "^\\.git/.+"
+  ]
+}
+
