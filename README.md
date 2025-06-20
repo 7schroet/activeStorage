@@ -13,4 +13,3 @@ Then run the following command in the root of this repository:
 ```sh
 pre-commit install
 ```
-
