@@ -1,3 +1,7 @@
 build*/
 install*/
 *.o
+
+#clangd
+compile_commands.json
+.cache
