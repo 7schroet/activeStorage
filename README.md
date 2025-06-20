@@ -1,6 +1,10 @@
 # Active Storage
 yes
 
+## Dependencies
+This project is reliant on the RPC framework [Mercury](https://github.com/mercury-hpc/mercury).
+Make sure it is installed and that it can be found by CMake.
+
 ## Development
 ### Pre-commit
 To keep license information and formatting consistent, we use
