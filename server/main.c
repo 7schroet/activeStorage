@@ -23,17 +23,16 @@
 
 #define HG_RETURN_CHECK(func)                                                  \
   do                                                                           \
+  {                                                                            \
+    hg_return_t ret = (func);                                                  \
+    if (ret != HG_SUCCESS)                                                     \
     {                                                                          \
-      hg_return_t ret = (func);                                                \
-      if (ret != HG_SUCCESS)                                                   \
-        {                                                                      \
-          fprintf(stderr, "Failure in HG function in file %s at line %d\n",    \
-                  __FILE__, __LINE__);                                         \
-          fprintf(stderr, "Function call: %s\n", #func);                       \
-          exit(EXIT_FAILURE);                                                  \
-        }                                                                      \
+      fprintf(stderr, "Failure in HG function in file %s at line %d\n",        \
+              __FILE__, __LINE__);                                             \
+      fprintf(stderr, "Function call: %s\n", #func);                           \
+      exit(EXIT_FAILURE);                                                      \
     }                                                                          \
-  while (0)
+  } while (0)
 
 void setup(hg_class_t** class, hg_context_t** context)
 {

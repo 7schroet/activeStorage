@@ -1,5 +1,5 @@
 ---
 BasedOnStyle: LLVM
-BreakBeforeBraces: GNU
+BreakBeforeBraces: Allman
 PointerAlignment: Left
 ...
