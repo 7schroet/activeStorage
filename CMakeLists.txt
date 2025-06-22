@@ -34,4 +34,5 @@ if(ENABLE_STATIC_ANALYSIS)
   add_compile_options("-O0;-fanalyzer")
 endif()
 
+add_subdirectory(rpc)
 add_subdirectory(server)
