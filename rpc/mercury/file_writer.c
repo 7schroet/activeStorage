@@ -17,19 +17,33 @@
  * limitations under the License.
  */
 
-#include "rpc.h"
+#include "file_writer.h"
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-int main(void)
+void write_to_file(char* content, char* filename)
 {
-  rpc_handle* handle = NULL;
-  char* address = rpc_initialize_address(tcp, "12345");
+  assert(filename);
+  assert(content);
 
-  rpc_init(&handle, address);
-  free(address);
-  rpc_address_to_file(handle, "filename");
+  FILE* fd = fopen(filename, "w");
+  if (!fd)
+  {
+    fprintf(stderr, "fopen failed for %s, aborting!\n", filename);
+    exit(EXIT_FAILURE);
+  }
 
-  rpc_finalize(handle);
+  unsigned long length = strlen(content);
+  size_t ret = fwrite(content, sizeof(char), length, fd);
+  if (ret != strlen(content))
+  {
+    fprintf(stderr,
+            "Write to %s failed, wrote %zu, but expected %ld, aborting!\n",
+            filename, ret, length);
+    exit(EXIT_FAILURE);
+  }
 
-  return EXIT_SUCCESS;
+  fclose(fd);
 }

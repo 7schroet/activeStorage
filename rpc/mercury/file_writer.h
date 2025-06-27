@@ -17,19 +17,9 @@
  * limitations under the License.
  */
 
-#include "rpc.h"
-#include <stdlib.h>
+#ifndef FILE_WRITER_H
+#define FILE_WRITER_H
 
-int main(void)
-{
-  rpc_handle* handle = NULL;
-  char* address = rpc_initialize_address(tcp, "12345");
+void write_to_file(char* content, char* filename);
 
-  rpc_init(&handle, address);
-  free(address);
-  rpc_address_to_file(handle, "filename");
-
-  rpc_finalize(handle);
-
-  return EXIT_SUCCESS;
-}
+#endif

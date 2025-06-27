@@ -17,12 +17,36 @@
  * limitations under the License.
  */
 
+#include "file_writer.h"
 #include "hg_common.h"
 #include "rpc.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void rpc_init(rpc_handle** handle)
+#define GENERATE_PROT_STRING(STRING) #STRING,
+static char* protocol_to_string(enum protocol protocol)
+{
+  static char* protocol_strings[] = {FOREACH_PROT(GENERATE_PROT_STRING)};
+  return protocol_strings[protocol];
+}
+
+char* rpc_initialize_address(enum protocol protocol, char* port)
+{
+  assert(port);
+
+  char* res = NULL;
+  int ret = asprintf(&res, "%s://:%s", protocol_to_string(protocol), port);
+  if (ret == -1)
+  {
+    fprintf(stderr, "asprintf failed, aborting!\n");
+    exit(EXIT_FAILURE);
+  }
+  return res;
+}
+
+void rpc_init(rpc_handle** handle, char* address)
 {
   *handle = malloc(sizeof(rpc_handle));
   if (*handle == NULL)
@@ -31,12 +55,16 @@ void rpc_init(rpc_handle** handle)
             sizeof(rpc_handle));
     exit(EXIT_FAILURE);
   }
-  (*handle)->class = HG_Init("tcp://:12345", HG_TRUE);
+
+  (*handle)->class = HG_Init(address, HG_TRUE);
   (*handle)->context = HG_Context_create((*handle)->class);
 }
 
-void rpc_address_to_file(rpc_handle* handle)
+void rpc_address_to_file(rpc_handle* handle, char* filename)
 {
+  assert(handle);
+  assert(filename);
+
   hg_addr_t addr;
   HG_RETURN_CHECK(HG_Addr_self(handle->class, &addr));
 
@@ -44,13 +72,15 @@ void rpc_address_to_file(rpc_handle* handle)
   char buf[buf_size];
   HG_RETURN_CHECK(HG_Addr_to_string(handle->class, buf, &buf_size, addr));
 
-  printf("Server address is: %s\n", buf);
+  write_to_file(buf, filename);
 
   HG_RETURN_CHECK(HG_Addr_free(handle->class, addr));
 }
 
 void rpc_finalize(rpc_handle* handle)
 {
+  assert(handle);
+
   HG_RETURN_CHECK(HG_Context_destroy(handle->context));
   HG_RETURN_CHECK(HG_Finalize(handle->class));
   free(handle);

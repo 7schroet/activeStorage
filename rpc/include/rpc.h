@@ -22,9 +22,34 @@
 
 typedef struct rpc_handle rpc_handle;
 
-void rpc_init(rpc_handle**);
+#define FOREACH_PROT(PROT)                                                     \
+  PROT(tcp)                                                                    \
+  PROT(verbs)
 
-void rpc_address_to_file(rpc_handle*);
+#define GENERATE_PROT_ENUM(ENUM) ENUM,
+
+enum protocol
+{
+  FOREACH_PROT(GENERATE_PROT_ENUM)
+};
+
+/**
+ * Requires an uninitialized rpc_handle. Must be destroyed with rpc_finalize
+ * once finished. The address parameter can be constructed with
+ * rpc_initialize_address.
+ */
+void rpc_init(rpc_handle**, char* address);
+
+/**
+ * The char array returned from this function must be freed by the caller.
+ */
+char* rpc_initialize_address(enum protocol protocol, char* port);
+
+/**
+ * Write the address to a file for communication among different RPC clients for
+ * the setup.
+ */
+void rpc_address_to_file(rpc_handle*, char* filename);
 
 void rpc_finalize(rpc_handle*);
 
