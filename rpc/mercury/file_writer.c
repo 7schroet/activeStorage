@@ -37,7 +37,7 @@ void write_to_file(char* content, char* filename)
 
   unsigned long length = strlen(content);
   size_t ret = fwrite(content, sizeof(char), length, fd);
-  if (ret != strlen(content))
+  if (ret != length)
   {
     fprintf(stderr,
             "Write to %s failed, wrote %zu, but expected %ld, aborting!\n",
