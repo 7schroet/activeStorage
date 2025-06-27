@@ -48,6 +48,8 @@ char* rpc_initialize_address(enum protocol protocol, char* port)
 
 void rpc_init(rpc_handle** handle, char* address)
 {
+  assert(address);
+
   *handle = malloc(sizeof(rpc_handle));
   if (*handle == NULL)
   {
