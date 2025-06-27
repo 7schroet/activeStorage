@@ -17,6 +17,9 @@
  * limitations under the License.
  */
 
+#ifndef HG_COMMON_H
+#define HG_COMMON_H
+
 #include "rpc.h"
 #include <mercury.h>
 
@@ -38,3 +41,5 @@ typedef struct rpc_handle
   hg_class_t* class;
   hg_context_t* context;
 } rpc_handle;
+
+#endif
