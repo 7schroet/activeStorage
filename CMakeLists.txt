@@ -3,6 +3,7 @@ project(ActiveStorage)
 
 option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_STATIC_ANALYSIS "Build with -fanalyzer (requires gcc)" OFF)
+option(ENABLE_TESTS "Build with tests enabled (requires CMocka)" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -36,3 +37,10 @@ endif()
 
 add_subdirectory(rpc)
 add_subdirectory(server)
+
+if(ENABLE_TESTS)
+  find_package(CMocka REQUIRED)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+  include(AddCMockaTest)
+  enable_testing()
+endif()
