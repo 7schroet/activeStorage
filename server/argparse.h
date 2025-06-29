@@ -17,22 +17,18 @@
  * limitations under the License.
  */
 
-#include "argparse.h"
+#ifndef ARGPARSE_H
+#define ARGPARSE_H
+
 #include "rpc.h"
-#include <stdlib.h>
 
-int main(int argc, char** argv)
+typedef struct config
 {
-  config config = parse_args(argc, argv);
+  enum protocol protocol;
+  char* address_file;
+  char* port;
+} config;
 
-  rpc_handle* handle = NULL;
-  char* address = rpc_initialize_address(config.protocol, config.port);
+config parse_args(int argc, char** argv);
 
-  rpc_init(&handle, address);
-  free(address);
-  rpc_address_to_file(handle, config.address_file);
-
-  rpc_finalize(handle);
-
-  return EXIT_SUCCESS;
-}
+#endif
