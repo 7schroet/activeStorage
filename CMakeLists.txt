@@ -35,12 +35,11 @@ if(ENABLE_STATIC_ANALYSIS)
   add_compile_options("-O0;-fanalyzer")
 endif()
 
-add_subdirectory(rpc)
-add_subdirectory(server)
-
 if(ENABLE_TESTS)
   find_package(CMocka REQUIRED)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
   include(AddCMockaTest)
-  enable_testing()
 endif()
+
+add_subdirectory(rpc)
+add_subdirectory(server)
