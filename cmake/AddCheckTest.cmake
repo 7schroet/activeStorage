@@ -3,7 +3,7 @@
 # - NAME : the name of the test case
 # - SOURCES : a list of sources
 #
-# The other keyword arguments are options:
+# The other keyword arguments are optional:
 # - INCLUDE_DIRS : other include directories that the test requires
 function(add_check_test)
   set(one_value_args NAME)
