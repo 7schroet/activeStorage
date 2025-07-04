@@ -42,5 +42,14 @@ if(ENABLE_TESTS)
   enable_testing()
 endif()
 
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON CACHE BOOL "" FORCE)
+file(RELATIVE_PATH lib_dir
+  "${CMAKE_INSTALL_FULL_BINDIR}"
+  "${CMAKE_INSTALL_FULL_LIBDIR}"
+)
+
+set(CMAKE_INSTALL_RPATH "$ORIGIN/${lib_dir};${CMAKE_INSTALL_RPATH}" CACHE STRING "" FORCE)
+
 add_subdirectory(rpc)
 add_subdirectory(server)
