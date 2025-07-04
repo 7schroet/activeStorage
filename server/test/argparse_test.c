@@ -17,30 +17,21 @@
  * limitations under the License.
  */
 
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include <setjmp.h>
-
-#include <cmocka.h>
+#include <check.h>
+#include <stdlib.h>
 
 #include "../argparse.c"
 
-static int reset_getopt(void** state)
-{
-  optind = 1;
-  return 0;
-}
+void reset_getopt(void) { optind = 1; }
 
 static void assert_config_equal(config* expected, config* actual)
 {
-  assert_string_equal(expected->port, actual->port);
-  assert_string_equal(expected->address_file, actual->address_file);
-  assert_int_equal(expected->protocol, actual->protocol);
+  ck_assert_str_eq(expected->port, actual->port);
+  ck_assert_str_eq(expected->address_file, actual->address_file);
+  ck_assert_int_eq(expected->protocol, actual->protocol);
 }
 
-static void default_test(void** state)
+START_TEST(test_default)
 {
   config expected = {
       .address_file = "servername",
@@ -52,8 +43,9 @@ static void default_test(void** state)
   config actual = parse_args(1, argv);
   assert_config_equal(&expected, &actual);
 }
+END_TEST
 
-static void pass_port_test(void** state)
+START_TEST(test_pass_port)
 {
   config expected = {
       .address_file = "servername",
@@ -65,8 +57,9 @@ static void pass_port_test(void** state)
   config actual = parse_args(3, argv);
   assert_config_equal(&expected, &actual);
 }
+END_TEST
 
-static void pass_protocol_test(void** state)
+START_TEST(test_pass_protocol)
 {
   config expected = {
       .address_file = "servername",
@@ -78,8 +71,9 @@ static void pass_protocol_test(void** state)
   config actual = parse_args(3, argv);
   assert_config_equal(&expected, &actual);
 }
+END_TEST
 
-static void pass_address_file_test(void** state)
+START_TEST(test_pass_address)
 {
   config expected = {
       .address_file = "../filename",
@@ -91,8 +85,9 @@ static void pass_address_file_test(void** state)
   config actual = parse_args(3, argv);
   assert_config_equal(&expected, &actual);
 }
+END_TEST
 
-static void pass_all_test(void** state)
+START_TEST(test_pass_all)
 {
   config expected = {
       .address_file = "file",
@@ -105,43 +100,61 @@ static void pass_all_test(void** state)
   config actual = parse_args(7, argv);
   assert_config_equal(&expected, &actual);
 }
+END_TEST
 
-void __real_exit(int);
-
-void __wrap_exit(int exit_code)
+START_TEST(test_help)
 {
-  function_called();
-  /*__real_exit(0);*/
+  char* argv[2] = {"as-server", "--help"};
+  parse_args(2, argv);
 }
+END_TEST
 
-static void missing_arg_test(void** state)
+START_TEST(test_missing_arg)
 {
-  expect_function_call(__wrap_exit);
-
   char* argv[6] = {"as-server",  "--port", "6666",
                    "--protocol", "tcp",    "--addressfile"};
-  config actual = parse_args(6, argv);
+  parse_args(6, argv);
 }
+END_TEST
 
-static void pass_help_test(void** state)
+START_TEST(test_unknown_protocol)
 {
-  expect_function_call(__wrap_exit);
+  char* argv[3] = {"as-server", "--protocol", "unknown"};
+  parse_args(3, argv);
+}
+END_TEST
 
-  char* argv[2] = {"as-server", "--help"};
-  config actual = parse_args(2, argv);
+Suite* parser_suite(void)
+{
+  Suite* s = suite_create("Server Arg Parsing");
+  TCase* tc_success = tcase_create("Sucessful parses");
+  TCase* tc_failure = tcase_create("Failing parses");
+
+  tcase_add_checked_fixture(tc_success, NULL, reset_getopt);
+  tcase_add_test(tc_success, test_default);
+  tcase_add_test(tc_success, test_pass_port);
+  tcase_add_test(tc_success, test_pass_protocol);
+  tcase_add_test(tc_success, test_pass_address);
+  tcase_add_test(tc_success, test_pass_all);
+  tcase_add_exit_test(tc_success, test_help, 0);
+
+  tcase_add_checked_fixture(tc_failure, NULL, reset_getopt);
+  tcase_add_exit_test(tc_failure, test_missing_arg, 1);
+  tcase_add_exit_test(tc_failure, test_unknown_protocol, 1);
+
+  suite_add_tcase(s, tc_success);
+  suite_add_tcase(s, tc_failure);
+  return s;
 }
 
 int main(void)
 {
-  const struct CMUnitTest tests[] = {
-      cmocka_unit_test_setup(default_test, reset_getopt),
-      cmocka_unit_test_setup(pass_port_test, reset_getopt),
-      cmocka_unit_test_setup(pass_protocol_test, reset_getopt),
-      cmocka_unit_test_setup(pass_address_file_test, reset_getopt),
-      cmocka_unit_test_setup(pass_all_test, reset_getopt),
-      cmocka_unit_test_setup(missing_arg_test, reset_getopt),
-      cmocka_unit_test_setup(pass_help_test, reset_getopt),
-  };
+  Suite* parse = parser_suite();
 
-  return cmocka_run_group_tests(tests, NULL, NULL);
+  SRunner* sr = srunner_create(parse);
+
+  srunner_run_all(sr, CK_NORMAL);
+  int number_failed = srunner_ntests_failed(sr);
+  srunner_free(sr);
+  return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

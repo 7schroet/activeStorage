@@ -1,6 +1,4 @@
-add_cmocka_test(argparse_test
+add_check_test(NAME argparse_test
   SOURCES argparse_test.c
-  LINK_OPTIONS "-Wl,--wrap=exit"
+  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/rpc/include"
 )
-target_link_libraries(argparse_test PRIVATE cmocka::cmocka)
-target_include_directories(argparse_test PRIVATE "${CMAKE_SOURCE_DIR}/rpc/include")

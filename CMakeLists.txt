@@ -36,9 +36,10 @@ if(ENABLE_STATIC_ANALYSIS)
 endif()
 
 if(ENABLE_TESTS)
-  find_package(CMocka REQUIRED)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-  include(AddCMockaTest)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+  find_package(Check REQUIRED)
+  include(AddCheckTest)
+  enable_testing()
 endif()
 
 add_subdirectory(rpc)
