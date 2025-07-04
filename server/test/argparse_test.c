@@ -124,6 +124,12 @@ START_TEST(test_unknown_protocol)
 }
 END_TEST
 
+START_TEST(test_unknown_option)
+{
+  char* argv[2] = {"as-server", "--unknown-opt"};
+  parse_args(2, argv);
+}
+
 Suite* parser_suite(void)
 {
   Suite* s = suite_create("Server Arg Parsing");
@@ -141,6 +147,7 @@ Suite* parser_suite(void)
   tcase_add_checked_fixture(tc_failure, NULL, reset_getopt);
   tcase_add_exit_test(tc_failure, test_missing_arg, 1);
   tcase_add_exit_test(tc_failure, test_unknown_protocol, 1);
+  tcase_add_exit_test(tc_failure, test_unknown_option, 1);
 
   suite_add_tcase(s, tc_success);
   suite_add_tcase(s, tc_failure);
