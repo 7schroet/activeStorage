@@ -2,8 +2,10 @@
 yes
 
 ## Dependencies
-This project is reliant on the RPC framework [Mercury](https://github.com/mercury-hpc/mercury).
-Make sure it is installed and that it can be found by CMake.
+### Required
+- [Mercury](https://github.com/mercury-hpc/mercury)
+### Optional
+- [libcheck](https://libcheck.github.io/check/) (for testing)
 
 ## Building
 Execute the following commands to build:
@@ -14,7 +16,10 @@ cmake .. <your options here>
 make && make install
 ```
 This will build all the components with the default build type (`Release`) and install
-the components into `${CMAKE_CURRENT_SOURCE_DIR}/install`.
+the components into `${CMAKE_CURRENT_SOURCE_DIR}/install`. Tests can be enabled by
+setting the option `-DENABLE_TESTS=ON`. Run them via `ctest` after `make`.
+
+For an overview of all available CMake options, run `cmake -LH`.
 
 ## Development
 ### Pre-commit
@@ -22,7 +27,6 @@ To keep license information and formatting consistent, we use
 pre-commit. Install pre-commit as such:
 ```sh
 python3 -m pip install pre-commit
-
 ```
 Then run the following command in the root of this repository:
 ```sh
