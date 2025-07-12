@@ -19,7 +19,31 @@
 
 #include "argparse.h"
 #include "rpc.h"
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
+#if __STDC_VERSION__ <= 201710L
+#include <stdbool.h>
+#endif
 #include <stdlib.h>
+
+#if __STDC_VERSION__ > 201710L && defined __has_attribute
+#if __has_attribute(maybe_unused)
+#define ATTR_UNUSED [[maybe_unused]]
+#else
+#define ATTR_UNUSED
+#endif
+#else
+#define ATTR_UNUSED
+#endif
+
+volatile bool keep_running = true;
+
+void interrupt_handle(ATTR_UNUSED int signal)
+{
+  keep_running = false;
+  fprintf(stderr, "Shutting down server...\n");
+}
 
 int main(int argc, char** argv)
 {
@@ -29,8 +53,15 @@ int main(int argc, char** argv)
   char* address = rpc_initialize_address(config.protocol, config.port);
 
   rpc_init(&handle, address);
+  signal(SIGINT, interrupt_handle);
   free(address);
   rpc_address_to_file(handle, config.address_file);
+
+  rpc_register_kernels(handle);
+
+  while (keep_running)
+  {
+  }
 
   rpc_finalize(handle);
 

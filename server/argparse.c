@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if __STDC_VERSION__ == 202311L && defined __has_attribute
+#if __STDC_VERSION__ > 201710L && defined __has_attribute
 #if __has_attribute(noreturn)
 #define ATT_NORETURN [[noreturn]]
 #else
