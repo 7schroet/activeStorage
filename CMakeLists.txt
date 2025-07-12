@@ -4,6 +4,8 @@ project(ActiveStorage)
 option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_STATIC_ANALYSIS "Build with -fanalyzer (requires gcc)" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires CMocka)" OFF)
+# Required because CMake does not use the correct flag for C23 with gcc
+set(C_STD_FLAG "Flag for the C Standard" CACHE STRING "")
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -20,6 +22,11 @@ endif()
 find_package(Mercury REQUIRED)
 
 add_compile_options("$<$<C_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
+
+if(NOT C_STD_FLAG STREQUAL "")
+  add_compile_options("${C_STD_FLAG}")
+endif()
+
 if(ENABLE_SANITIZER)
   add_compile_options("-fsanitize=address,undefined")
   add_link_options("-fsanitize=address,undefined")
