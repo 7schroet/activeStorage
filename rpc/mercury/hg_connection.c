@@ -17,10 +17,12 @@
  * limitations under the License.
  */
 
+#define _GNU_SOURCE
+
 #include "file_writer.h"
 #include "hg_common.h"
+#include "hg_kernels.h"
 #include "rpc.h"
-#include "rpc_kernels.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,8 +81,6 @@ void rpc_address_to_file(rpc_handle* handle, char* filename)
 
   HG_RETURN_CHECK(HG_Addr_free(handle->class, addr));
 }
-
-void rpc_register_kernels(rpc_handle* handle) { print_stuff("basic call"); }
 
 void rpc_finalize(rpc_handle* handle)
 {

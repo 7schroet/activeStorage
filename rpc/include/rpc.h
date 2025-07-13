@@ -51,7 +51,8 @@ char* rpc_initialize_address(enum protocol protocol, char* port);
  */
 void rpc_address_to_file(rpc_handle*, char* filename);
 
-void rpc_register_kernels(rpc_handle*);
+// TODO see hg_kernels
+unsigned long rpc_register_kernels(rpc_handle*);
 
 void rpc_finalize(rpc_handle*);
 

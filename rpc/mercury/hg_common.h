@@ -22,6 +22,7 @@
 
 #include "rpc.h"
 #include <mercury.h>
+#include <stdlib.h>
 
 #define HG_RETURN_CHECK(func)                                                  \
   do                                                                           \
