@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if __STDC_VERSION__ <= 201710L
+#include <stdbool.h>
+#endif
 
 #define GENERATE_PROT_STRING(STRING) #STRING,
 static char* protocol_to_string(enum protocol protocol)
@@ -49,7 +52,7 @@ char* rpc_initialize_address(enum protocol protocol, char* port)
   return res;
 }
 
-void rpc_init(rpc_handle** handle, char* address)
+void rpc_init(rpc_handle** handle, char* address, bool accept_connection)
 {
   assert(address);
 
@@ -61,7 +64,9 @@ void rpc_init(rpc_handle** handle, char* address)
     exit(EXIT_FAILURE);
   }
 
-  (*handle)->class = HG_Init(address, HG_TRUE);
+  u_int8_t na_listen = accept_connection ? HG_TRUE : HG_FALSE;
+
+  (*handle)->class = HG_Init(address, na_listen);
   (*handle)->context = HG_Context_create((*handle)->class);
 }
 

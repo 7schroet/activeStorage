@@ -20,6 +20,10 @@
 #ifndef RPC_H
 #define RPC_H
 
+#if __STDC_VERSION__ <= 201710L
+#include <stdbool.h>
+#endif
+
 typedef struct rpc_handle rpc_handle;
 
 #define FOREACH_PROT(PROT)                                                     \
@@ -36,9 +40,10 @@ enum protocol
 /**
  * Requires an uninitialized rpc_handle. Must be destroyed with rpc_finalize
  * once finished. The address parameter can be constructed with
- * rpc_initialize_address.
+ * rpc_initialize_address. Set accept_connection to true if the caller is
+ * supposed to handle incoming connections.
  */
-void rpc_init(rpc_handle**, char* address);
+void rpc_init(rpc_handle**, char* address, bool accept_connection);
 
 /**
  * The char array returned from this function must be freed by the caller.

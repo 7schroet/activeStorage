@@ -52,7 +52,7 @@ int main(int argc, char** argv)
   rpc_handle* handle = NULL;
   char* address = rpc_initialize_address(config.protocol, config.port);
 
-  rpc_init(&handle, address);
+  rpc_init(&handle, address, true);
   signal(SIGINT, interrupt_handle);
   free(address);
   rpc_address_to_file(handle, config.address_file);
