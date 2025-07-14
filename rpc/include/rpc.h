@@ -59,6 +59,12 @@ void rpc_address_to_file(rpc_handle*, char* filename);
 // TODO see hg_kernels
 unsigned long rpc_register_kernels(rpc_handle*);
 
+/**
+ * Progress any outstanding RPCs and network events.
+ * Servers are supposed to use this function in the main loop.
+ */
+void rpc_progress(rpc_handle*);
+
 void rpc_finalize(rpc_handle*);
 
 #endif

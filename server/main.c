@@ -42,7 +42,7 @@ volatile bool keep_running = true;
 void interrupt_handle(ATTR_UNUSED int signal)
 {
   keep_running = false;
-  fprintf(stderr, "Shutting down server...\n");
+  fprintf(stderr, "\nReceived SIGINT, shutting down server...\n");
 }
 
 int main(int argc, char** argv)
@@ -61,6 +61,7 @@ int main(int argc, char** argv)
 
   while (keep_running)
   {
+    rpc_progress(handle);
   }
 
   rpc_finalize(handle);

@@ -87,6 +87,19 @@ void rpc_address_to_file(rpc_handle* handle, char* filename)
   HG_RETURN_CHECK(HG_Addr_free(handle->class, addr));
 }
 
+void rpc_progress(rpc_handle* handle)
+{
+  unsigned int count;
+  hg_return_t ret;
+
+  do
+  {
+    ret = HG_Trigger(handle->context, 0, 1, &count);
+  } while ((ret == HG_SUCCESS) && count);
+
+  HG_Progress(handle->context, 100);
+}
+
 void rpc_finalize(rpc_handle* handle)
 {
   assert(handle);
