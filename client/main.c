@@ -24,10 +24,11 @@ int main(int argc, char** argv)
 {
 
   rpc_handle* handle = NULL;
-  char* address = rpc_initialize_address(tcp, "");
+  char* address = rpc_initialize_address(tcp, "1234");
 
   rpc_init(&handle, address, false);
   free(address);
+  rpc_address_to_file(handle, "clientname");
 
   rpc_register_kernels(handle);
 
