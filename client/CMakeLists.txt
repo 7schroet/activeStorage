@@ -1,1 +1,5 @@
-message("hi")
+file(GLOB client_src *.c)
+
+add_executable(as-client ${client_src})
+target_link_libraries(as-client PRIVATE as-rpc)
+install(TARGETS as-client)
