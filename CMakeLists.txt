@@ -24,7 +24,7 @@ find_package(Mercury REQUIRED)
 add_compile_options("$<$<C_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
 
 if(NOT C_STD_FLAG STREQUAL "")
-  add_compile_options("${C_STD_FLAG}")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C>:${C_STD_FLAG}>")
 endif()
 
 if(ENABLE_SANITIZER)
