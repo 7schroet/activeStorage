@@ -5,7 +5,7 @@ option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_STATIC_ANALYSIS "Build with -fanalyzer (requires gcc)" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires CMocka)" OFF)
 # Required because CMake does not use the correct flag for C23 with gcc
-set(C_STD_FLAG "Flag for the C Standard" CACHE STRING "")
+set(C_STD_FLAG "-std=c23" CACHE STRING "Flag for the C Standard")
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
