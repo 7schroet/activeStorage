@@ -20,9 +20,13 @@
 #include "rpc.h"
 #include <stdlib.h>
 
+char* read_server_address_from_file(const char* const path)
+{
+  return "DUMMY ADDRESS TODO";
+}
+
 int main(int argc, char** argv)
 {
-
   rpc_handle* handle = NULL;
   char* address = rpc_initialize_address(tcp, "1234");
 
@@ -31,6 +35,11 @@ int main(int argc, char** argv)
   rpc_address_to_file(handle, "clientname");
 
   rpc_register_kernels(handle);
+
+  char* name = rpc_register_kernels(handle);
+  char* server = read_server_address_from_file("DUMMY PATH ARG PARSE REQUIRED");
+
+  rpc_send_rpc(handle, name, server);
 
   rpc_finalize(handle);
 

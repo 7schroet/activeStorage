@@ -23,6 +23,9 @@
 #include "rpc.h"
 #include <mercury.h>
 #include <stdlib.h>
+#if __STDC_VERSION__ <= 201710L
+#include <stdbool.h>
+#endif
 
 #define HG_RETURN_CHECK(func)                                                  \
   do                                                                           \
@@ -42,5 +45,14 @@ typedef struct rpc_handle
   hg_class_t* class;
   hg_context_t* context;
 } rpc_handle;
+
+typedef struct client_data
+{
+  hg_class_t* class;
+  hg_context_t* context;
+  hg_id_t id;
+  bool completed;
+
+} client_data;
 
 #endif

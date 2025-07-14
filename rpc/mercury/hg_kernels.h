@@ -68,12 +68,13 @@ hg_return_t callback(hg_handle_t handle)
   return HG_SUCCESS;
 }
 
-// TODO return some sort of array that contains structs with name, id for
-// lookups
-unsigned long rpc_register_kernels(rpc_handle* handle)
+// TODO return some sort of array that contains names for lookups
+char* rpc_register_kernels(rpc_handle* handle)
 {
-  return HG_Register_name(handle->class, "printer", example_in_serialize,
-                          example_out_serialize, callback);
+  hg_id_t id = HG_Register_name(handle->class, "printer", example_in_serialize,
+                                example_out_serialize, callback);
+  (void)id;
+  return "printer";
 }
 
 #endif

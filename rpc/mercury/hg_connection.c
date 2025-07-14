@@ -100,6 +100,55 @@ void rpc_progress(rpc_handle* handle)
   HG_Progress(handle->context, 100);
 }
 
+static hg_return_t lookup_callback(const struct hg_cb_info* callback_info)
+{
+  if (callback_info->ret != 0)
+  {
+    fprintf(stderr, "Something went wrong in the address lookup, aborting!\n");
+    exit(EXIT_FAILURE);
+  }
+
+  client_data* client_data = callback_info->arg;
+  hg_addr_t addr = callback_info->info.lookup.addr;
+  hg_handle_t handle;
+
+  HG_RETURN_CHECK(
+      HG_Create(client_data->context, addr, client_data->id, &handle));
+
+  example_in in = {.str = "LONG TEST STRING"};
+  HG_RETURN_CHECK(HG_Forward(handle, NULL, NULL, &in));
+
+  HG_RETURN_CHECK(HG_Destroy(handle));
+  client_data->completed = true;
+
+  return HG_SUCCESS;
+}
+
+void rpc_send_rpc(rpc_handle* handle, char* kernel, char* address)
+{
+  hg_id_t id;
+  u_int8_t set;
+  HG_RETURN_CHECK(HG_Registered_name(handle->class, kernel, &id, &set));
+  if (!set)
+  {
+    fprintf(stderr, "Trying to send unregistered RPC '%s', aborting!\n",
+            kernel);
+    exit(EXIT_FAILURE);
+  }
+
+  client_data client_data = {.class = handle->class,
+                             .context = handle->context,
+                             .id = id,
+                             .completed = false};
+  HG_RETURN_CHECK(HG_Addr_lookup1(handle->context, lookup_callback,
+                                  &client_data, address, HG_OP_ID_IGNORE));
+
+  while (!client_data.completed)
+  {
+    rpc_progress(handle);
+  }
+}
+
 void rpc_finalize(rpc_handle* handle)
 {
   assert(handle);
