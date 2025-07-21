@@ -3,9 +3,7 @@ project(ActiveStorage)
 
 option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_STATIC_ANALYSIS "Build with -fanalyzer (requires gcc)" OFF)
-option(ENABLE_TESTS "Build with tests enabled (requires CMocka)" OFF)
-# Required because CMake does not use the correct flag for C23 with gcc
-set(C_STD_FLAG "-std=c23" CACHE STRING "Flag for the C Standard")
+option(ENABLE_TESTS "Build with tests enabled (requires Catch2)" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -19,13 +17,9 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE ${default_build} CACHE STRING "" FORCE)
 endif()
 
-find_package(Mercury REQUIRED)
+find_package(thallium REQUIRED)
 
-add_compile_options("$<$<C_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
-
-if(NOT C_STD_FLAG STREQUAL "")
-  add_compile_options("$<$<COMPILE_LANGUAGE:C>:${C_STD_FLAG}>")
-endif()
+add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
 
 if(ENABLE_SANITIZER)
   add_compile_options("-fsanitize=address,undefined")
@@ -36,7 +30,7 @@ if(ENABLE_STATIC_ANALYSIS)
   if(ENABLE_SANITIZER)
     message(FATAL_ERROR "Cannot build with both static analysis and sanitizers enabled!")
   endif()
-  if(NOT CMAKE_C_COMPILER_ID STREQUAL GNU)
+  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     message(FATAL_ERROR "Only supporting static analysis with gcc!")
   endif()
   add_compile_options("-O0;-fanalyzer")
@@ -44,8 +38,8 @@ endif()
 
 if(ENABLE_TESTS)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-  find_package(Check REQUIRED)
-  include(AddCheckTest)
+  find_package(Catch2 REQUIRED)
+  include(AddCheckTest) # TODO delete file
   enable_testing()
 endif()
 
@@ -58,6 +52,6 @@ file(RELATIVE_PATH lib_dir
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN/${lib_dir};${CMAKE_INSTALL_RPATH}" CACHE STRING "" FORCE)
 
-add_subdirectory(rpc)
+# add_subdirectory(rpc)
 add_subdirectory(server)
-add_subdirectory(client)
+# add_subdirectory(client)

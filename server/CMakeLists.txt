@@ -1,4 +1,4 @@
-file(GLOB server_src *.c)
+file(GLOB server_src *.cpp)
 
 add_executable(as-server ${server_src})
 target_link_libraries(as-server PRIVATE as-rpc)
