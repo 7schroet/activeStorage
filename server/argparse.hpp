@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 
-#ifndef ARGPARSE_H
-#define ARGPARSE_H
+#ifndef ARGPARSE_HPP
+#define ARGPARSE_HPP
 
-#include "rpc.h"
-
-typedef struct config
+#include <string>
+struct Config
 {
-  enum protocol protocol;
-  char* address_file;
-  char* port;
-} config;
+  // enum protocol protocol;
+  std::string protocol;
+  std::string address_file;
+  std::string port;
+};
 
-config parse_args(int argc, char** argv);
+Config parse_args(int argc, char** argv);
 
 #endif

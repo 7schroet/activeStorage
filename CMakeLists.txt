@@ -17,6 +17,8 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE ${default_build} CACHE STRING "" FORCE)
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
+
 find_package(thallium REQUIRED)
 
 add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
