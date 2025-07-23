@@ -39,10 +39,9 @@ if(ENABLE_STATIC_ANALYSIS)
 endif()
 
 if(ENABLE_TESTS)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-  find_package(Catch2 REQUIRED)
-  include(AddCheckTest) # TODO delete file
+  find_package(GTest REQUIRED)
   enable_testing()
+  include(GoogleTest)
 endif()
 
 include(GNUInstallDirs)

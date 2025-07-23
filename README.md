@@ -6,7 +6,7 @@ All dependencies can be built via spack.
 ### Required
 - [Thallium](https://github.com/mochi-hpc/mochi-thallium)
 ### Optional
-- [Catch2](https://github.com/catchorg/Catch2) (for testing)
+- [GoogleTest](https://github.com/google/googletest) (for testing)
 
 ## Building
 Execute the following commands to build:

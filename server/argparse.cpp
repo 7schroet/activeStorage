@@ -31,7 +31,7 @@
   std::cerr << "\t--port:\t\t\tPick a port (default: 8080)\n";
   std::cerr << "\t--addressfile:\t\tPath to the file that contains the "
                "server's address (default: ./servername)\n";
-  exit(exit_code);
+  std::exit(exit_code);
 }
 
 /*static enum protocol string_to_protocol(char* protocol_string)*/
@@ -59,7 +59,7 @@ Config parse_args(int argc, char** argv)
       .address_file = "servername",
       .port = "8080"};
 
-  struct option options[] = {
+  const struct option options[] = {
       {"help", no_argument, NULL, 'h'},
       {"protocol", required_argument, NULL, 'p'},
       {"port", required_argument, NULL, 'o'},
@@ -68,7 +68,8 @@ Config parse_args(int argc, char** argv)
   };
 
   int opt = 0;
-  while ((opt = getopt_long(argc, argv, ":h", options, NULL)) != -1)
+  int index = 0;
+  while ((opt = getopt_long(argc, argv, ":h", options, &index)) != -1)
   {
     switch (opt)
     {
@@ -85,7 +86,8 @@ Config parse_args(int argc, char** argv)
       config.address_file = std::string(optarg);
       break;
     case ':':
-      fprintf(stderr, "Missing argument for %c, aborting\n", optopt);
+      // TODO match optopt to .val and get the long option
+      std::cerr << "Missing argument for -" << (char)optopt << ", aborting\n";
       usage(EXIT_FAILURE);
     case '?':
       fprintf(stderr, "Unknown option %s, aborting\n", argv[optind - 1]);
