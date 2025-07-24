@@ -33,8 +33,7 @@ protected:
   {
     // required because of how getopt works
     optind = 1;
-    // redirecting stderr to stdout because gtest suppresses stderr for some
-    // reason
+    // redirecting stderr to stdout because gtest suppresses stderr
     old_out = std::cerr.rdbuf();
     std::cerr.rdbuf(std::cout.rdbuf());
   }
@@ -143,39 +142,19 @@ TEST_F(ConfigTest, MissingArgDeathTest)
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
 
-} // namespace
+TEST_F(ConfigTest, UnknownProtocolDeathTest)
+{
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-server", "--protocol", "unknown"};
+  EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
+              testing::ExitedWithCode(EXIT_FAILURE), "");
+}
 
-/**/
-/*START_TEST(test_missing_arg)*/
-/*{*/
-/*  char* argv[6] = {"as-server",  "--port", "6666",*/
-/*                   "--protocol", "tcp",    "--addressfile"};*/
-/*  parse_args(6, argv);*/
-/*}*/
-/*END_TEST*/
-/**/
-/*START_TEST(test_unknown_protocol)*/
-/*{*/
-/*  char* argv[3] = {"as-server", "--protocol", "unknown"};*/
-/*  parse_args(3, argv);*/
-/*}*/
-/*END_TEST*/
-/**/
-/*START_TEST(test_unknown_option)*/
-/*{*/
-/*  char* argv[2] = {"as-server", "--unknown-opt"};*/
-/*  parse_args(2, argv);*/
-/*}*/
-/**/
-/*Suite* parser_suite(void)*/
-/*{*/
-/*  Suite* s = suite_create("Server Arg Parsing");*/
-/*  TCase* tc_success = tcase_create("Sucessful parses");*/
-/*  TCase* tc_failure = tcase_create("Failing parses");*/
-/**/
-/*  tcase_add_exit_test(tc_success, test_help, 0);*/
-/**/
-/*  tcase_add_exit_test(tc_failure, test_missing_arg, 1);*/
-/*  tcase_add_exit_test(tc_failure, test_unknown_protocol, 1);*/
-/*  tcase_add_exit_test(tc_failure, test_unknown_option, 1);*/
-/**/
+TEST_F(ConfigTest, UnknownOptionDeathTest)
+{
+  constexpr int argc = 2;
+  const char* argv[argc] = {"as-server", "--unknown-opt"};
+  EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
+              testing::ExitedWithCode(EXIT_FAILURE), "");
+}
+} // namespace

@@ -86,11 +86,11 @@ Config parse_args(int argc, char** argv)
       config.address_file = std::string(optarg);
       break;
     case ':':
-      // TODO match optopt to .val and get the long option
-      std::cerr << "Missing argument for -" << (char)optopt << ", aborting\n";
+      std::cerr << "Missing argument for " << argv[optind - 1]
+                << ", aborting\n";
       usage(EXIT_FAILURE);
     case '?':
-      fprintf(stderr, "Unknown option %s, aborting\n", argv[optind - 1]);
+      std::cerr << "Unknown option " << argv[optind - 1] << ", aborting\n";
       usage(EXIT_FAILURE);
     }
   }
