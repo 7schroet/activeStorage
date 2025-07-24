@@ -17,12 +17,21 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
-
 #include "as_rpc_engine.hpp"
-#include "as_rpc_protocols.hpp"
-#include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
+#include <thallium.hpp>
 
-#endif
+namespace as_rpc
+{
+
+Engine init_engine(const std::string& address, bool is_server)
+{
+  auto is_server_switch =
+      is_server ? THALLIUM_SERVER_MODE : THALLIUM_CLIENT_MODE;
+  return thallium::engine{address, is_server_switch};
+}
+
+void run_server(Engine& engine) { engine.wait_for_finalize(); }
+
+void stop_server(Engine& engine) { engine.finalize(); }
+
+} // namespace as_rpc

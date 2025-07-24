@@ -17,12 +17,28 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
+#ifndef AS_RPC_UTILS_HPP
+#define AS_RPC_UTILS_HPP
 
-#include "as_rpc_engine.hpp"
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
+#include <string>
+
+namespace as_rpc
+{
+
+/**
+ * Use this function to construct addresses for engine
+ * initialization. Don't try to build them on your own.
+ */
+std::string construct_address(Protocol protocol, const std::string& port);
+
+/**
+ * This function writes the address of a server to a file, so that
+ * clients can read the address to set up the communcation.
+ */
+void write_address_to_file(const Engine& engine, const std::string& filename);
+
+} // namespace as_rpc
 
 #endif

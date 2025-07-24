@@ -18,7 +18,6 @@
  */
 
 #include "../argparse.cpp"
-#include "as_rpc_protocols.hpp"
 #include "gtest/gtest.h"
 #include <cstdlib>
 #include <iostream>

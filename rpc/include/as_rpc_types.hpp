@@ -17,12 +17,16 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
+#ifndef AS_RPC_TYPES_HPP
+#define AS_RPC_TYPES_HPP
 
-#include "as_rpc_engine.hpp"
-#include "as_rpc_protocols.hpp"
-#include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
+#include <thallium.hpp>
+
+namespace as_rpc
+{
+// In case a switch to a different lib is necessary,
+// encase this in a #define and add the new option.
+using Engine = thallium::engine;
+} // namespace as_rpc
 
 #endif

@@ -17,12 +17,34 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
+#ifndef AS_RPC_ENGINE_HPP
+#define AS_RPC_ENGINE_HPP
 
-#include "as_rpc_engine.hpp"
-#include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
+
+namespace as_rpc
+{
+
+/**
+ * The address for the RPC engine should be constructed
+ * via as_rpc::construct_address(). If the engine is
+ * supposed to receive RPCs, acting as a server,
+ * call this function with is_server=true.
+ */
+Engine init_engine(const std::string& address, bool is_server);
+
+/**
+ * Once a server engine is done with the setup,
+ * call this function to keep the server online.
+ */
+void run_server(Engine& engine);
+
+/**
+ * Use this function to stop a running server,
+ * i.e. in a signal handler.
+ */
+void stop_server(Engine& engine);
+
+} // namespace as_rpc
 
 #endif

@@ -17,12 +17,23 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
-
-#include "as_rpc_engine.hpp"
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
+#include <format>
+#include <iostream>
 
-#endif
+namespace as_rpc
+{
+
+std::string construct_address(Protocol protocol, const std::string& port)
+{
+  std::string protocol_string = protocol_to_string(protocol);
+  return std::format("{}://:{}", protocol_string, port);
+}
+
+void write_address_to_file(const Engine& engine, const std::string& filename)
+{
+  std::cout << "Address is " << engine.self() << "\n";
+  std::cout << "Filename is " << filename << "\n";
+}
+} // namespace as_rpc

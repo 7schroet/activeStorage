@@ -18,18 +18,37 @@
  */
 
 #include "argparse.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <thallium.hpp>
+#include "as_rpc.hpp"
+#include <csignal>
 
-namespace tl = thallium;
+static as_rpc::Engine engine;
+
+static struct sigaction sa;
+void stop_handler(int signal)
+{
+  std::cout << "Received signal " << signal
+            << ", shutting down the server...\n";
+  as_rpc::stop_server(engine);
+}
+
+void setup_interrupt_handle()
+{
+  sa.sa_handler = stop_handler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGTERM, &sa, NULL);
+}
 
 int main(int argc, char** argv)
 {
   Config config = parse_args(argc, argv);
-  tl::engine myEngine("tcp", THALLIUM_SERVER_MODE);
-  std::cout << "Server running at address " << myEngine.self() << std::endl;
 
-  myEngine.wait_for_finalize();
-  exit(EXIT_SUCCESS);
+  std::string addr = as_rpc::construct_address(config.protocol, config.port);
+  engine = as_rpc::init_engine(addr, true);
+  as_rpc::write_address_to_file(engine, config.address_file);
+
+  setup_interrupt_handle();
+
+  as_rpc::run_server(engine);
 }
