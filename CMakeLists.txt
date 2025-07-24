@@ -3,7 +3,7 @@ project(ActiveStorage)
 
 option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_STATIC_ANALYSIS "Build with -fanalyzer (requires gcc)" OFF)
-option(ENABLE_TESTS "Build with tests enabled (requires Catch2)" OFF)
+option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
