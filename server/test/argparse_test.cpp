@@ -18,6 +18,7 @@
  */
 
 #include "../argparse.cpp"
+#include "as_rpc_protocols.hpp"
 #include "gtest/gtest.h"
 #include <cstdlib>
 #include <iostream>
@@ -57,7 +58,7 @@ static void assert_config_eq(const Config& expected, const Config& actual)
 TEST_F(ConfigTest, Default)
 {
   Config expected = {
-      .protocol = "tcp",
+      .protocol = as_rpc::Protocol::tcp,
       .address_file = "servername",
       .port = "8080",
   };
@@ -71,7 +72,7 @@ TEST_F(ConfigTest, Default)
 TEST_F(ConfigTest, PassPort)
 {
   Config expected = {
-      .protocol = "tcp",
+      .protocol = as_rpc::Protocol::tcp,
       .address_file = "servername",
       .port = "12345",
   };
@@ -85,7 +86,7 @@ TEST_F(ConfigTest, PassPort)
 TEST_F(ConfigTest, PassProtocol)
 {
   Config expected = {
-      .protocol = "verbs",
+      .protocol = as_rpc::Protocol::verbs,
       .address_file = "servername",
       .port = "8080",
   };
@@ -99,7 +100,7 @@ TEST_F(ConfigTest, PassProtocol)
 TEST_F(ConfigTest, PassAddress)
 {
   Config expected = {
-      .protocol = "tcp",
+      .protocol = as_rpc::Protocol::tcp,
       .address_file = "../filename",
       .port = "8080",
   };
@@ -113,7 +114,7 @@ TEST_F(ConfigTest, PassAddress)
 TEST_F(ConfigTest, PassAll)
 {
   Config expected = {
-      .protocol = "tcp",
+      .protocol = as_rpc::Protocol::tcp,
       .address_file = "file",
       .port = "6666",
   };

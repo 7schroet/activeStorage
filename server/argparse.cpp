@@ -18,7 +18,9 @@
  */
 
 #include "argparse.hpp"
+#include "as_rpc_protocols.hpp"
 #include <cstdlib>
+#include <exception>
 #include <getopt.h>
 #include <iostream>
 
@@ -34,30 +36,11 @@
   std::exit(exit_code);
 }
 
-/*static enum protocol string_to_protocol(char* protocol_string)*/
-/*{*/
-/*  if (strcmp(protocol_string, "tcp") == 0)*/
-/*  {*/
-/*    return tcp;*/
-/*  }*/
-/*  else if (strcmp(protocol_string, "verbs") == 0)*/
-/*  {*/
-/*    return verbs;*/
-/*  }*/
-/*  else*/
-/*  {*/
-/*    fprintf(stderr, "Unknown protocol %s\n", protocol_string);*/
-/*    usage(EXIT_FAILURE);*/
-/*  }*/
-/*}*/
-
 Config parse_args(int argc, char** argv)
 {
-  Config config{
-      /*.protocol = tcp, .address_file = "servername", .port = "8080"};*/
-      .protocol = "tcp",
-      .address_file = "servername",
-      .port = "8080"};
+  Config config{.protocol = as_rpc::Protocol::tcp,
+                .address_file = "servername",
+                .port = "8080"};
 
   const struct option options[] = {
       {"help", no_argument, NULL, 'h'},
@@ -76,8 +59,15 @@ Config parse_args(int argc, char** argv)
     case 'h':
       usage(EXIT_SUCCESS);
     case 'p':
-      /*config.protocol = string_to_protocol(optarg);*/
-      config.protocol = std::string(optarg);
+      try
+      {
+        config.protocol = as_rpc::string_to_protocol(optarg);
+      }
+      catch (const std::exception& e)
+      {
+        std::cerr << e.what();
+        usage(EXIT_FAILURE);
+      }
       break;
     case 'o':
       config.port = std::string(optarg);

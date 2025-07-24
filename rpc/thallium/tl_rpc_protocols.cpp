@@ -17,18 +17,36 @@
  * limitations under the License.
  */
 
-#ifndef ARGPARSE_HPP
-#define ARGPARSE_HPP
-
 #include "as_rpc_protocols.hpp"
+#include <format>
+#include <stdexcept>
 #include <string>
-struct Config
+
+namespace as_rpc
 {
-  as_rpc::Protocol protocol;
-  std::string address_file;
-  std::string port;
-};
 
-Config parse_args(int argc, char** argv);
+std::string protocol_to_string(Protocol protocol)
+{
+  static const std::string protocol_strings[] = {
+      FOREACH_PROT(GENERATE_PROT_STRING)};
+  return protocol_strings[protocol];
+}
 
-#endif
+enum Protocol string_to_protocol(const std::string& protocol_string)
+{
+  if (protocol_string == "tcp")
+  {
+    return tcp;
+  }
+  else if (protocol_string == "verbs")
+  {
+    return verbs;
+  }
+  else
+  {
+    throw std::runtime_error(
+        std::format("Unknown protocol '{}'\n", protocol_string));
+  }
+}
+
+} // namespace as_rpc

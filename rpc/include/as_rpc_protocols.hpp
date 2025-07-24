@@ -17,18 +17,30 @@
  * limitations under the License.
  */
 
-#ifndef ARGPARSE_HPP
-#define ARGPARSE_HPP
+#ifndef AS_RPC_PROTOCOLS_HPP
+#define AS_RPC_PROTOCOLS_HPP
 
-#include "as_rpc_protocols.hpp"
 #include <string>
-struct Config
+
+namespace as_rpc
 {
-  as_rpc::Protocol protocol;
-  std::string address_file;
-  std::string port;
+#define FOREACH_PROT(PROT)                                                     \
+  PROT(tcp)                                                                    \
+  PROT(verbs)
+
+#define GENERATE_PROT_ENUM(ENUM) ENUM,
+
+#define GENERATE_PROT_STRING(STRING) #STRING,
+
+enum Protocol
+{
+  FOREACH_PROT(GENERATE_PROT_ENUM)
 };
 
-Config parse_args(int argc, char** argv);
+std::string protocol_to_string(Protocol protocol);
+
+enum Protocol string_to_protocol(const std::string& protocol_string);
+
+} // namespace as_rpc
 
 #endif

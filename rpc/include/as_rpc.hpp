@@ -17,18 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef ARGPARSE_HPP
-#define ARGPARSE_HPP
+#ifndef AS_RPC_HPP
+#define AS_RPC_HPP
 
 #include "as_rpc_protocols.hpp"
-#include <string>
-struct Config
-{
-  as_rpc::Protocol protocol;
-  std::string address_file;
-  std::string port;
-};
 
-Config parse_args(int argc, char** argv);
+namespace as_rpc
+{
+
+void build_address(void);
+}
 
 #endif
