@@ -38,9 +38,7 @@
 
 Config parse_args(int argc, char** argv)
 {
-  Config config{.protocol = as_rpc::Protocol::tcp,
-                .address_file = "servername",
-                .port = "8080"};
+  Config config{};
 
   const struct option options[] = {
       {"help", no_argument, NULL, 'h'},

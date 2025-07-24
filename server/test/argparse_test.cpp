@@ -56,11 +56,7 @@ static void assert_config_eq(const Config& expected, const Config& actual)
 
 TEST_F(ConfigTest, Default)
 {
-  Config expected = {
-      .protocol = as_rpc::Protocol::tcp,
-      .address_file = "servername",
-      .port = "8080",
-  };
+  Config expected{};
 
   constexpr int argc = 1;
   const char* argv[argc] = {"as-server"};
@@ -70,11 +66,8 @@ TEST_F(ConfigTest, Default)
 
 TEST_F(ConfigTest, PassPort)
 {
-  Config expected = {
-      .protocol = as_rpc::Protocol::tcp,
-      .address_file = "servername",
-      .port = "12345",
-  };
+  Config expected{};
+  expected.port = "12345";
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--port", "12345"};
@@ -84,11 +77,8 @@ TEST_F(ConfigTest, PassPort)
 
 TEST_F(ConfigTest, PassProtocol)
 {
-  Config expected = {
-      .protocol = as_rpc::Protocol::verbs,
-      .address_file = "servername",
-      .port = "8080",
-  };
+  Config expected{};
+  expected.protocol = as_rpc::Protocol::verbs;
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--protocol", "verbs"};
@@ -98,11 +88,8 @@ TEST_F(ConfigTest, PassProtocol)
 
 TEST_F(ConfigTest, PassAddress)
 {
-  Config expected = {
-      .protocol = as_rpc::Protocol::tcp,
-      .address_file = "../filename",
-      .port = "8080",
-  };
+  Config expected{};
+  expected.address_file = "../filename";
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--addressfile", "../filename"};
@@ -112,11 +99,10 @@ TEST_F(ConfigTest, PassAddress)
 
 TEST_F(ConfigTest, PassAll)
 {
-  Config expected = {
-      .protocol = as_rpc::Protocol::tcp,
-      .address_file = "file",
-      .port = "6666",
-  };
+  Config expected{};
+  expected.protocol = as_rpc::Protocol::tcp;
+  expected.address_file = "file";
+  expected.port = "6666";
 
   constexpr int argc = 7;
   const char* argv[argc] = {"as-server", "--port",        "6666", "--protocol",

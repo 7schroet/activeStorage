@@ -27,6 +27,10 @@ struct Config
   as_rpc::Protocol protocol;
   std::string address_file;
   std::string port;
+
+  Config()
+      : protocol{as_rpc::Protocol::tcp}, address_file{"servername"},
+        port{"8080"} {};
 };
 
 Config parse_args(int argc, char** argv);
