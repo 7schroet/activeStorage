@@ -21,11 +21,12 @@
 #define ARGPARSE_HPP
 
 #include "as_rpc_protocols.hpp"
+#include <filesystem>
 #include <string>
 struct Config
 {
   as_rpc::Protocol protocol;
-  std::string address_file;
+  std::filesystem::path address_file;
   std::string port;
 
   Config()

@@ -68,10 +68,10 @@ Config parse_args(int argc, char** argv)
       }
       break;
     case 'o':
-      config.port = std::string(optarg);
+      config.port = optarg;
       break;
     case 'f':
-      config.address_file = std::string(optarg);
+      config.address_file = optarg;
       break;
     case ':':
       std::cerr << "Missing argument for " << argv[optind - 1]

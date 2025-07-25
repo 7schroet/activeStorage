@@ -19,7 +19,10 @@
 
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
+#include "as_rpc_utils.hpp"
+#include <cstdlib>
 #include <format>
+#include <fstream>
 #include <iostream>
 
 namespace as_rpc
@@ -31,9 +34,17 @@ std::string construct_address(Protocol protocol, const std::string& port)
   return std::format("{}://:{}", protocol_string, port);
 }
 
-void write_address_to_file(const Engine& engine, const std::string& filename)
+void write_address_to_file(const Engine& engine,
+                           const std::filesystem::path& filename)
 {
-  std::cout << "Address is " << engine.self() << "\n";
-  std::cout << "Filename is " << filename << "\n";
+  std::ofstream address_file{filename, std::ios_base::trunc};
+  if (!address_file.good())
+  {
+    std::cerr << "Could not write address to file " << filename
+              << ", aborting\n";
+    exit(EXIT_FAILURE);
+  }
+  address_file << engine.self();
+  address_file.close();
 }
 } // namespace as_rpc

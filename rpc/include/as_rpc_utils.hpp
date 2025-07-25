@@ -22,6 +22,7 @@
 
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
+#include <filesystem>
 #include <string>
 
 namespace as_rpc
@@ -37,7 +38,8 @@ std::string construct_address(Protocol protocol, const std::string& port);
  * This function writes the address of a server to a file, so that
  * clients can read the address to set up the communcation.
  */
-void write_address_to_file(const Engine& engine, const std::string& filename);
+void write_address_to_file(const Engine& engine,
+                           const std::filesystem::path& filename);
 
 } // namespace as_rpc
 
