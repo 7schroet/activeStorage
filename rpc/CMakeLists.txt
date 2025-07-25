@@ -7,3 +7,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries(as-rpc PRIVATE thallium_check_types)
 endif()
 install(TARGETS as-rpc)
+
+if(ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
