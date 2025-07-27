@@ -17,9 +17,27 @@
  * limitations under the License.
  */
 
-#ifndef FILE_WRITER_H
-#define FILE_WRITER_H
+#include "as_rpc_kernels.hpp"
+#include <thallium.hpp>
 
-void write_to_file(char* content, char* filename);
+namespace
+{
+void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
+} // namespace
 
-#endif
+namespace as_rpc
+{
+void register_kernels_at_server(Engine& engine)
+{
+  engine.define("hello", hello).disable_response();
+}
+
+RemoteProcedures register_kernels_at_client(Engine& engine)
+{
+  RemoteProcedures res{};
+  const std::string name{"hello"};
+  auto hello = engine.define(name).disable_response();
+  res.emplace(name, hello);
+  return res;
+}
+} // namespace as_rpc

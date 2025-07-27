@@ -17,33 +17,23 @@
  * limitations under the License.
  */
 
-#include "file_writer.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef ARGPARSE_HPP
+#define ARGPARSE_HPP
 
-void write_to_file(char* content, char* filename)
+#include "as_rpc_protocols.hpp"
+#include <filesystem>
+#include <string>
+struct Config
 {
-  assert(filename);
-  assert(content);
+  as_rpc::Protocol protocol;
+  std::filesystem::path address_file;
+  std::string port;
 
-  FILE* fd = fopen(filename, "w");
-  if (!fd)
-  {
-    fprintf(stderr, "fopen failed for %s, aborting!\n", filename);
-    exit(EXIT_FAILURE);
-  }
+  Config()
+      : protocol{as_rpc::Protocol::tcp}, address_file{"servername"},
+        port{"8080"} {};
+};
 
-  unsigned long length = strlen(content);
-  size_t ret = fwrite(content, sizeof(char), length, fd);
-  if (ret != length)
-  {
-    fprintf(stderr,
-            "Write to %s failed, wrote %zu, but expected %ld, aborting!\n",
-            filename, ret, length);
-    exit(EXIT_FAILURE);
-  }
+Config parse_args(int argc, char** argv);
 
-  fclose(fd);
-}
+#endif

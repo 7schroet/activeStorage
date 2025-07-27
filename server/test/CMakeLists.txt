@@ -1,4 +1,3 @@
-add_check_test(NAME argparse_test
-  SOURCES argparse_test.c
-  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/rpc/include"
-)
+add_executable(server_argparse_test argparse_test.cpp)
+target_link_libraries(server_argparse_test GTest::gtest_main as-rpc)
+gtest_discover_tests(server_argparse_test)

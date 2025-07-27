@@ -17,18 +17,20 @@
  * limitations under the License.
  */
 
-#ifndef ARGPARSE_H
-#define ARGPARSE_H
+#ifndef ARGPARSE_HPP
+#define ARGPARSE_HPP
 
-#include "rpc.h"
-
-typedef struct config
+#include "as_rpc_protocols.hpp"
+#include <filesystem>
+struct Config
 {
-  enum protocol protocol;
-  char* address_file;
-  char* port;
-} config;
+  as_rpc::Protocol protocol;
+  std::filesystem::path server_address_file;
 
-config parse_args(int argc, char** argv);
+  Config()
+      : protocol{as_rpc::Protocol::tcp}, server_address_file{"servername"} {};
+};
+
+Config parse_args(int argc, char** argv);
 
 #endif

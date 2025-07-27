@@ -2,10 +2,11 @@
 yes
 
 ## Dependencies
+All dependencies can be built via spack.
 ### Required
-- [Mercury](https://github.com/mercury-hpc/mercury)
+- [Thallium](https://github.com/mochi-hpc/mochi-thallium)
 ### Optional
-- [libcheck](https://libcheck.github.io/check/) (for testing)
+- [GoogleTest](https://github.com/google/googletest) (for testing)
 
 ## Building
 Execute the following commands to build:

@@ -17,31 +17,27 @@
  * limitations under the License.
  */
 
-#include "rpc.h"
-#include <stdlib.h>
-
-char* read_server_address_from_file(const char* const path)
-{
-  return "DUMMY ADDRESS TODO";
-}
+#include "argparse.hpp"
+#include "as_rpc.hpp"
 
 int main(int argc, char** argv)
 {
-  rpc_handle* handle = NULL;
-  char* address = rpc_initialize_address(tcp, "1234");
+  Config config = parse_args(argc, argv);
+  const std::string client_address =
+      as_rpc::protocol_to_string(config.protocol);
 
-  rpc_init(&handle, address, false);
-  free(address);
-  rpc_address_to_file(handle, "clientname");
+  as_rpc::Engine engine = as_rpc::init_engine(client_address, false);
+  as_rpc::RemoteProcedures rpc_kernels =
+      as_rpc::register_kernels_at_client(engine);
 
-  rpc_register_kernels(handle);
+  const std::string server_address =
+      as_rpc::get_address_from_file(config.server_address_file);
+  as_rpc::ServerEndpoint server =
+      as_rpc::connect_to_server(engine, server_address);
 
-  char* name = rpc_register_kernels(handle);
-  char* server = read_server_address_from_file("DUMMY PATH ARG PARSE REQUIRED");
-
-  rpc_send_rpc(handle, name, server);
-
-  rpc_finalize(handle);
-
-  return EXIT_SUCCESS;
+  auto search = rpc_kernels.find("hello");
+  if (search != rpc_kernels.end())
+  {
+    search->second.on(server)();
+  }
 }
