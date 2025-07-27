@@ -80,4 +80,18 @@ TEST_F(ServerTest, AddressFileCorrect)
   std::filesystem::remove(filename);
 }
 
+TEST_F(ServerTest, ClientCanConnect)
+{
+  std::filesystem::path filename{std::tmpnam(nullptr)};
+  as_rpc::write_address_to_file(engine, filename);
+
+  std::string protocol_str = as_rpc::protocol_to_string(protocol);
+  as_rpc::Engine client_engine = as_rpc::init_engine(protocol_str, false);
+  const std::string server_address = as_rpc::get_address_from_file(filename);
+  as_rpc::ServerEndpoint server =
+      as_rpc::connect_to_server(engine, server_address);
+
+  std::filesystem::remove(filename);
+}
+
 } // namespace
