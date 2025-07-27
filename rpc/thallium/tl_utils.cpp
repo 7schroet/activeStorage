@@ -45,6 +45,5 @@ void write_address_to_file(const Engine& engine,
     exit(EXIT_FAILURE);
   }
   address_file << engine.self();
-  address_file.close();
 }
 } // namespace as_rpc
