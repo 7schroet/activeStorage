@@ -17,34 +17,25 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_UTILS_HPP
-#define AS_RPC_UTILS_HPP
+#ifndef AS_RPC_KERNELS_HPP
+#define AS_RPC_KERNELS_HPP
 
-#include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
-#include <filesystem>
-#include <string>
+#include <thallium.hpp>
 
 namespace as_rpc
 {
+/**
+ * Servers need to call this at some point
+ * before starting the main loop.
+ */
+void register_kernels_at_server(Engine& engine);
 
 /**
- * Constructs addresses for engine initialization.
- * Don't try to build them on your own.
+ * Clients must call this function instead to
+ * get access to the RPCs on the server.
  */
-std::string construct_address(Protocol protocol, const std::string& port);
-
-/**
- * Writes the address of a server to a file. Use this in tandem with the reader
- * function to communicate the addresses properly between server and client.
- */
-void write_address_to_file(const Engine& engine,
-                           const std::filesystem::path& filename);
-
-/**
- * Corresponding reader function.
- */
-std::string get_address_from_file(const std::filesystem::path& filename);
+RemoteProcedures register_kernels_at_client(Engine& engine);
 } // namespace as_rpc
 
 #endif

@@ -17,34 +17,20 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_UTILS_HPP
-#define AS_RPC_UTILS_HPP
+#ifndef ARGPARSE_HPP
+#define ARGPARSE_HPP
 
 #include "as_rpc_protocols.hpp"
-#include "as_rpc_types.hpp"
 #include <filesystem>
-#include <string>
-
-namespace as_rpc
+struct Config
 {
+  as_rpc::Protocol protocol;
+  std::filesystem::path server_address_file;
 
-/**
- * Constructs addresses for engine initialization.
- * Don't try to build them on your own.
- */
-std::string construct_address(Protocol protocol, const std::string& port);
+  Config()
+      : protocol{as_rpc::Protocol::tcp}, server_address_file{"servername"} {};
+};
 
-/**
- * Writes the address of a server to a file. Use this in tandem with the reader
- * function to communicate the addresses properly between server and client.
- */
-void write_address_to_file(const Engine& engine,
-                           const std::filesystem::path& filename);
-
-/**
- * Corresponding reader function.
- */
-std::string get_address_from_file(const std::filesystem::path& filename);
-} // namespace as_rpc
+Config parse_args(int argc, char** argv);
 
 #endif

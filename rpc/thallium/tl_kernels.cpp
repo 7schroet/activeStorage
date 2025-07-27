@@ -17,27 +17,27 @@
  * limitations under the License.
  */
 
-#include "as_rpc_engine.hpp"
+#include "as_rpc_kernels.hpp"
 #include <thallium.hpp>
+
+namespace
+{
+void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
+} // namespace
 
 namespace as_rpc
 {
-
-Engine init_engine(const std::string& address, bool is_server)
+void register_kernels_at_server(Engine& engine)
 {
-  auto is_server_switch =
-      is_server ? THALLIUM_SERVER_MODE : THALLIUM_CLIENT_MODE;
-  return thallium::engine{address, is_server_switch};
+  engine.define("hello", hello).disable_response();
 }
 
-void run_server(Engine& engine) { engine.wait_for_finalize(); }
-
-void stop_server(Engine& engine) { engine.finalize(); }
-
-ServerEndpoint connect_to_server(Engine& engine,
-                                 const std::string& server_address)
+RemoteProcedures register_kernels_at_client(Engine& engine)
 {
-  return engine.lookup(server_address);
+  RemoteProcedures res{};
+  const std::string name{"hello"};
+  auto hello = engine.define(name).disable_response();
+  res.emplace(name, hello);
+  return res;
 }
-
 } // namespace as_rpc

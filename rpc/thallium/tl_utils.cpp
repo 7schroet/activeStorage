@@ -46,4 +46,11 @@ void write_address_to_file(const Engine& engine,
   }
   address_file << engine.self();
 }
+
+std::string get_address_from_file(const std::filesystem::path& filename)
+{
+  std::ifstream address_file{filename};
+  return {std::istreambuf_iterator<char>(address_file),
+          std::istreambuf_iterator<char>()};
+}
 } // namespace as_rpc

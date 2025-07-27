@@ -26,7 +26,7 @@
 namespace
 {
 
-class ServerConfigTest : public testing::Test
+class ClientConfigTest : public testing::Test
 {
 protected:
   void SetUp() override
@@ -49,97 +49,84 @@ protected:
 
 static void assert_config_eq(const Config& expected, const Config& actual)
 {
-  EXPECT_EQ(expected.address_file, actual.address_file);
-  EXPECT_EQ(expected.port, actual.port);
+  EXPECT_EQ(expected.server_address_file, actual.server_address_file);
   EXPECT_EQ(expected.protocol, actual.protocol);
 }
 
-TEST_F(ServerConfigTest, Default)
+TEST_F(ClientConfigTest, Default)
 {
   Config expected{};
 
   constexpr int argc = 1;
-  const char* argv[argc] = {"as-server"};
+  const char* argv[argc] = {"as-client"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
-TEST_F(ServerConfigTest, PassPort)
-{
-  Config expected{};
-  expected.port = "12345";
-
-  constexpr int argc = 3;
-  const char* argv[argc] = {"as-server", "--port", "12345"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
-  assert_config_eq(expected, actual);
-}
-
-TEST_F(ServerConfigTest, PassProtocol)
+TEST_F(ClientConfigTest, PassProtocol)
 {
   Config expected{};
   expected.protocol = as_rpc::Protocol::verbs;
 
   constexpr int argc = 3;
-  const char* argv[argc] = {"as-server", "--protocol", "verbs"};
+  const char* argv[argc] = {"as-client", "--protocol", "verbs"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
-TEST_F(ServerConfigTest, PassAddress)
+TEST_F(ClientConfigTest, PassAddress)
 {
   Config expected{};
-  expected.address_file = "../filename";
+  expected.server_address_file = "../filename";
 
   constexpr int argc = 3;
-  const char* argv[argc] = {"as-server", "--addressfile", "../filename"};
+  const char* argv[argc] = {"as-client", "--addressfile", "../filename"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
-TEST_F(ServerConfigTest, PassAll)
+TEST_F(ClientConfigTest, PassAll)
 {
   Config expected{};
   expected.protocol = as_rpc::Protocol::tcp;
-  expected.address_file = "file";
-  expected.port = "6666";
+  expected.server_address_file = "file";
 
-  constexpr int argc = 7;
-  const char* argv[argc] = {"as-server", "--port",        "6666", "--protocol",
-                            "tcp",       "--addressfile", "file"};
+  constexpr int argc = 5;
+  const char* argv[argc] = {"as-client", "--protocol", "tcp", "--addressfile",
+                            "file"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
-TEST_F(ServerConfigTest, HelpDeathTest)
+TEST_F(ClientConfigTest, HelpDeathTest)
 {
   constexpr int argc = 2;
-  const char* argv[argc] = {"as-server", "--help"};
+  const char* argv[argc] = {"as-client", "--help"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_SUCCESS), "");
 }
 
-TEST_F(ServerConfigTest, MissingArgDeathTest)
+TEST_F(ClientConfigTest, MissingArgDeathTest)
 {
-  constexpr int argc = 6;
-  const char* argv[argc] = {"as-server",  "--port", "6666",
-                            "--protocol", "tcp",    "--addressfile"};
+  constexpr int argc = 4;
+  const char* argv[argc] = {"as-client", "--protocol", "--addressfile",
+                            "long/file/path"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
 
-TEST_F(ServerConfigTest, UnknownProtocolDeathTest)
+TEST_F(ClientConfigTest, UnknownProtocolDeathTest)
 {
   constexpr int argc = 3;
-  const char* argv[argc] = {"as-server", "--protocol", "unknown"};
+  const char* argv[argc] = {"as-client", "--protocol", "unknown"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
 
-TEST_F(ServerConfigTest, UnknownOptionDeathTest)
+TEST_F(ClientConfigTest, UnknownOptionDeathTest)
 {
   constexpr int argc = 2;
-  const char* argv[argc] = {"as-server", "--unknown-opt"};
+  const char* argv[argc] = {"as-client", "--unknown-opt"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }

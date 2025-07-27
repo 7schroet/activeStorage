@@ -19,37 +19,25 @@
 
 #include "argparse.hpp"
 #include "as_rpc.hpp"
-#include <csignal>
-
-static as_rpc::Engine engine;
-static struct sigaction sa;
-
-void stop_handler(int signal)
-{
-  std::cout << "Received signal " << signal
-            << ", shutting down the server...\n";
-  as_rpc::stop_server(engine);
-}
-
-void setup_interrupt_handle()
-{
-  sa.sa_handler = stop_handler;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGTERM, &sa, NULL);
-}
 
 int main(int argc, char** argv)
 {
   Config config = parse_args(argc, argv);
+  const std::string client_address =
+      as_rpc::protocol_to_string(config.protocol);
 
-  std::string addr = as_rpc::construct_address(config.protocol, config.port);
-  engine = as_rpc::init_engine(addr, true);
-  as_rpc::write_address_to_file(engine, config.address_file);
+  as_rpc::Engine engine = as_rpc::init_engine(client_address, false);
+  as_rpc::RemoteProcedures rpc_kernels =
+      as_rpc::register_kernels_at_client(engine);
 
-  setup_interrupt_handle();
-  as_rpc::register_kernels_at_server(engine);
+  const std::string server_address =
+      as_rpc::get_address_from_file(config.server_address_file);
+  as_rpc::ServerEndpoint server =
+      as_rpc::connect_to_server(engine, server_address);
 
-  as_rpc::run_server(engine);
+  auto search = rpc_kernels.find("hello");
+  if (search != rpc_kernels.end())
+  {
+    search->second.on(server)();
+  }
 }

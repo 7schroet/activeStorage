@@ -21,6 +21,7 @@
 #define AS_RPC_HPP
 
 #include "as_rpc_engine.hpp"
+#include "as_rpc_kernels.hpp"
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
 #include "as_rpc_utils.hpp"

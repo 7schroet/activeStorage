@@ -1,0 +1,3 @@
+add_executable(client_argparse_test argparse_test.cpp)
+target_link_libraries(client_argparse_test GTest::gtest_main as-rpc)
+gtest_discover_tests(client_argparse_test)

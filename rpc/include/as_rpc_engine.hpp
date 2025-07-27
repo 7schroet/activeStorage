@@ -45,6 +45,13 @@ void run_server(Engine& engine);
  */
 void stop_server(Engine& engine);
 
+/**
+ * The client must call this prior to issuing
+ * any RPCs to the server.
+ */
+ServerEndpoint connect_to_server(Engine& engine,
+                                 const std::string& server_address);
+
 } // namespace as_rpc
 
 #endif
