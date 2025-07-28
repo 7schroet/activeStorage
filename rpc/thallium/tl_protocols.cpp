@@ -21,26 +21,26 @@
 #include <format>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace as_rpc
 {
 
 std::string protocol_to_string(Protocol protocol)
 {
-  static const std::string protocol_strings[] = {
-      FOREACH_PROT(GENERATE_PROT_STRING)};
-  return protocol_strings[protocol];
+  static const std::string protocol_strings[] = {FOREACH_PROT(GENERATE_STRING)};
+  return protocol_strings[std::to_underlying(protocol)];
 }
 
-enum Protocol string_to_protocol(const std::string& protocol_string)
+Protocol string_to_protocol(const std::string& protocol_string)
 {
   if (protocol_string == "tcp")
   {
-    return tcp;
+    return Protocol::tcp;
   }
   else if (protocol_string == "verbs")
   {
-    return verbs;
+    return Protocol::verbs;
   }
   else
   {

@@ -30,6 +30,8 @@ namespace as_rpc
  * via as_rpc::construct_address(). If the engine is
  * supposed to receive RPCs, acting as a server,
  * call this function with is_server=true.
+ * If the engine is exclusively a client, the address
+ * only needs to a stringified version of the protocol.
  */
 Engine init_engine(const std::string& address, bool is_server);
 

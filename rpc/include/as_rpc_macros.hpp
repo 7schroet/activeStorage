@@ -17,27 +17,10 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_PROTOCOLS_HPP
-#define AS_RPC_PROTOCOLS_HPP
+/**
+ * For the generation of enums and a corresponding string
+ * representation
+ */
+#define GENERATE_ENUM(ENUM) ENUM,
 
-#include "as_rpc_macros.hpp"
-#include <string>
-
-namespace as_rpc
-{
-#define FOREACH_PROT(PROT)                                                     \
-  PROT(tcp)                                                                    \
-  PROT(verbs)
-
-enum class Protocol
-{
-  FOREACH_PROT(GENERATE_ENUM)
-};
-
-std::string protocol_to_string(Protocol protocol);
-
-Protocol string_to_protocol(const std::string& protocol_string);
-
-} // namespace as_rpc
-
-#endif
+#define GENERATE_STRING(STRING) #STRING,
