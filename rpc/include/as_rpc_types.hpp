@@ -20,17 +20,20 @@
 #ifndef AS_RPC_TYPES_HPP
 #define AS_RPC_TYPES_HPP
 
-#include <string>
 #include <thallium.hpp>
 #include <unordered_map>
 
 namespace as_rpc
 {
+
+enum class Kernel
+{
+  hello
+};
 // In case a switch to a different lib is necessary,
 // encase this in a #define and add the new option.
 using Engine = thallium::engine;
-using RemoteProcedures =
-    std::unordered_map<std::string, thallium::remote_procedure>;
+using RemoteProcedures = std::unordered_map<Kernel, thallium::remote_procedure>;
 using ServerEndpoint = thallium::endpoint;
 } // namespace as_rpc
 

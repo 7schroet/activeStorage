@@ -35,9 +35,8 @@ void register_kernels_at_server(Engine& engine)
 RemoteProcedures register_kernels_at_client(Engine& engine)
 {
   RemoteProcedures res{};
-  const std::string name{"hello"};
-  auto hello = engine.define(name).disable_response();
-  res.emplace(std::move(name), std::move(hello));
+  auto hello = engine.define("hello").disable_response();
+  res.emplace(Kernel::hello, std::move(hello));
   return res;
 }
 } // namespace as_rpc

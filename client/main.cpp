@@ -35,7 +35,7 @@ int main(int argc, char** argv)
   as_rpc::ServerEndpoint server =
       as_rpc::connect_to_server(engine, server_address);
 
-  auto search = rpc_kernels.find("hello");
+  auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {
     search->second.on(server)();
