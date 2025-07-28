@@ -20,15 +20,18 @@
 #ifndef AS_RPC_TYPES_HPP
 #define AS_RPC_TYPES_HPP
 
+#include "as_rpc_macros.hpp"
 #include <thallium.hpp>
 #include <unordered_map>
+
+#define FOREACH_KERNEL(KERNEL) KERNEL(hello)
 
 namespace as_rpc
 {
 
 enum class Kernel
 {
-  hello
+  FOREACH_KERNEL(GENERATE_ENUM)
 };
 // In case a switch to a different lib is necessary,
 // encase this in a #define and add the new option.
