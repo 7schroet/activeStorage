@@ -24,14 +24,14 @@
 #include <thallium.hpp>
 #include <unordered_map>
 
-#define FOREACH_KERNEL(KERNEL) KERNEL(hello)
+#define ASRPC_FOREACH_KERNEL(KERNEL) KERNEL(hello)
 
 namespace as_rpc
 {
 
 enum class Kernel
 {
-  FOREACH_KERNEL(GENERATE_ENUM)
+  ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_ENUM)
 };
 // In case a switch to a different lib is necessary,
 // encase this in a #define and add the new option.

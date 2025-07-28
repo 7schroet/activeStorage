@@ -32,7 +32,8 @@ void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
  */
 std::string kernel_to_string(as_rpc::Kernel kernel)
 {
-  static const std::string kernel_strings[] = {FOREACH_KERNEL(GENERATE_STRING)};
+  static const std::string kernel_strings[] = {
+      ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
   return kernel_strings[std::to_underlying(kernel)];
 }
 } // namespace

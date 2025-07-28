@@ -28,7 +28,8 @@ namespace as_rpc
 
 std::string protocol_to_string(Protocol protocol)
 {
-  static const std::string protocol_strings[] = {FOREACH_PROT(GENERATE_STRING)};
+  static const std::string protocol_strings[] = {
+      ASRPC_FOREACH_PROT(ASRPC_GENERATE_STRING)};
   return protocol_strings[std::to_underlying(protocol)];
 }
 

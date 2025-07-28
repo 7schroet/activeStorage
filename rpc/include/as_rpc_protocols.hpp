@@ -23,15 +23,16 @@
 #include "as_rpc_macros.hpp"
 #include <string>
 
-namespace as_rpc
-{
-#define FOREACH_PROT(PROT)                                                     \
+#define ASRPC_FOREACH_PROT(PROT)                                               \
   PROT(tcp)                                                                    \
   PROT(verbs)
 
+namespace as_rpc
+{
+
 enum class Protocol
 {
-  FOREACH_PROT(GENERATE_ENUM)
+  ASRPC_FOREACH_PROT(ASRPC_GENERATE_ENUM)
 };
 
 std::string protocol_to_string(Protocol protocol);

@@ -21,6 +21,6 @@
  * For the generation of enums and a corresponding string
  * representation
  */
-#define GENERATE_ENUM(ENUM) ENUM,
+#define ASRPC_GENERATE_ENUM(ENUM) ENUM,
 
-#define GENERATE_STRING(STRING) #STRING,
+#define ASRPC_GENERATE_STRING(STRING) #STRING,
