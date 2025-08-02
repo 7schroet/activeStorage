@@ -19,6 +19,42 @@
 
 #include "argparse.hpp"
 #include "as_rpc.hpp"
+#include <cstdlib>
+#include <hdf5.h>
+#include <iostream>
+
+#define H5ERROR_CHECK(func)                                                    \
+  do                                                                           \
+  {                                                                            \
+    herr_t err = (func);                                                       \
+    if (err < 0)                                                               \
+    {                                                                          \
+      std::cout << "Error in HDF5 function call at " << __LINE__ << " in "     \
+                << __FILE__ << ", aborting\n";                                 \
+      exit(EXIT_FAILURE);                                                      \
+    }                                                                          \
+  } while (0)
+
+void do_hdf5_stuff(void)
+{
+  hid_t file = H5Fcreate("file.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+  constexpr unsigned rank = 3;
+  constexpr hsize_t dims[rank] = {1, 10, 10};
+  constexpr hsize_t max_dims[rank] = {H5S_UNLIMITED, 10, 10};
+
+  auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
+  H5ERROR_CHECK(H5Pset_chunk(dcpl, rank, dims));
+
+  auto dspace = H5Screate_simple(rank, dims, max_dims);
+  auto dset = H5Dcreate(file, "/dataset", H5T_NATIVE_DOUBLE, dspace,
+                        H5P_DEFAULT, dcpl, H5P_DEFAULT);
+
+  H5ERROR_CHECK(H5Pclose(dcpl));
+  H5ERROR_CHECK(H5Dclose(dset));
+  H5ERROR_CHECK(H5Sclose(dspace));
+  H5ERROR_CHECK(H5Fclose(file));
+}
 
 int main(int argc, char** argv)
 {
@@ -35,6 +71,7 @@ int main(int argc, char** argv)
   as_rpc::ServerEndpoint server =
       as_rpc::connect_to_server(engine, server_address);
 
+  do_hdf5_stuff();
   auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {

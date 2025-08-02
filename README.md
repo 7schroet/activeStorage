@@ -5,6 +5,7 @@ yes
 All dependencies can be built via spack.
 ### Required
 - [Thallium](https://github.com/mochi-hpc/mochi-thallium)
+- [HDF5](https://github.com/HDFGroup/hdf5)
 ### Optional
 - [GoogleTest](https://github.com/google/googletest)
 
