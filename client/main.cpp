@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <hdf5.h>
 #include <iostream>
+#include <memory>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -35,7 +36,9 @@
     }                                                                          \
   } while (0)
 
-void do_hdf5_stuff(void)
+#define DSET_NAME "/dataset"
+
+hid_t create_file(void)
 {
   hid_t file = H5Fcreate("file.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -47,13 +50,39 @@ void do_hdf5_stuff(void)
   H5ERROR_CHECK(H5Pset_chunk(dcpl, rank, dims));
 
   auto dspace = H5Screate_simple(rank, dims, max_dims);
-  auto dset = H5Dcreate(file, "/dataset", H5T_NATIVE_DOUBLE, dspace,
-                        H5P_DEFAULT, dcpl, H5P_DEFAULT);
+  auto dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace, H5P_DEFAULT,
+                        dcpl, H5P_DEFAULT);
 
   H5ERROR_CHECK(H5Pclose(dcpl));
   H5ERROR_CHECK(H5Dclose(dset));
   H5ERROR_CHECK(H5Sclose(dspace));
-  H5ERROR_CHECK(H5Fclose(file));
+  return file;
+}
+
+void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
+
+void add_timestep(hid_t file)
+{
+  auto dset = H5Dopen2(file, DSET_NAME, H5P_DEFAULT);
+  H5ERROR_CHECK(dset);
+  auto dspace = H5Dget_space(dset);
+  H5ERROR_CHECK(dspace);
+
+  auto ndims = H5Sget_simple_extent_ndims(dspace);
+  H5ERROR_CHECK(ndims);
+  auto dims = std::make_unique<hsize_t[]>(ndims);
+  H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims.get(), nullptr));
+
+  dims.get()[0]++;
+  H5ERROR_CHECK(H5Dset_extent(dset, dims.get()));
+
+  // dspace must be reopened according to docs
+  H5ERROR_CHECK(H5Sclose(dspace));
+  dspace = H5Dget_space(dset);
+  H5ERROR_CHECK(dspace);
+
+  H5ERROR_CHECK(H5Dclose(dset));
+  return;
 }
 
 int main(int argc, char** argv)
@@ -71,7 +100,10 @@ int main(int argc, char** argv)
   as_rpc::ServerEndpoint server =
       as_rpc::connect_to_server(engine, server_address);
 
-  do_hdf5_stuff();
+  auto file = create_file();
+  add_timestep(file);
+  close_file(file);
+
   auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {
