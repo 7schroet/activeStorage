@@ -21,7 +21,6 @@
 #define AS_RPC_KERNELS_HPP
 
 #include "as_rpc_types.hpp"
-#include <thallium.hpp>
 
 namespace as_rpc
 {
