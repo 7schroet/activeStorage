@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <hdf5.h>
 #include <iostream>
+#include <string>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -64,25 +65,27 @@ void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 
 void add_timestep(hid_t file)
 {
+  static int current_timestep = 0;
   auto dset = H5Dopen2(file, DSET_NAME, H5P_DEFAULT);
   H5ERROR_CHECK(dset);
   auto dspace = H5Dget_space(dset);
   H5ERROR_CHECK(dspace);
 
-  hsize_t dims[RANK];
-  H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
-
-  dims[0]++;
-  H5ERROR_CHECK(H5Dset_extent(dset, dims));
-
-  // dspace must be reopened according to docs
-  H5ERROR_CHECK(H5Sclose(dspace));
-  dspace = H5Dget_space(dset);
-  H5ERROR_CHECK(dspace);
+  if (current_timestep != 0)
+  {
+    hsize_t dims[RANK];
+    H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
+    dims[0]++;
+    H5ERROR_CHECK(H5Dset_extent(dset, dims));
+    // dspace must be reopened according to docs
+    H5ERROR_CHECK(H5Sclose(dspace));
+    dspace = H5Dget_space(dset);
+    H5ERROR_CHECK(dspace);
+  }
 
   constexpr hsize_t count[RANK] = {1, DSET_X, DSET_Y};
   hsize_t offset[RANK] = {0, 0, 0};
-  offset[0] = dims[0] - 1;
+  offset[0] = current_timestep;
   H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
                                     count, nullptr));
 
@@ -90,7 +93,7 @@ void add_timestep(hid_t file)
   for (auto i = 0; i < DSET_X; i++)
   {
     for (auto j = 0; j < DSET_Y; j++)
-      data[i * DSET_Y + j] = 1.0 * offset[0];
+      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0;
   }
 
   auto memspace = H5Screate_simple(RANK, count, nullptr);
@@ -102,6 +105,7 @@ void add_timestep(hid_t file)
   H5ERROR_CHECK(H5Sclose(dspace));
   H5ERROR_CHECK(H5Sclose(memspace));
   H5ERROR_CHECK(H5Dclose(dset));
+  current_timestep++;
 }
 
 int main(int argc, char** argv)
@@ -126,6 +130,14 @@ int main(int argc, char** argv)
   }
 
   auto file = create_file();
-  add_timestep(file);
+  std::cout << "Press Enter to write a new time step, or Ctrl+D to terminate\n";
+  auto count = 0;
+  for (std::string in; std::getline(std::cin, in);)
+  {
+    add_timestep(file);
+    std::cout << "Appended time step " << count << "\n";
+    count++;
+  }
+  std::cout << "Terminating...\n";
   close_file(file);
 }
