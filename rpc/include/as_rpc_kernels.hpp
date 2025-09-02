@@ -35,7 +35,7 @@ void register_kernels_at_server(Engine& engine);
  * Clients must call this function instead to
  * get access to the RPCs on the server.
  */
-RemoteProcedures register_kernels_at_client(Engine& engine);
+const RemoteProcedures register_kernels_at_client(Engine& engine);
 } // namespace as_rpc
 
 #endif

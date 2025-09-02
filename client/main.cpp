@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include <hdf5.h>
 #include <iostream>
-#include <memory>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -37,19 +36,21 @@
   } while (0)
 
 #define DSET_NAME "/dataset"
+#define RANK 3
+#define DSET_X 10
+#define DSET_Y 10
 
 hid_t create_file(void)
 {
   hid_t file = H5Fcreate("file.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-  constexpr unsigned rank = 3;
-  constexpr hsize_t dims[rank] = {1, 10, 10};
-  constexpr hsize_t max_dims[rank] = {H5S_UNLIMITED, 10, 10};
+  constexpr hsize_t dims[RANK] = {1, DSET_X, DSET_Y};
+  constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
 
   auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
-  H5ERROR_CHECK(H5Pset_chunk(dcpl, rank, dims));
+  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims));
 
-  auto dspace = H5Screate_simple(rank, dims, max_dims);
+  auto dspace = H5Screate_simple(RANK, dims, max_dims);
   auto dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace, H5P_DEFAULT,
                         dcpl, H5P_DEFAULT);
 
@@ -68,21 +69,39 @@ void add_timestep(hid_t file)
   auto dspace = H5Dget_space(dset);
   H5ERROR_CHECK(dspace);
 
-  auto ndims = H5Sget_simple_extent_ndims(dspace);
-  H5ERROR_CHECK(ndims);
-  auto dims = std::make_unique<hsize_t[]>(ndims);
-  H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims.get(), nullptr));
+  hsize_t dims[RANK];
+  H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
 
-  dims.get()[0]++;
-  H5ERROR_CHECK(H5Dset_extent(dset, dims.get()));
+  dims[0]++;
+  H5ERROR_CHECK(H5Dset_extent(dset, dims));
 
   // dspace must be reopened according to docs
   H5ERROR_CHECK(H5Sclose(dspace));
   dspace = H5Dget_space(dset);
   H5ERROR_CHECK(dspace);
 
+  constexpr hsize_t count[RANK] = {1, DSET_X, DSET_Y};
+  hsize_t offset[RANK] = {0, 0, 0};
+  offset[0] = dims[0] - 1;
+  H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
+                                    count, nullptr));
+
+  double data[DSET_X * DSET_Y];
+  for (auto i = 0; i < DSET_X; i++)
+  {
+    for (auto j = 0; j < DSET_Y; j++)
+      data[i * DSET_Y + j] = 1.0 * offset[0];
+  }
+
+  auto memspace = H5Screate_simple(RANK, count, nullptr);
+  H5ERROR_CHECK(memspace);
+
+  H5ERROR_CHECK(
+      H5Dwrite(dset, H5T_NATIVE_DOUBLE, memspace, dspace, H5P_DEFAULT, data));
+
+  H5ERROR_CHECK(H5Sclose(dspace));
+  H5ERROR_CHECK(H5Sclose(memspace));
   H5ERROR_CHECK(H5Dclose(dset));
-  return;
 }
 
 int main(int argc, char** argv)
@@ -92,7 +111,7 @@ int main(int argc, char** argv)
       as_rpc::protocol_to_string(config.protocol);
 
   as_rpc::Engine engine = as_rpc::init_engine(client_address, false);
-  as_rpc::RemoteProcedures rpc_kernels =
+  const as_rpc::RemoteProcedures rpc_kernels =
       as_rpc::register_kernels_at_client(engine);
 
   const std::string server_address =
@@ -100,13 +119,13 @@ int main(int argc, char** argv)
   as_rpc::ServerEndpoint server =
       as_rpc::connect_to_server(engine, server_address);
 
-  auto file = create_file();
-  add_timestep(file);
-  close_file(file);
-
   auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {
     search->second.on(server)();
   }
+
+  auto file = create_file();
+  add_timestep(file);
+  close_file(file);
 }

@@ -45,7 +45,7 @@ void register_kernels_at_server(Engine& engine)
   engine.define(kernel_to_string(Kernel::hello), hello).disable_response();
 }
 
-RemoteProcedures register_kernels_at_client(Engine& engine)
+const RemoteProcedures register_kernels_at_client(Engine& engine)
 {
   RemoteProcedures res{};
   auto hello =
