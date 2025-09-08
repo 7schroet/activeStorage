@@ -1,6 +1,4 @@
-file(GLOB tl_test_src tl_*.cpp)
-
-add_executable(tl_integration_test ${tl_test_src})
+add_executable(tl_integration_test tl_server_integration_test.cpp)
 target_link_libraries(tl_integration_test GTest::gtest_main as-rpc)
 # Deliberately not using gtest_discover_tests because we need to ensure
 # that each server is started on a different port. This is handled in
