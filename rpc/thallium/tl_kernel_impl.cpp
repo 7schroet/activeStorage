@@ -17,33 +17,14 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_TYPES_HPP
-#define AS_RPC_TYPES_HPP
-
-#include "as_rpc_macros.hpp"
+#include "tl_kernel_impl.hpp"
+#include <iostream>
 #include <thallium.hpp>
-#include <unordered_map>
-
-/**
- * This macro is supposed to be the single "point of truth"
- * for existing kernels. Whenever you want to add a kernel,
- * add the implementation somewhere and then add the name
- * of the new kernel to this macro.
- */
-#define ASRPC_FOREACH_KERNEL(KERNEL) KERNEL(hello)
 
 namespace as_rpc
 {
-
-enum class Kernel
+namespace kernel_impl
 {
-  ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_ENUM)
-};
-// In case a switch to a different lib is necessary,
-// encase this in a #define and add the new option.
-using Engine = thallium::engine;
-using RemoteProcedures = std::unordered_map<Kernel, thallium::remote_procedure>;
-using ServerEndpoint = thallium::endpoint;
+void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
+} // namespace kernel_impl
 } // namespace as_rpc
-
-#endif

@@ -19,38 +19,41 @@
 
 #include "as_rpc_kernels.hpp"
 #include "as_rpc_types.hpp"
+#include "tl_kernel_impl.hpp"
 #include <thallium.hpp>
+#include <utility>
 
 namespace
 {
-void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
-
-/**
- * Registering the kernels with thallium requires both
- * client and server to provide the same kernel name
- * via a string.
- */
-std::string kernel_to_string(as_rpc::Kernel kernel)
-{
-  static const std::string kernel_strings[] = {
-      ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
-  return kernel_strings[std::to_underlying(kernel)];
+const char* kernel_strings[] = {ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
 }
-} // namespace
 
 namespace as_rpc
 {
+
 void register_kernels_at_server(Engine& engine)
 {
-  engine.define(kernel_to_string(Kernel::hello), hello).disable_response();
+#define X(INPUT)                                                               \
+  engine                                                                       \
+      .define(kernel_strings[std::to_underlying(Kernel::INPUT)],               \
+              kernel_impl::INPUT)                                              \
+      .disable_response();
+  ASRPC_FOREACH_KERNEL(X)
+#undef X
 }
 
 const RemoteProcedures register_kernels_at_client(Engine& engine)
 {
   RemoteProcedures res{};
-  auto hello =
-      engine.define(kernel_to_string(Kernel::hello)).disable_response();
-  res.emplace(Kernel::hello, std::move(hello));
+
+#define X(INPUT)                                                               \
+  auto proc_INPUT =                                                            \
+      engine.define(kernel_strings[std::to_underlying(Kernel::INPUT)])         \
+          .disable_response();                                                 \
+  res.emplace(Kernel::INPUT, std::move(proc_INPUT));
+  ASRPC_FOREACH_KERNEL(X)
+#undef X
+
   return res;
 }
 } // namespace as_rpc
