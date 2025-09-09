@@ -1,6 +1,12 @@
-file(GLOB client_src *.cpp)
+add_executable(as-client)
+target_sources(as-client
+  PRIVATE
+    argparse.cpp
+    main.cpp
 
-add_executable(as-client ${client_src})
+  PRIVATE
+  FILE_SET HEADERS
+)
 target_link_libraries(as-client PRIVATE as-rpc HDF5::HDF5)
 install(TARGETS as-client)
 

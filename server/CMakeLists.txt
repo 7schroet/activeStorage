@@ -1,6 +1,12 @@
-file(GLOB server_src *.cpp)
+add_executable(as-server)
+target_sources(as-server
+  PRIVATE
+    argparse.cpp
+    main.cpp
 
-add_executable(as-server ${server_src})
+  PRIVATE
+  FILE_SET HEADERS
+)
 target_link_libraries(as-server PRIVATE as-rpc)
 install(TARGETS as-server)
 
