@@ -30,7 +30,9 @@
  * add the implementation somewhere and then add the name
  * of the new kernel to this macro.
  */
-#define ASRPC_FOREACH_KERNEL(KERNEL) KERNEL(hello)
+#define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
+  KERNEL(hello)                                                                \
+  KERNEL(mean)
 
 namespace as_rpc
 {
