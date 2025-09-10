@@ -46,11 +46,11 @@ const RemoteProcedures register_kernels_at_client(Engine& engine)
 {
   RemoteProcedures res{};
 
+  thallium::remote_procedure proc;
 #define X(INPUT)                                                               \
-  auto proc_INPUT =                                                            \
-      engine.define(kernel_strings[std::to_underlying(Kernel::INPUT)])         \
-          .disable_response();                                                 \
-  res.emplace(Kernel::INPUT, std::move(proc_INPUT));
+  proc = engine.define(kernel_strings[std::to_underlying(Kernel::INPUT)])      \
+             .disable_response();                                              \
+  res.emplace(Kernel::INPUT, std::move(proc));
   ASRPC_FOREACH_KERNEL(X)
 #undef X
 
