@@ -21,7 +21,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(thallium REQUIRED)
-find_package(HDF5)
+find_package(HDF5 COMPONENTS C;CXX)
 
 add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
 
