@@ -20,14 +20,16 @@
 #ifndef TL_KERNEL_IMPL_HPP
 #define TL_KERNEL_IMPL_HPP
 
+#include <string>
 #include <thallium.hpp>
+#include <thallium/serialization/stl/string.hpp>
 
 namespace as_rpc
 {
 namespace kernel_impl
 {
 void hello(const thallium::request& req);
-void mean(const thallium::request& req, int a);
+void mean(const thallium::request& req, std::string filename);
 }
 } // namespace as_rpc
 

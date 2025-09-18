@@ -27,4 +27,5 @@
 #include "as_rpc_types.hpp"
 #include "as_rpc_utils.hpp"
 
+#include <thallium/serialization/stl/string.hpp>
 #endif
