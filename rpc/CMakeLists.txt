@@ -26,7 +26,7 @@ target_sources(as-rpc
   FILES ${public_headers}
 )
 
-target_link_libraries(as-rpc PUBLIC thallium) # PUBLIC because there is an include thallium in the rpc headers
+target_link_libraries(as-rpc PUBLIC thallium HDF5::HDF5) # PUBLIC because there is an include thallium in the rpc headers
 install(TARGETS as-rpc FILE_SET HEADERS)
 
 if(ENABLE_TESTS)

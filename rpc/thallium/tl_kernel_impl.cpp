@@ -18,6 +18,7 @@
  */
 
 #include "tl_kernel_impl.hpp"
+#include <H5Cpp.h>
 #include <iostream>
 #include <thallium.hpp>
 
@@ -26,6 +27,12 @@ namespace as_rpc
 namespace kernel_impl
 {
 void hello([[maybe_unused]] const thallium::request& req) { std::cout << "Received RPC\n"; }
-void mean([[maybe_unused]] const thallium::request& req, int a) { std::cout << "Received " << a << "\n"; }
+void mean([[maybe_unused]] const thallium::request& req, std::string filename)
+{
+  std::cout << "Received " << filename << "\n";
+  H5::H5File file {filename, H5F_ACC_RDONLY |  H5F_ACC_SWMR_READ};
+  std::cout << "File now open\n";
+  file.close();
+}
 } // namespace kernel_impl
 } // namespace as_rpc
