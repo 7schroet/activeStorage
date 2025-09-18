@@ -129,6 +129,12 @@ int main(int argc, char** argv)
     search->second.on(server)();
   }
 
+  search = rpc_kernels.find(as_rpc::Kernel::mean);
+  if (search == rpc_kernels.end())
+  {
+    std::cerr << "Couldn't find mean RPC!\n";
+    exit(1);
+  }
   auto file = create_file();
   std::cout << "Press Enter to write a new time step, or Ctrl+D to terminate\n";
   auto count = 0;
@@ -136,6 +142,7 @@ int main(int argc, char** argv)
   {
     add_timestep(file);
     std::cout << "Appended time step " << count << "\n";
+    search->second.on(server)(static_cast<int>(8));
     count++;
   }
   std::cout << "Terminating...\n";

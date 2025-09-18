@@ -27,6 +27,7 @@ namespace as_rpc
 namespace kernel_impl
 {
 void hello(const thallium::request& req);
+void mean(const thallium::request& req, int a);
 }
 } // namespace as_rpc
 

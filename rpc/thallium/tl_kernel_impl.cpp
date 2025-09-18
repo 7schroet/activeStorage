@@ -25,6 +25,7 @@ namespace as_rpc
 {
 namespace kernel_impl
 {
-void hello(const thallium::request& req) { std::cout << "Received RPC\n"; }
+void hello([[maybe_unused]] const thallium::request& req) { std::cout << "Received RPC\n"; }
+void mean([[maybe_unused]] const thallium::request& req, int a) { std::cout << "Received " << a << "\n"; }
 } // namespace kernel_impl
 } // namespace as_rpc
