@@ -27,9 +27,6 @@ target_sources(as-rpc
 )
 
 target_link_libraries(as-rpc PUBLIC thallium) # PUBLIC because there is an include thallium in the rpc headers
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  target_link_libraries(as-rpc PRIVATE thallium_check_types)
-endif()
 install(TARGETS as-rpc FILE_SET HEADERS)
 
 if(ENABLE_TESTS)
