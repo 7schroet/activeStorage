@@ -36,14 +36,17 @@
     }                                                                          \
   } while (0)
 
+#define FILE_NAME "file.h5"
 #define DSET_NAME "/dataset"
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
 
+void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
+
 hid_t create_file(void)
 {
-  hid_t file = H5Fcreate("file.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC | H5F_ACC_SWMR_WRITE, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr hsize_t dims[RANK] = {1, DSET_X, DSET_Y};
   constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
@@ -58,10 +61,12 @@ hid_t create_file(void)
   H5ERROR_CHECK(H5Pclose(dcpl));
   H5ERROR_CHECK(H5Dclose(dset));
   H5ERROR_CHECK(H5Sclose(dspace));
+
+  //close and reopen to enable swmr
+  close_file(file);
+  file = H5Fopen(FILE_NAME, H5F_ACC_RDWR | H5F_ACC_SWMR_WRITE, H5P_DEFAULT);
   return file;
 }
-
-void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 
 void add_timestep(hid_t file)
 {
@@ -136,13 +141,14 @@ int main(int argc, char** argv)
     exit(1);
   }
   auto file = create_file();
+  std::string filename {FILE_NAME};
   std::cout << "Press Enter to write a new time step, or Ctrl+D to terminate\n";
   auto count = 0;
   for (std::string in; std::getline(std::cin, in);)
   {
     add_timestep(file);
     std::cout << "Appended time step " << count << "\n";
-    search->second.on(server)(static_cast<int>(8));
+    search->second.on(server)(filename);
     count++;
   }
   std::cout << "Terminating...\n";
