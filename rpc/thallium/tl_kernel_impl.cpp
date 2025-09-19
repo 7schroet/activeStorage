@@ -20,11 +20,27 @@
 #include "tl_kernel_impl.hpp"
 #include "h5_helpers.hpp"
 #include <H5Cpp.h>
+#include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <numeric>
 #include <string>
 #include <thallium.hpp>
 #include <vector>
+
+namespace
+{
+std::string generate_result_filename(const std::string& filename,
+                                     const std::string& dataset,
+                                     const std::string& op)
+{
+  std::string stripped_dataset(dataset);
+  std::replace(stripped_dataset.begin(), stripped_dataset.end(), '/', '_');
+  std::filesystem::path basename{filename};
+  return "asrpc_results_" + basename.stem().string() + "_" + stripped_dataset +
+         "_" + op + ".h5";
+}
+} // namespace
 
 namespace as_rpc
 {
@@ -46,9 +62,10 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   auto sum = std::reduce(data.begin(), data.end(), 0.0);
   auto avg = sum / data.size();
-  std::cout << "AVG: " << avg << "\n";
 
-  write_data({avg}, filename, dataset, timestep);
+  std::string result_filename =
+      generate_result_filename(filename, dataset, "mean");
+  write_data({avg}, result_filename, timestep);
 
   dset.close();
   file.close();

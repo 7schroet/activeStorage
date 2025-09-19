@@ -18,8 +18,21 @@
  */
 
 #include "h5_helpers.hpp"
+#include <H5Fpublic.h>
+#include <iostream>
 #include <numeric>
+#include <sys/stat.h>
 #include <vector>
+
+namespace
+{
+bool file_exists(const std::string& filename)
+{
+  struct stat buffer;
+  auto res = stat(filename.c_str(), &buffer);
+  return res == 0;
+}
+} // namespace
 
 std::vector<double> read_data(H5::DataSet dset, int timestep)
 {
@@ -50,7 +63,20 @@ std::vector<double> read_data(H5::DataSet dset, int timestep)
 }
 
 void write_data(const std::vector<double>& data, const std::string& filename,
-                const std::string& dataset, int timestep)
+                int timestep)
 {
-  return;
+  H5::H5File file;
+  if (!file_exists(filename))
+  {
+    file = {filename, H5F_ACC_EXCL};
+  }
+  else
+  {
+    file = {filename, H5F_ACC_RDWR};
+  }
+
+  for (auto& el : data)
+    std::cout << "AVG: " << el << "\n";
+
+  file.close();
 }

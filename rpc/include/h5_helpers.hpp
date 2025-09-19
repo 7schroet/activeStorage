@@ -26,6 +26,6 @@
 
 std::vector<double> read_data(H5::DataSet dset, int timestep);
 void write_data(const std::vector<double>& data, const std::string& filename,
-                const std::string& dataset, int timestep);
+                int timestep);
 
 #endif
