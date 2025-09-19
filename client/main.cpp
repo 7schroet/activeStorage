@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <hdf5.h>
 #include <iostream>
+#include <random>
 #include <string>
 
 #define H5ERROR_CHECK(func)                                                    \
@@ -95,11 +96,14 @@ void add_timestep(hid_t file)
   H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
                                     count, nullptr));
 
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<double> dis(0.0, 1.0);
   double data[DSET_X * DSET_Y];
   for (auto i = 0; i < DSET_X; i++)
   {
     for (auto j = 0; j < DSET_Y; j++)
-      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0;
+      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + dis(gen);
   }
 
   auto memspace = H5Screate_simple(RANK, count, nullptr);
