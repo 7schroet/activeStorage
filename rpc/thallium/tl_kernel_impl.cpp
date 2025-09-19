@@ -18,8 +18,8 @@
  */
 
 #include "tl_kernel_impl.hpp"
+#include "h5_helpers.hpp"
 #include <H5Cpp.h>
-#include <functional>
 #include <iostream>
 #include <numeric>
 #include <string>
@@ -42,32 +42,14 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
-  auto dspace = dset.getSpace();
-  auto rank = dspace.getSimpleExtentNdims();
+  auto data = read_data(dset, timestep);
 
-  std::vector<hsize_t> dims(rank);
-  std::vector<hsize_t> offset(rank, 0);
-  std::vector<hsize_t> count(rank, 0);
-  dspace.getSimpleExtentDims(dims.data());
-  offset[0] = timestep;
-  count[0] = 1;
-  for (auto i = 1; i < rank; i++)
-    count[i] = dims[i];
+  auto sum = std::reduce(data.begin(), data.end(), 0.0);
+  auto avg = sum / data.size();
+  std::cout << "AVG: " << avg << "\n";
 
-  dspace.selectHyperslab(H5S_SELECT_SET, count.data(), offset.data());
-  H5::DataSpace memspace{rank, count.data()};
+  write_data({avg}, filename, dataset, timestep);
 
-  auto elements =
-      std::reduce(count.begin(), count.end(), 1, std::multiplies<>());
-  std::vector<double> data(elements);
-
-  dset.read(data.data(), H5::PredType::NATIVE_DOUBLE, memspace, dspace);
-  for (auto& el : data)
-    std::cout << el << ", ";
-  std::cout << "\n";
-
-  memspace.close();
-  dspace.close();
   dset.close();
   file.close();
 }
