@@ -18,21 +18,9 @@
  */
 
 #include "h5_helpers.hpp"
-#include <H5Fpublic.h>
-#include <iostream>
 #include <numeric>
 #include <sys/stat.h>
 #include <vector>
-
-namespace
-{
-bool file_exists(const std::string& filename)
-{
-  struct stat buffer;
-  auto res = stat(filename.c_str(), &buffer);
-  return res == 0;
-}
-} // namespace
 
 std::vector<double> read_data(H5::DataSet dset, int timestep)
 {
@@ -65,18 +53,54 @@ std::vector<double> read_data(H5::DataSet dset, int timestep)
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep)
 {
+  static constexpr std::string dset_name{"/result"};
   H5::H5File file;
-  if (!file_exists(filename))
+  H5::DataSet dset;
+  H5::DataSpace dspace;
+
+  if (timestep == 0)
   {
     file = {filename, H5F_ACC_EXCL};
+
+    std::vector<hsize_t> dims{16};
+    std::vector<hsize_t> max_dims{H5S_UNLIMITED};
+    auto dcpl = H5::DSetCreatPropList();
+    dcpl.setChunk(dims.size(), dims.data());
+
+    dspace = H5::DataSpace{static_cast<int>(dims.size()), dims.data(),
+                           max_dims.data()};
+    dset = file.createDataSet(dset_name.c_str(), H5::PredType::NATIVE_DOUBLE,
+                              dspace, dcpl);
+
+    dcpl.close();
   }
   else
   {
     file = {filename, H5F_ACC_RDWR};
+    dset = file.openDataSet(dset_name.c_str());
+    dspace = dset.getSpace();
   }
 
-  for (auto& el : data)
-    std::cout << "AVG: " << el << "\n";
+  std::vector<hsize_t> dims(dspace.getSimpleExtentNdims());
+  dspace.getSimpleExtentDims(dims.data());
+  if (static_cast<int>(dims[0]) == timestep + 1)
+  {
+    dims[0] *= 2;
+    dset.extend(dims.data());
+    dspace = dset.getSpace();
+  }
 
+  std::vector<hsize_t> count{dims};
+  std::vector<hsize_t> offset(dims.size(), 0);
+  count[0] = 1;
+  offset[0] = timestep;
+  dspace.selectHyperslab(H5S_SELECT_SET, count.data(), offset.data());
+  H5::DataSpace memspace{static_cast<int>(dims.size()), count.data()};
+
+  dset.write(data.data(), H5::PredType::NATIVE_DOUBLE, memspace, dspace);
+
+  memspace.close();
+  dspace.close();
+  dset.close();
   file.close();
 }

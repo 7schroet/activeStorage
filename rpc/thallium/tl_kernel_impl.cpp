@@ -53,9 +53,6 @@ void hello([[maybe_unused]] const thallium::request& req)
 void mean([[maybe_unused]] const thallium::request& req, std::string filename,
           std::string dataset, int timestep)
 {
-  std::cout << "Received " << filename << ", " << dataset << ", " << timestep
-            << "\n";
-
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
   auto data = read_data(dset, timestep);
