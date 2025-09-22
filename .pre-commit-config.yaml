@@ -7,4 +7,3 @@ repos:
   rev: v20.1.6
   hooks:
   - id: clang-format
-
