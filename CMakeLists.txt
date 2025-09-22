@@ -58,3 +58,4 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/${lib_dir};${CMAKE_INSTALL_RPATH}" CACHE STRING
 add_subdirectory(rpc)
 add_subdirectory(server)
 add_subdirectory(client)
+add_subdirectory(plugin)
