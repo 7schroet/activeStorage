@@ -20,6 +20,7 @@
 #include "h5_helpers.hpp"
 #include <numeric>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 const H5::PredType& determine_datatype(H5::DataSet dset)
@@ -50,8 +51,7 @@ const H5::PredType& determine_datatype(H5::DataSet dset)
 }
 
 template <typename T>
-std::vector<T> read_data(H5::DataSet dset, int timestep,
-                         const H5::PredType& dtype)
+std::vector<T> read_data(H5::DataSet dset, int timestep)
 {
   auto dspace = dset.getSpace();
   auto rank = dspace.getSimpleExtentNdims();
@@ -70,6 +70,21 @@ std::vector<T> read_data(H5::DataSet dset, int timestep,
 
   auto elements =
       std::reduce(count.begin(), count.end(), 1, std::multiplies<>());
+
+  H5::PredType dtype = H5::PredType::PREDTYPE_CONST;
+  if constexpr (std::is_same_v<T, double>)
+  {
+    dtype = H5::PredType::NATIVE_DOUBLE;
+  }
+  else if constexpr (std::is_same_v<T, float>)
+  {
+    dtype = H5::PredType::NATIVE_FLOAT;
+  }
+  else
+  {
+    dtype = H5::PredType::NATIVE_INT;
+  }
+
   std::vector<T> data(elements);
   dset.read(data.data(), dtype, memspace, dspace);
 
@@ -79,12 +94,9 @@ std::vector<T> read_data(H5::DataSet dset, int timestep,
   return data;
 }
 
-template std::vector<double> read_data<double>(H5::DataSet dset, int timestep,
-                                               const H5::PredType& dtype);
-template std::vector<float> read_data<float>(H5::DataSet dset, int timestep,
-                                             const H5::PredType& dtype);
-template std::vector<int> read_data<int>(H5::DataSet dset, int timestep,
-                                         const H5::PredType& dtype);
+template std::vector<double> read_data<double>(H5::DataSet dset, int timestep);
+template std::vector<float> read_data<float>(H5::DataSet dset, int timestep);
+template std::vector<int> read_data<int>(H5::DataSet dset, int timestep);
 
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep)

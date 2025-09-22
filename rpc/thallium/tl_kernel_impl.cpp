@@ -46,10 +46,12 @@ namespace as_rpc
 {
 namespace kernel_impl
 {
+
 void hello([[maybe_unused]] const thallium::request& req)
 {
   std::cout << "Received RPC\n";
 }
+
 void mean([[maybe_unused]] const thallium::request& req, std::string filename,
           std::string dataset, int timestep)
 {
@@ -60,19 +62,19 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
-    auto data = read_data<double>(dset, timestep, dtype);
+    auto data = read_data<double>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
-  if (dtype == H5::PredType::NATIVE_FLOAT)
+  else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
-    auto data = read_data<float>(dset, timestep, dtype);
+    auto data = read_data<float>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
   else
   {
-    auto data = read_data<int>(dset, timestep, dtype);
+    auto data = read_data<int>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }

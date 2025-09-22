@@ -27,8 +27,13 @@
 const H5::PredType& determine_datatype(H5::DataSet dset);
 
 template <typename T>
-std::vector<T> read_data(H5::DataSet dset, int timestep,
-                         const H5::PredType& dtype);
+std::vector<T> read_data(H5::DataSet dset, int timestep);
+
+extern template std::vector<double> read_data<double>(H5::DataSet dset,
+                                                      int timestep);
+extern template std::vector<float> read_data<float>(H5::DataSet dset,
+                                                    int timestep);
+extern template std::vector<int> read_data<int>(H5::DataSet dset, int timestep);
 
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep);
