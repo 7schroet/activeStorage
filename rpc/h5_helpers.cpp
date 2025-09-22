@@ -19,9 +19,39 @@
 
 #include "h5_helpers.hpp"
 #include <numeric>
+#include <stdexcept>
 #include <vector>
 
-std::vector<double> read_data(H5::DataSet dset, int timestep)
+const H5::PredType& determine_datatype(H5::DataSet dset)
+{
+  auto dataclass = dset.getTypeClass();
+  if (dataclass == H5T_FLOAT)
+  {
+    auto float_type = dset.getFloatType();
+    auto byte_size = float_type.getSize();
+
+    if (byte_size == 4)
+    {
+      return H5::PredType::NATIVE_FLOAT;
+    }
+    else
+    {
+      return H5::PredType::NATIVE_DOUBLE;
+    }
+  }
+  else if (dataclass == H5T_INTEGER)
+  {
+    return H5::PredType::NATIVE_INT;
+  }
+  else
+  {
+    throw std::runtime_error("Dataclass unknown");
+  }
+}
+
+template <typename T>
+std::vector<T> read_data(H5::DataSet dset, int timestep,
+                         const H5::PredType& dtype)
 {
   auto dspace = dset.getSpace();
   auto rank = dspace.getSimpleExtentNdims();
@@ -40,14 +70,21 @@ std::vector<double> read_data(H5::DataSet dset, int timestep)
 
   auto elements =
       std::reduce(count.begin(), count.end(), 1, std::multiplies<>());
-  std::vector<double> data(elements);
-  dset.read(data.data(), H5::PredType::NATIVE_DOUBLE, memspace, dspace);
+  std::vector<T> data(elements);
+  dset.read(data.data(), dtype, memspace, dspace);
 
   memspace.close();
   dspace.close();
 
   return data;
 }
+
+template std::vector<double> read_data<double>(H5::DataSet dset, int timestep,
+                                               const H5::PredType& dtype);
+template std::vector<float> read_data<float>(H5::DataSet dset, int timestep,
+                                             const H5::PredType& dtype);
+template std::vector<int> read_data<int>(H5::DataSet dset, int timestep,
+                                         const H5::PredType& dtype);
 
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep)

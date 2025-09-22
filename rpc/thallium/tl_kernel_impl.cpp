@@ -55,10 +55,27 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 {
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
-  auto data = read_data(dset, timestep);
+  auto dtype = determine_datatype(dset);
+  double avg;
 
-  auto sum = std::reduce(data.begin(), data.end(), 0.0);
-  auto avg = sum / data.size();
+  if (dtype == H5::PredType::NATIVE_DOUBLE)
+  {
+    auto data = read_data<double>(dset, timestep, dtype);
+    auto sum = std::reduce(data.begin(), data.end(), 0.0);
+    avg = sum / data.size();
+  }
+  if (dtype == H5::PredType::NATIVE_FLOAT)
+  {
+    auto data = read_data<float>(dset, timestep, dtype);
+    auto sum = std::reduce(data.begin(), data.end(), 0.0);
+    avg = sum / data.size();
+  }
+  else
+  {
+    auto data = read_data<int>(dset, timestep, dtype);
+    auto sum = std::reduce(data.begin(), data.end(), 0.0);
+    avg = sum / data.size();
+  }
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");

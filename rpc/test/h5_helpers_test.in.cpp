@@ -36,7 +36,7 @@ TEST(Read, SingleDatum)
   std::vector<double> expected{10.0};
   H5::H5File file{TEST_INPUT_BASE + "singleDouble.h5", H5F_ACC_RDONLY};
   auto dset = file.openDataSet(DSET_NAME);
-  auto actual = read_data(dset, 0);
+  auto actual = read_data<double>(dset, 0, H5::PredType::NATIVE_DOUBLE);
   EXPECT_EQ(expected, actual);
   dset.close();
   file.close();
@@ -49,7 +49,8 @@ TEST(Read, twoDimData)
   for (auto timestep = 0; timestep < 10; timestep++)
   {
     std::vector<double> expected(10, 10.0 + timestep);
-    auto actual = read_data(dset, timestep);
+    auto actual =
+        read_data<double>(dset, timestep, H5::PredType::NATIVE_DOUBLE);
     EXPECT_EQ(expected, actual);
   }
   dset.close();
@@ -63,35 +64,37 @@ TEST(Read, threeDimData)
   for (auto timestep = 0; timestep < 2; timestep++)
   {
     std::vector<double> expected(100, 10.0 + timestep);
-    auto actual = read_data(dset, timestep);
+    auto actual =
+        read_data<double>(dset, timestep, H5::PredType::NATIVE_DOUBLE);
     EXPECT_EQ(expected, actual);
   }
   dset.close();
   file.close();
 }
 
-// Does not build in current setup
-/*TEST(Read, twoDimInts)*/
-/*{*/
-/*  H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};*/
-/*  auto dset = file.openDataSet(DSET_NAME);*/
-/*  for (auto timestep = 0; timestep < 10; timestep++)*/
-/*  {*/
-/*    std::vector<int> expected(10, 10 + timestep);*/
-/*    auto actual = read_data(dset, timestep);*/
-/*    EXPECT_EQ(expected, actual);*/
-/*  }*/
-/*  dset.close();*/
-/*  file.close();*/
-/*}*/
+TEST(Read, twoDimInts)
+{
+  H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+  for (auto timestep = 0; timestep < 3; timestep++)
+  {
+    std::vector<int> expected(10, 10 + timestep);
+    auto actual = read_data<int>(dset, timestep, H5::PredType::NATIVE_INT);
+    EXPECT_EQ(expected, actual);
+  }
+  dset.close();
+  file.close();
+}
 
 TEST(Read, oobDeathTest)
 {
   H5::H5File file{TEST_INPUT_BASE + "singleDouble.h5", H5F_ACC_RDONLY};
   auto dset = file.openDataSet(DSET_NAME);
 
-  EXPECT_ANY_THROW(auto actual = read_data(dset, 1));
-  EXPECT_ANY_THROW(auto actual = read_data(dset, -1));
+  EXPECT_ANY_THROW(auto actual =
+                       read_data<double>(dset, 1, H5::PredType::NATIVE_DOUBLE));
+  EXPECT_ANY_THROW(
+      auto actual = read_data<double>(dset, -1, H5::PredType::NATIVE_DOUBLE));
 
   dset.close();
   file.close();

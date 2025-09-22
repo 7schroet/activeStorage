@@ -24,7 +24,12 @@
 #include <string>
 #include <vector>
 
-std::vector<double> read_data(H5::DataSet dset, int timestep);
+const H5::PredType& determine_datatype(H5::DataSet dset);
+
+template <typename T>
+std::vector<T> read_data(H5::DataSet dset, int timestep,
+                         const H5::PredType& dtype);
+
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep);
 
