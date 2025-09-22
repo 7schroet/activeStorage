@@ -19,7 +19,6 @@
 
 #include "h5_helpers.hpp"
 #include <numeric>
-#include <sys/stat.h>
 #include <vector>
 
 std::vector<double> read_data(H5::DataSet dset, int timestep)
