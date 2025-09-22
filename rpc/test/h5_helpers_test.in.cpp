@@ -18,6 +18,7 @@
  */
 
 #include "../h5_helpers.cpp"
+#include "gtest/gtest.h"
 #include <H5Cpp.h>
 #include <gtest/gtest.h>
 #include <string>
@@ -68,9 +69,31 @@ TEST(Read, threeDimData)
   dset.close();
   file.close();
 }
-} // namespace
 
-//
-// empty set
-// test mit ints
-// falscher timestep (zu hoch, negativ)
+// Does not build in current setup
+/*TEST(Read, twoDimInts)*/
+/*{*/
+/*  H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};*/
+/*  auto dset = file.openDataSet(DSET_NAME);*/
+/*  for (auto timestep = 0; timestep < 10; timestep++)*/
+/*  {*/
+/*    std::vector<int> expected(10, 10 + timestep);*/
+/*    auto actual = read_data(dset, timestep);*/
+/*    EXPECT_EQ(expected, actual);*/
+/*  }*/
+/*  dset.close();*/
+/*  file.close();*/
+/*}*/
+
+TEST(Read, oobDeathTest)
+{
+  H5::H5File file{TEST_INPUT_BASE + "singleDouble.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+
+  EXPECT_ANY_THROW(auto actual = read_data(dset, 1));
+  EXPECT_ANY_THROW(auto actual = read_data(dset, -1));
+
+  dset.close();
+  file.close();
+}
+} // namespace
