@@ -84,6 +84,20 @@ TEST(Read, twoDimInts)
   file.close();
 }
 
+TEST(Read, threeDimFloats)
+{
+  H5::H5File file{TEST_INPUT_BASE + "3dFloats.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+  for (auto timestep = 0; timestep < 2; timestep++)
+  {
+    std::vector<float> expected(100, 20.0f + timestep);
+    auto actual = read_data<float>(dset, timestep);
+    EXPECT_EQ(expected, actual);
+  }
+  dset.close();
+  file.close();
+}
+
 TEST(Read, oobDeathTest)
 {
   H5::H5File file{TEST_INPUT_BASE + "singleDouble.h5", H5F_ACC_RDONLY};
@@ -97,5 +111,4 @@ TEST(Read, oobDeathTest)
 }
 } // namespace
 
-// add float test
 // dtype determine: int float double complex

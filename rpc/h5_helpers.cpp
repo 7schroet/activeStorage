@@ -51,7 +51,7 @@ const H5::PredType& determine_datatype(H5::DataSet dset)
 }
 
 template <typename T>
-std::vector<T> read_data(H5::DataSet dset, int timestep)
+std::vector<T> read_data(const H5::DataSet& dset, int timestep)
 {
   auto dspace = dset.getSpace();
   auto rank = dspace.getSimpleExtentNdims();
@@ -94,9 +94,11 @@ std::vector<T> read_data(H5::DataSet dset, int timestep)
   return data;
 }
 
-template std::vector<double> read_data<double>(H5::DataSet dset, int timestep);
-template std::vector<float> read_data<float>(H5::DataSet dset, int timestep);
-template std::vector<int> read_data<int>(H5::DataSet dset, int timestep);
+template std::vector<double> read_data<double>(const H5::DataSet& dset,
+                                               int timestep);
+template std::vector<float> read_data<float>(const H5::DataSet& dset,
+                                             int timestep);
+template std::vector<int> read_data<int>(const H5::DataSet& dset, int timestep);
 
 void write_data(const std::vector<double>& data, const std::string& filename,
                 int timestep)
