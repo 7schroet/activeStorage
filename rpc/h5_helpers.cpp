@@ -100,7 +100,8 @@ template std::vector<float> read_data<float>(const H5::DataSet& dset,
                                              int timestep);
 template std::vector<int> read_data<int>(const H5::DataSet& dset, int timestep);
 
-void write_data(const std::vector<double>& data, const std::string& filename,
+void write_data(const std::vector<double>& data,
+                const std::vector<hsize_t>& dims, const std::string& filename,
                 int timestep)
 {
   static constexpr std::string dset_name{"/result"};
@@ -112,12 +113,23 @@ void write_data(const std::vector<double>& data, const std::string& filename,
   {
     file = {filename, H5F_ACC_EXCL};
 
-    std::vector<hsize_t> dims{16};
-    std::vector<hsize_t> max_dims{H5S_UNLIMITED};
+    std::vector<hsize_t> dset_dims{dims};
+    std::vector<hsize_t> max_dims{dims};
+    hsize_t chunk_size_first_dim = 16;
+    if (dims[0] == 1)
+    {
+      dset_dims[0] = chunk_size_first_dim;
+      max_dims[0] = H5S_UNLIMITED;
+    }
+    else
+    {
+      dset_dims.insert(dset_dims.begin(), chunk_size_first_dim);
+      max_dims.insert(max_dims.begin(), H5S_UNLIMITED);
+    }
     auto dcpl = H5::DSetCreatPropList();
-    dcpl.setChunk(dims.size(), dims.data());
+    dcpl.setChunk(dset_dims.size(), dset_dims.data());
 
-    dspace = H5::DataSpace{static_cast<int>(dims.size()), dims.data(),
+    dspace = H5::DataSpace{static_cast<int>(dset_dims.size()), dset_dims.data(),
                            max_dims.data()};
     dset = file.createDataSet(dset_name.c_str(), H5::PredType::NATIVE_DOUBLE,
                               dspace, dcpl);
@@ -131,21 +143,23 @@ void write_data(const std::vector<double>& data, const std::string& filename,
     dspace = dset.getSpace();
   }
 
-  std::vector<hsize_t> dims(dspace.getSimpleExtentNdims());
-  dspace.getSimpleExtentDims(dims.data());
-  if (static_cast<int>(dims[0]) == timestep + 1)
+  std::vector<hsize_t> current_dset_dims(dspace.getSimpleExtentNdims());
+  dspace.getSimpleExtentDims(current_dset_dims.data());
+  if (static_cast<int>(current_dset_dims[0]) == timestep + 1)
   {
-    dims[0] *= 2;
-    dset.extend(dims.data());
+    std::vector<hsize_t> new_dims{current_dset_dims};
+    new_dims[0] *= 2;
+    dset.extend(new_dims.data());
     dspace = dset.getSpace();
   }
 
-  std::vector<hsize_t> count{dims};
-  std::vector<hsize_t> offset(dims.size(), 0);
+  std::vector<hsize_t> count{current_dset_dims};
+  std::vector<hsize_t> offset(current_dset_dims.size(), 0);
   count[0] = 1;
   offset[0] = timestep;
   dspace.selectHyperslab(H5S_SELECT_SET, count.data(), offset.data());
-  H5::DataSpace memspace{static_cast<int>(dims.size()), count.data()};
+  H5::DataSpace memspace{static_cast<int>(current_dset_dims.size()),
+                         count.data()};
 
   dset.write(data.data(), H5::PredType::NATIVE_DOUBLE, memspace, dspace);
 

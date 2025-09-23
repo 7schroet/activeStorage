@@ -36,7 +36,10 @@ extern template std::vector<float> read_data<float>(const H5::DataSet& dset,
 extern template std::vector<int> read_data<int>(const H5::DataSet& dset,
                                                 int timestep);
 
-void write_data(const std::vector<double>& data, const std::string& filename,
+// As of 09/2025, mdspan is not yet supported by the common libs, so
+// we pass the dims of the data separately
+void write_data(const std::vector<double>& data,
+                const std::vector<hsize_t>& dims, const std::string& filename,
                 int timestep);
 
 #endif
