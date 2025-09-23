@@ -121,6 +121,7 @@ void write_data(const std::vector<double>& data,
   H5::H5File file;
   H5::DataSet dset;
   H5::DataSpace dspace;
+  constexpr hsize_t chunk_size_first_dim = 16;
 
   if (timestep == 0)
   {
@@ -128,7 +129,6 @@ void write_data(const std::vector<double>& data,
 
     std::vector<hsize_t> dset_dims{dims};
     std::vector<hsize_t> max_dims{dims};
-    hsize_t chunk_size_first_dim = 16;
     if (dims[0] == 1)
     {
       dset_dims[0] = chunk_size_first_dim;
@@ -161,7 +161,7 @@ void write_data(const std::vector<double>& data,
   if (static_cast<int>(current_dset_dims[0]) == timestep + 1)
   {
     std::vector<hsize_t> new_dims{current_dset_dims};
-    new_dims[0] *= 2;
+    new_dims[0] += chunk_size_first_dim;
     dset.extend(new_dims.data());
     dspace = dset.getSpace();
   }
