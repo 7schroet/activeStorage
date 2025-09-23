@@ -50,6 +50,7 @@ const H5::PredType& determine_datatype(const H5::DataSet& dset)
   }
 }
 
+// TODO return dims
 template <typename T>
 std::vector<T> read_data(const H5::DataSet& dset, int timestep)
 {
@@ -100,6 +101,7 @@ template std::vector<float> read_data<float>(const H5::DataSet& dset,
                                              int timestep);
 template std::vector<int> read_data<int>(const H5::DataSet& dset, int timestep);
 
+// TODO pass dset name
 void write_data(const std::vector<double>& data,
                 const std::vector<hsize_t>& dims, const std::string& filename,
                 int timestep)

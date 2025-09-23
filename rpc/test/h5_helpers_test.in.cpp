@@ -19,16 +19,29 @@
 
 #include "../h5_helpers.cpp"
 #include <H5Cpp.h>
+#include <cstdio>
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
 
 #define DSET_NAME "/dataset"
+#define DSET_NAME_WRITE "/result"
 
 namespace
 {
 
 static const std::string TEST_INPUT_BASE{"@H5_TEST_INPUT_DIR@/"};
+
+class Write : public testing::Test
+{
+protected:
+  void SetUp() override { tmp_filename = std::tmpnam(nullptr); }
+
+  void TearDown() override { std::filesystem::remove(tmp_filename); }
+
+  std::string tmp_filename;
+};
 
 TEST(Read, SingleDatum)
 {
@@ -128,6 +141,7 @@ TEST(Dtype, float)
   auto actual = determine_datatype(dset);
   EXPECT_EQ(expected, actual);
 }
+
 TEST(Dtype, int)
 {
   H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};
@@ -136,5 +150,66 @@ TEST(Dtype, int)
 
   auto actual = determine_datatype(dset);
   EXPECT_EQ(expected, actual);
+}
+
+TEST_F(Write, oneDim)
+{
+  const auto max_timesteps = 3;
+  const std::vector<double> data{1.0, 2.0, 3.0};
+  for (auto timestep = 0; timestep < max_timesteps; timestep++)
+  {
+    const std::vector<double> expected{data[timestep]};
+    write_data(expected, {1}, tmp_filename, timestep);
+
+    H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
+    auto dset = file.openDataSet(DSET_NAME_WRITE);
+    auto actual = read_data<double>(dset, timestep);
+
+    EXPECT_EQ(expected, actual);
+    EXPECT_EQ(1, actual.size());
+  }
+}
+
+TEST_F(Write, twoDim)
+{
+  const auto max_timesteps = 4;
+  const auto elements_per_timestep = 3;
+  for (auto timestep = 0; timestep < max_timesteps; timestep++)
+  {
+    std::vector<double> expected{};
+    for (auto i = 0; i < elements_per_timestep; i++)
+      expected.push_back(10.0 * timestep + 1.5 * i);
+
+    write_data(expected, {elements_per_timestep}, tmp_filename, timestep);
+
+    H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
+    auto dset = file.openDataSet(DSET_NAME_WRITE);
+    auto actual = read_data<double>(dset, timestep);
+
+    EXPECT_EQ(expected, actual);
+    EXPECT_EQ(elements_per_timestep, actual.size());
+  }
+}
+
+TEST_F(Write, threeDim)
+{
+  const auto max_timesteps = 4;
+  const std::vector<hsize_t> dims{5, 5};
+  const int elements_per_timestep = dims[0] * dims[1];
+  for (auto timestep = 0; timestep < max_timesteps; timestep++)
+  {
+    std::vector<double> expected{};
+    for (auto i = 0; i < elements_per_timestep; i++)
+      expected.push_back(10.0 * timestep + 1.5 * i);
+
+    write_data(expected, dims, tmp_filename, timestep);
+
+    H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
+    auto dset = file.openDataSet(DSET_NAME_WRITE);
+    auto actual = read_data<double>(dset, timestep);
+
+    EXPECT_EQ(expected, actual);
+    EXPECT_EQ(elements_per_timestep, actual.size());
+  }
 }
 } // namespace
