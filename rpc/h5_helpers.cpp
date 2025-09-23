@@ -21,6 +21,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 const H5::PredType& determine_datatype(const H5::DataSet& dset)
@@ -50,9 +51,9 @@ const H5::PredType& determine_datatype(const H5::DataSet& dset)
   }
 }
 
-// TODO return dims
 template <typename T>
-std::vector<T> read_data(const H5::DataSet& dset, int timestep)
+std::pair<std::vector<T>, std::vector<hsize_t>>
+read_data(const H5::DataSet& dset, int timestep)
 {
   auto dspace = dset.getSpace();
   auto rank = dspace.getSimpleExtentNdims();
@@ -92,14 +93,26 @@ std::vector<T> read_data(const H5::DataSet& dset, int timestep)
   memspace.close();
   dspace.close();
 
-  return data;
+  std::vector<hsize_t> data_dims;
+  if (rank == 1)
+  {
+    data_dims = {1};
+  }
+  else
+  {
+    data_dims = {count.begin() + 1, count.end()};
+  }
+  return std::make_pair(std::move(data), std::move(data_dims));
 }
 
-template std::vector<double> read_data<double>(const H5::DataSet& dset,
-                                               int timestep);
-template std::vector<float> read_data<float>(const H5::DataSet& dset,
-                                             int timestep);
-template std::vector<int> read_data<int>(const H5::DataSet& dset, int timestep);
+template std::pair<std::vector<double>, std::vector<hsize_t>>
+read_data<double>(const H5::DataSet& dset, int timestep);
+
+template std::pair<std::vector<float>, std::vector<hsize_t>>
+read_data<float>(const H5::DataSet& dset, int timestep);
+
+template std::pair<std::vector<int>, std::vector<hsize_t>>
+read_data<int>(const H5::DataSet& dset, int timestep);
 
 void write_data(const std::vector<double>& data,
                 const std::vector<hsize_t>& dims, int timestep,

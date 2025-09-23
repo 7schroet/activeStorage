@@ -62,19 +62,19 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
-    auto data = read_data<double>(dset, timestep);
+    const auto [data, dims] = read_data<double>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
-    auto data = read_data<float>(dset, timestep);
+    const auto [data, dims] = read_data<float>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
   else
   {
-    auto data = read_data<int>(dset, timestep);
+    const auto [data, dims] = read_data<int>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }

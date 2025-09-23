@@ -22,19 +22,26 @@
 
 #include <H5Cpp.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 const H5::PredType& determine_datatype(const H5::DataSet& dset);
 
+// No mdarray support yet, so this function returns a pair consisting
+// of the data and its dims.
 template <typename T>
-std::vector<T> read_data(const H5::DataSet& dset, int timestep);
+std::pair<std::vector<T>, std::vector<hsize_t>>
+read_data(const H5::DataSet& dset, int timestep);
 
-extern template std::vector<double> read_data<double>(const H5::DataSet& dset,
-                                                      int timestep);
-extern template std::vector<float> read_data<float>(const H5::DataSet& dset,
-                                                    int timestep);
-extern template std::vector<int> read_data<int>(const H5::DataSet& dset,
-                                                int timestep);
+// Specializations for read
+extern template std::pair<std::vector<double>, std::vector<hsize_t>>
+read_data<double>(const H5::DataSet& dset, int timestep);
+
+extern template std::pair<std::vector<float>, std::vector<hsize_t>>
+read_data<float>(const H5::DataSet& dset, int timestep);
+
+extern template std::pair<std::vector<int>, std::vector<hsize_t>>
+read_data<int>(const H5::DataSet& dset, int timestep);
 
 // As of 09/2025, mdspan is not yet supported by the gcc libstdc++, so
 // we pass the dims of the data separately.
