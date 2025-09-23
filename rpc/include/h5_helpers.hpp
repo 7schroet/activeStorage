@@ -41,7 +41,8 @@ extern template std::vector<int> read_data<int>(const H5::DataSet& dset,
 // For any given filename, it is required to always call this with the
 // same dims, otherwise the write might fail/lead to unexpected results.
 void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, const std::string& filename,
-                int timestep);
+                const std::vector<hsize_t>& dims, int timestep,
+                const std::string& filename,
+                const std::string& dset_name = "/result");
 
 #endif

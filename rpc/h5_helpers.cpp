@@ -101,12 +101,10 @@ template std::vector<float> read_data<float>(const H5::DataSet& dset,
                                              int timestep);
 template std::vector<int> read_data<int>(const H5::DataSet& dset, int timestep);
 
-// TODO pass dset name
 void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, const std::string& filename,
-                int timestep)
+                const std::vector<hsize_t>& dims, int timestep,
+                const std::string& filename, const std::string& dset_name)
 {
-  static constexpr std::string dset_name{"/result"};
   H5::H5File file;
   H5::DataSet dset;
   H5::DataSpace dspace;

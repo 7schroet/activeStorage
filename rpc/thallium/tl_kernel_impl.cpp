@@ -81,7 +81,7 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
-  write_data({avg}, {1}, result_filename, timestep);
+  write_data({avg}, {1}, timestep, result_filename);
 
   dset.close();
   file.close();

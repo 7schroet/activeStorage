@@ -159,7 +159,7 @@ TEST_F(Write, oneDim)
   for (auto timestep = 0; timestep < max_timesteps; timestep++)
   {
     const std::vector<double> expected{data[timestep]};
-    write_data(expected, {1}, tmp_filename, timestep);
+    write_data(expected, {1}, timestep, tmp_filename, DSET_NAME_WRITE);
 
     H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
     auto dset = file.openDataSet(DSET_NAME_WRITE);
@@ -180,7 +180,8 @@ TEST_F(Write, twoDim)
     for (auto i = 0; i < elements_per_timestep; i++)
       expected.push_back(10.0 * timestep + 1.5 * i);
 
-    write_data(expected, {elements_per_timestep}, tmp_filename, timestep);
+    write_data(expected, {elements_per_timestep}, timestep, tmp_filename,
+               DSET_NAME_WRITE);
 
     H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
     auto dset = file.openDataSet(DSET_NAME_WRITE);
@@ -202,7 +203,7 @@ TEST_F(Write, threeDim)
     for (auto i = 0; i < elements_per_timestep; i++)
       expected.push_back(10.0 * timestep + 1.5 * i);
 
-    write_data(expected, dims, tmp_filename, timestep);
+    write_data(expected, dims, timestep, tmp_filename, DSET_NAME_WRITE);
 
     H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
     auto dset = file.openDataSet(DSET_NAME_WRITE);
