@@ -23,7 +23,7 @@
 #include <type_traits>
 #include <vector>
 
-const H5::PredType& determine_datatype(H5::DataSet dset)
+const H5::PredType& determine_datatype(const H5::DataSet& dset)
 {
   auto dataclass = dset.getTypeClass();
   if (dataclass == H5T_FLOAT)

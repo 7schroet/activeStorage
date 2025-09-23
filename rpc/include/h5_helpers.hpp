@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-const H5::PredType& determine_datatype(H5::DataSet dset);
+const H5::PredType& determine_datatype(const H5::DataSet& dset);
 
 template <typename T>
 std::vector<T> read_data(const H5::DataSet& dset, int timestep);

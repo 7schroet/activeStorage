@@ -18,7 +18,6 @@
  */
 
 #include "../h5_helpers.cpp"
-#include "gtest/gtest.h"
 #include <H5Cpp.h>
 #include <gtest/gtest.h>
 #include <string>
@@ -109,6 +108,33 @@ TEST(Read, oobDeathTest)
   dset.close();
   file.close();
 }
-} // namespace
 
-// dtype determine: int float double complex
+TEST(Dtype, double)
+{
+  H5::H5File file{TEST_INPUT_BASE + "singleDouble.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+  auto expected = H5::PredType::NATIVE_DOUBLE;
+
+  auto actual = determine_datatype(dset);
+  EXPECT_EQ(expected, actual);
+}
+
+TEST(Dtype, float)
+{
+  H5::H5File file{TEST_INPUT_BASE + "3dFloats.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+  auto expected = H5::PredType::NATIVE_FLOAT;
+
+  auto actual = determine_datatype(dset);
+  EXPECT_EQ(expected, actual);
+}
+TEST(Dtype, int)
+{
+  H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(DSET_NAME);
+  auto expected = H5::PredType::NATIVE_INT;
+
+  auto actual = determine_datatype(dset);
+  EXPECT_EQ(expected, actual);
+}
+} // namespace
