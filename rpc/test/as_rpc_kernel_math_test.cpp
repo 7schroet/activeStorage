@@ -28,7 +28,7 @@ TEST(Math, MeanOneElement)
   const std::vector<double> expected{5.0};
   const std::vector<hsize_t> dims{1};
 
-  auto actual = as_rpc::kernel_impl::mean_reduction(expected, dims, {});
+  auto actual = as_rpc::kernel_impl::mean_reduction(expected, dims, {1});
   EXPECT_EQ(expected, actual);
 }
 
@@ -38,7 +38,7 @@ TEST(Math, MeanDoubles1D)
   const std::vector<hsize_t> dims{data.size()};
   const std::vector<double> expected{13.5};
 
-  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {});
+  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {1});
   EXPECT_EQ(expected.size(), actual.size());
   EXPECT_DOUBLE_EQ(expected[0], actual[0]);
 }
@@ -49,14 +49,57 @@ TEST(Math, MeanInts1D)
   const std::vector<hsize_t> dims{data.size()};
   const std::vector<double> expected{14.5};
 
-  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {});
+  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {1});
   EXPECT_EQ(expected.size(), actual.size());
   EXPECT_DOUBLE_EQ(expected[0], actual[0]);
 }
 
 TEST(Math, MeanZeroElement)
 {
-  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({}, {1}, {}),
+  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({}, {1}, {1}),
                      "Passed vector of size 0!");
 }
+
+TEST(Math, MeanReduceAll2D)
+{
+  std::vector<double> data{};
+  const std::vector<hsize_t> dims{5, 10};
+  const std::vector<char> reduce_along_dim{1, 1};
+  for (decltype(dims)::value_type i = 0; i < dims[0] * dims[1]; i++)
+    data.push_back(5.55 * i);
+
+  auto sum = std::reduce(data.cbegin(), data.cend(), 0.0);
+  std::vector<double> expected{sum / data.size()};
+
+  auto actual =
+      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+  EXPECT_EQ(expected.size(), actual.size());
+  EXPECT_DOUBLE_EQ(expected[0], actual[0]);
+}
+
+TEST(Math, MeanReduceFirst2D)
+{
+  std::vector<double> data{};
+  std::vector<double> expected_data{};
+
+  const std::vector<hsize_t> dims{5, 10};
+  const std::vector<char> reduce_along_dim{1, 0};
+
+  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)
+  {
+    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)
+      data.push_back(10.0 * j);
+  }
+
+  for (decltype(dims)::value_type i = 0; i < dims[1]; i++)
+    expected_data.push_back(10.0 * i);
+
+  auto actual_data =
+      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+  EXPECT_EQ(10, actual_data.size());
+  EXPECT_EQ(expected_data, actual_data);
+}
+
+TEST(Math, MeanReduceSecond2D) {}
+
 } // namespace
