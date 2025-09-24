@@ -18,6 +18,7 @@ target_sources(as-rpc
     thallium/tl_kernels.cpp
     thallium/tl_protocols.cpp
     thallium/tl_utils.cpp
+    include/as_rpc_kernel_math.hpp
     include/tl_kernel_impl.hpp
     include/h5_helpers.hpp
     h5_helpers.cpp

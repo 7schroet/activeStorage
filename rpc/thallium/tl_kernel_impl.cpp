@@ -18,12 +18,12 @@
  */
 
 #include "tl_kernel_impl.hpp"
+#include "as_rpc_kernel_math.hpp"
 #include "h5_helpers.hpp"
 #include <H5Cpp.h>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
-#include <numeric>
 #include <string>
 #include <thallium.hpp>
 #include <vector>
@@ -58,30 +58,27 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
-  double avg;
+  std::vector<double> avg;
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
     const auto [data, dims] = h5::read_data<double>(dset, timestep);
-    auto sum = std::reduce(data.begin(), data.end(), 0.0);
-    avg = sum / data.size();
+    avg = mean_reduction(data);
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
     const auto [data, dims] = h5::read_data<float>(dset, timestep);
-    auto sum = std::reduce(data.begin(), data.end(), 0.0);
-    avg = sum / data.size();
+    avg = mean_reduction(data);
   }
   else
   {
     const auto [data, dims] = h5::read_data<int>(dset, timestep);
-    auto sum = std::reduce(data.begin(), data.end(), 0.0);
-    avg = sum / data.size();
+    avg = mean_reduction(data);
   }
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
-  h5::write_data({avg}, {1}, timestep, result_filename);
+  h5::write_data(avg, {1}, timestep, result_filename);
 
   dset.close();
   file.close();
