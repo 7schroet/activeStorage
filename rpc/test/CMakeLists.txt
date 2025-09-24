@@ -19,5 +19,5 @@ gtest_discover_tests(h5_helpers_test)
 
 # Kernel math
 add_executable(as_rpc_kernel_math_test as_rpc_kernel_math_test.cpp)
-target_link_libraries(as_rpc_kernel_math_test GTest::gtest_main)
+target_link_libraries(as_rpc_kernel_math_test GTest::gtest_main HDF5::HDF5)
 gtest_discover_tests(as_rpc_kernel_math_test)

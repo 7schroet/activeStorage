@@ -23,19 +23,22 @@
 
 namespace
 {
-
 TEST(Math, MeanOneElement)
 {
   const std::vector<double> expected{5.0};
-  auto actual = as_rpc::kernel_impl::mean_reduction(expected);
+  const std::vector<hsize_t> dims{1};
+
+  auto actual = as_rpc::kernel_impl::mean_reduction(expected, dims, {});
   EXPECT_EQ(expected, actual);
 }
 
 TEST(Math, MeanDoubles1D)
 {
   const std::vector<double> data{12.0, 13.0, 14.0, 15.0};
+  const std::vector<hsize_t> dims{data.size()};
   const std::vector<double> expected{13.5};
-  auto actual = as_rpc::kernel_impl::mean_reduction(data);
+
+  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {});
   EXPECT_EQ(expected.size(), actual.size());
   EXPECT_DOUBLE_EQ(expected[0], actual[0]);
 }
@@ -43,16 +46,17 @@ TEST(Math, MeanDoubles1D)
 TEST(Math, MeanInts1D)
 {
   const std::vector<int> data{12, 13, 14, 15, 16, 17};
+  const std::vector<hsize_t> dims{data.size()};
   const std::vector<double> expected{14.5};
-  auto actual = as_rpc::kernel_impl::mean_reduction(data);
+
+  auto actual = as_rpc::kernel_impl::mean_reduction(data, dims, {});
   EXPECT_EQ(expected.size(), actual.size());
   EXPECT_DOUBLE_EQ(expected[0], actual[0]);
 }
 
 TEST(Math, MeanZeroElement)
 {
-  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({}),
+  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({}, {1}, {}),
                      "Passed vector of size 0!");
 }
-
 } // namespace
