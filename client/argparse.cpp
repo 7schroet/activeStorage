@@ -32,6 +32,7 @@
   std::cerr << "\t--protocol:\t\tPick a protocol (tpc[default],verbs)\n";
   std::cerr << "\t--addressfile:\t\tPath to the file that contains the "
                "server's address (default: ./servername)\n";
+  std::cerr << "\t--random: Add random numbers in [0,1) to the written data\n";
   std::exit(exit_code);
 }
 
@@ -43,6 +44,7 @@ Config parse_args(int argc, char** argv)
       {"help", no_argument, NULL, 'h'},
       {"protocol", required_argument, NULL, 'p'},
       {"addressfile", required_argument, NULL, 'f'},
+      {"random", no_argument, NULL, 'r'},
       {NULL, 0, NULL, 0},
   };
 
@@ -67,6 +69,9 @@ Config parse_args(int argc, char** argv)
       break;
     case 'f':
       config.server_address_file = optarg;
+      break;
+    case 'r':
+      config.randomize_data = true;
       break;
     case ':':
       std::cerr << "Missing argument for " << argv[optind - 1]

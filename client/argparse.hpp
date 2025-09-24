@@ -26,9 +26,11 @@ struct Config
 {
   as_rpc::Protocol protocol;
   std::filesystem::path server_address_file;
+  bool randomize_data;
 
   Config()
-      : protocol{as_rpc::Protocol::tcp}, server_address_file{"servername"} {};
+      : protocol{as_rpc::Protocol::tcp}, server_address_file{"servername"},
+        randomize_data{false} {};
 };
 
 Config parse_args(int argc, char** argv);

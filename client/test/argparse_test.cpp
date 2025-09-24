@@ -51,6 +51,7 @@ static void assert_config_eq(const Config& expected, const Config& actual)
 {
   EXPECT_EQ(expected.server_address_file, actual.server_address_file);
   EXPECT_EQ(expected.protocol, actual.protocol);
+  EXPECT_EQ(expected.randomize_data, actual.randomize_data);
 }
 
 TEST_F(ClientConfigTest, Default)
@@ -85,15 +86,27 @@ TEST_F(ClientConfigTest, PassAddress)
   assert_config_eq(expected, actual);
 }
 
+TEST_F(ClientConfigTest, PassRandom)
+{
+  Config expected{};
+  expected.randomize_data = true;
+
+  constexpr int argc = 2;
+  const char* argv[argc] = {"as-client", "--random"};
+  Config actual = parse_args(argc, const_cast<char**>(argv));
+  assert_config_eq(expected, actual);
+}
+
 TEST_F(ClientConfigTest, PassAll)
 {
   Config expected{};
   expected.protocol = as_rpc::Protocol::tcp;
   expected.server_address_file = "file";
+  expected.randomize_data = true;
 
-  constexpr int argc = 5;
-  const char* argv[argc] = {"as-client", "--protocol", "tcp", "--addressfile",
-                            "file"};
+  constexpr int argc = 6;
+  const char* argv[argc] = {"as-client",     "--protocol", "tcp",
+                            "--addressfile", "file",       "--random"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }

@@ -70,7 +70,7 @@ hid_t create_file(void)
   return file;
 }
 
-void add_timestep(hid_t file)
+void add_timestep(hid_t file, bool randomize)
 {
   static int current_timestep = 0;
   auto dset = H5Dopen2(file, DSET_NAME, H5P_DEFAULT);
@@ -103,7 +103,13 @@ void add_timestep(hid_t file)
   for (auto i = 0; i < DSET_X; i++)
   {
     for (auto j = 0; j < DSET_Y; j++)
-      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + dis(gen);
+    {
+      double random_value = 0.5 * j;
+      if (randomize)
+        random_value = dis(gen);
+
+      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + random_value;
+    }
   }
 
   auto memspace = H5Screate_simple(RANK, count, nullptr);
@@ -153,7 +159,7 @@ int main(int argc, char** argv)
   auto count = 0;
   for (std::string in; std::getline(std::cin, in);)
   {
-    add_timestep(file);
+    add_timestep(file, config.randomize_data);
     std::cout << "Appended time step " << count << "\n";
     search->second.on(server)(filename, dset_name, count);
     count++;
