@@ -6,7 +6,7 @@ ADDRESS_FILE=e2eMeanAddress
 PORT=8080
 H5FILE=file.h5
 RESULT=asrpc_results_file__dataset_mean.h5
-RESULT_REF=$3
+RESULT_REF="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean.h5"
 
 $1 --addressfile $ADDRESS_FILE --port $PORT &
 PID=$!
@@ -21,4 +21,4 @@ function cleanup(){
 }
 trap cleanup EXIT
 
-h5diff "$RESULT" "$RESULT_REF"
+@HDF5_DIFF_EXECUTABLE@ "$RESULT" "$RESULT_REF"
