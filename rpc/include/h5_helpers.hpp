@@ -25,6 +25,10 @@
 #include <utility>
 #include <vector>
 
+namespace as_rpc
+{
+namespace h5
+{
 const H5::PredType& determine_datatype(const H5::DataSet& dset);
 
 // No mdarray support yet, so this function returns a pair consisting
@@ -52,4 +56,6 @@ void write_data(const std::vector<double>& data,
                 const std::string& filename,
                 const std::string& dset_name = "/result");
 
+} // namespace h5
+} // namespace as_rpc
 #endif

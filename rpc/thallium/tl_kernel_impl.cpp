@@ -57,31 +57,31 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 {
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
-  auto dtype = determine_datatype(dset);
+  auto dtype = h5::determine_datatype(dset);
   double avg;
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
-    const auto [data, dims] = read_data<double>(dset, timestep);
+    const auto [data, dims] = h5::read_data<double>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
-    const auto [data, dims] = read_data<float>(dset, timestep);
+    const auto [data, dims] = h5::read_data<float>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
   else
   {
-    const auto [data, dims] = read_data<int>(dset, timestep);
+    const auto [data, dims] = h5::read_data<int>(dset, timestep);
     auto sum = std::reduce(data.begin(), data.end(), 0.0);
     avg = sum / data.size();
   }
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
-  write_data({avg}, {1}, timestep, result_filename);
+  h5::write_data({avg}, {1}, timestep, result_filename);
 
   dset.close();
   file.close();
