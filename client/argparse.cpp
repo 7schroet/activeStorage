@@ -32,7 +32,8 @@
   std::cerr << "\t--protocol:\t\tPick a protocol (tpc[default],verbs)\n";
   std::cerr << "\t--addressfile:\t\tPath to the file that contains the "
                "server's address (default: ./servername)\n";
-  std::cerr << "\t--random: Add random numbers in [0,1) to the written data\n";
+  std::cerr
+      << "\t--random:\t\tAdd random numbers in [0,1) to the written data\n";
   std::exit(exit_code);
 }
 
