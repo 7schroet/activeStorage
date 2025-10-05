@@ -23,7 +23,6 @@
 #include <H5Cpp.h>
 #include <cassert>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <vector>
 
@@ -58,8 +57,7 @@ std::vector<double> mean_reduction(const std::vector<T>& data,
 
   std::vector<double> result(data.begin(), data.end());
 
-  for (decltype(dims.size()) current_dim = dims.size(); current_dim != 0;
-       current_dim--)
+  for (int current_dim = dims.size() - 1; current_dim >= 0; current_dim--)
   {
     if (!(reduce_along_dim[current_dim]))
       continue;
@@ -67,13 +65,18 @@ std::vector<double> mean_reduction(const std::vector<T>& data,
     std::vector<double> tmp{};
     auto stride = std::reduce(dims.begin() + current_dim + 1, dims.end(), 1,
                               std::multiplies<>());
-    std::cerr << "STRIDE: " << stride << "\n";
-    for (decltype(stride) i = 0; i < stride; i++)
+    auto reduced_num_elements = result.size() / dims[current_dim];
+
+    for (decltype(reduced_num_elements) i = 0; i < reduced_num_elements; i++)
     {
-      auto sum = 0.0;
-      for (decltype(result.size()) j = i; j < result.size(); j += stride)
-        sum += result[j];
-      tmp.push_back(sum / stride);
+      double sum = 0.0;
+      unsigned offset = i;
+      for (unsigned count = 0; count < dims[current_dim]; count++)
+      {
+        sum += result[offset];
+        offset += stride;
+      }
+      tmp.push_back(sum / dims[current_dim]);
     }
 
     result = std::move(tmp);
