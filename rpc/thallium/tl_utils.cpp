@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <format>
 #include <fstream>
-#include <iostream>
+#include <print>
 #include <string_view>
 
 namespace as_rpc
@@ -41,8 +41,8 @@ void write_address_to_file(const Engine& engine,
   std::ofstream address_file{filename, std::ios_base::trunc};
   if (!address_file.good())
   {
-    std::cerr << "Could not write address to file " << filename
-              << ", aborting\n";
+    std::println(stderr, "Could not write address to file {}, aborting",
+                 filename.c_str());
     exit(EXIT_FAILURE);
   }
   address_file << engine.self();

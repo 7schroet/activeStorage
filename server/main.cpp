@@ -20,14 +20,14 @@
 #include "argparse.hpp"
 #include "as_rpc.hpp"
 #include <csignal>
+#include <print>
 
 static as_rpc::Engine engine;
 static struct sigaction sa;
 
 void stop_handler(int signal)
 {
-  std::cout << "Received signal " << signal
-            << ", shutting down the server...\n";
+  std::println("Received signal {}, shutting down the server...", signal);
   as_rpc::stop_server(engine);
 }
 

@@ -23,7 +23,7 @@
 #include <H5Cpp.h>
 #include <algorithm>
 #include <filesystem>
-#include <iostream>
+#include <print>
 #include <string>
 #include <thallium.hpp>
 #include <vector>
@@ -49,7 +49,7 @@ namespace kernel_impl
 
 void hello([[maybe_unused]] const thallium::request& req)
 {
-  std::cout << "Received RPC\n";
+  std::println("Received RPC");
 }
 
 void mean([[maybe_unused]] const thallium::request& req, std::string filename,

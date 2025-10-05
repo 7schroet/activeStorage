@@ -21,7 +21,7 @@
 #include "as_rpc.hpp"
 #include <cstdlib>
 #include <hdf5.h>
-#include <iostream>
+#include <print>
 #include <random>
 #include <string>
 
@@ -31,8 +31,9 @@
     herr_t err = (func);                                                       \
     if (err < 0)                                                               \
     {                                                                          \
-      std::cout << "Error in HDF5 function call at " << __LINE__ << " in "     \
-                << __FILE__ << ", aborting\n";                                 \
+      std::println(stderr,                                                     \
+                   "Error in HDF5 function call at {} in {}, aborting",        \
+                   __LINE__, __FILE__);                                        \
       exit(EXIT_FAILURE);                                                      \
     }                                                                          \
   } while (0)
@@ -149,21 +150,21 @@ int main(int argc, char** argv)
   search = rpc_kernels.find(as_rpc::Kernel::mean);
   if (search == rpc_kernels.end())
   {
-    std::cerr << "Couldn't find mean RPC!\n";
+    std::println(stderr, "Couldn't find mean RPC!");
     exit(1);
   }
   auto file = create_file();
   std::string filename{FILE_NAME};
   std::string dset_name{DSET_NAME};
-  std::cout << "Press Enter to write a new time step, or Ctrl+D to terminate\n";
+  std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
   for (std::string in; std::getline(std::cin, in);)
   {
     add_timestep(file, config.randomize_data);
-    std::cout << "Appended time step " << count << "\n";
+    std::println("Appended time step {}", count);
     search->second.on(server)(filename, dset_name, count);
     count++;
   }
-  std::cout << "Terminating...\n";
+  std::println("Terminating...");
   close_file(file);
 }
