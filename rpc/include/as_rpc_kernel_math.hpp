@@ -40,45 +40,47 @@ std::vector<double> mean_reduction(const std::vector<T>& data,
   assert((dims.size() == reduce_along_dim.size()) &&
          "Dimensionalities do not match!");
 
-  std::vector<hsize_t> new_dims{};
-  for (decltype(dims.size()) i = 0; i < dims.size(); i++)
-  {
-    if (!(reduce_along_dim[i]))
-      new_dims.push_back(dims[i]);
-  }
-  const bool reduce_to_single_value = new_dims.size() == 0;
+  std::vector<hsize_t> new_dims{dims};
+  const auto num_reduced_dims =
+      std::reduce(reduce_along_dim.begin(), reduce_along_dim.end(), 0u);
+  const bool reduce_to_single_value = num_reduced_dims == dims.size();
 
   if (dims.size() == 1 || reduce_to_single_value)
   {
-    auto sum = std::reduce(data.begin(), data.end(), 0.0);
-    auto avg = sum / data.size();
+    const double sum = std::reduce(data.begin(), data.end(), 0.0);
+    const auto avg = sum / data.size();
     return {avg};
   }
 
   std::vector<double> result(data.begin(), data.end());
 
-  for (int current_dim = dims.size() - 1; current_dim >= 0; current_dim--)
+  for (int current_dim = new_dims.size() - 1; current_dim >= 0; current_dim--)
   {
     if (!(reduce_along_dim[current_dim]))
       continue;
 
     std::vector<double> tmp{};
-    auto stride = std::reduce(dims.begin() + current_dim + 1, dims.end(), 1,
-                              std::multiplies<>());
-    auto reduced_num_elements = result.size() / dims[current_dim];
+    const auto stride_between_elements =
+        std::reduce(new_dims.begin() + current_dim + 1, new_dims.end(), 1ul,
+                    std::multiplies<>());
 
-    for (decltype(reduced_num_elements) i = 0; i < reduced_num_elements; i++)
+    const auto reduced_num_elements = result.size() / new_dims[current_dim];
+    const auto stride_between_starts =
+        stride_between_elements == 1 ? new_dims[current_dim] : 1ul;
+
+    for (auto i = 0ul; i < reduced_num_elements; i++)
     {
       double sum = 0.0;
-      unsigned offset = i;
-      for (unsigned count = 0; count < dims[current_dim]; count++)
+      auto offset = i * stride_between_starts;
+      for (auto count = 0ul; count < new_dims[current_dim]; count++)
       {
         sum += result[offset];
-        offset += stride;
+        offset += stride_between_elements;
       }
-      tmp.push_back(sum / dims[current_dim]);
+      tmp.push_back(sum / new_dims[current_dim]);
     }
 
+    new_dims[current_dim] = 1;
     result = std::move(tmp);
   }
 

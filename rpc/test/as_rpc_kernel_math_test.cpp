@@ -111,11 +111,11 @@ TEST(Math, MeanReduceSecond2D)
   for (decltype(dims)::value_type i = 0; i < dims[0]; i++)
   {
     for (decltype(dims)::value_type j = 0; j < dims[1]; j++)
-      data.push_back(10.0 * j);
+      data.push_back(10.0 * j + i);
   }
 
   for (decltype(dims)::value_type i = 0; i < dims[0]; i++)
-    expected_data.push_back(45.0);
+    expected_data.push_back(45.0 + i);
 
   auto actual_data =
       as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
