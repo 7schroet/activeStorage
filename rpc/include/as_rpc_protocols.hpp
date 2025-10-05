@@ -21,7 +21,7 @@
 #define AS_RPC_PROTOCOLS_HPP
 
 #include "as_rpc_macros.hpp"
-#include <string>
+#include <string_view>
 
 #define ASRPC_FOREACH_PROT(PROT)                                               \
   PROT(tcp)                                                                    \
@@ -37,7 +37,7 @@ enum class Protocol
 
 std::string protocol_to_string(Protocol protocol);
 
-Protocol string_to_protocol(const std::string& protocol_string);
+Protocol string_to_protocol(std::string_view protocol_string);
 
 } // namespace as_rpc
 

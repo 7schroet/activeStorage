@@ -24,11 +24,12 @@
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <string_view>
 
 namespace as_rpc
 {
 
-std::string construct_address(Protocol protocol, const std::string& port)
+std::string construct_address(Protocol protocol, std::string_view port)
 {
   std::string protocol_string = protocol_to_string(protocol);
   return std::format("{}://:{}", protocol_string, port);

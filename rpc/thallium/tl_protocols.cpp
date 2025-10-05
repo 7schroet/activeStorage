@@ -20,7 +20,7 @@
 #include "as_rpc_protocols.hpp"
 #include <format>
 #include <stdexcept>
-#include <string>
+#include <string_view>
 #include <utility>
 
 namespace as_rpc
@@ -33,7 +33,7 @@ std::string protocol_to_string(Protocol protocol)
   return protocol_strings[std::to_underlying(protocol)];
 }
 
-Protocol string_to_protocol(const std::string& protocol_string)
+Protocol string_to_protocol(std::string_view protocol_string)
 {
   if (protocol_string == "tcp")
   {

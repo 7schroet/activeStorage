@@ -23,7 +23,7 @@
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
 #include <filesystem>
-#include <string>
+#include <string_view>
 
 namespace as_rpc
 {
@@ -32,7 +32,7 @@ namespace as_rpc
  * Constructs addresses for engine initialization.
  * Don't try to build them on your own.
  */
-std::string construct_address(Protocol protocol, const std::string& port);
+std::string construct_address(Protocol protocol, std::string_view port);
 
 /**
  * Writes the address of a server to a file. Use this in tandem with the reader
