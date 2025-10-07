@@ -86,7 +86,16 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
-  h5::write_data(avg, avg_dims, timestep, result_filename);
+  if (reduce_along_dim[0] == 0)
+  {
+    h5::write_data(avg, avg_dims, timestep, result_filename);
+  }
+  else
+  {
+    // running average mit file read
+    const auto [prev_avg, _] = h5::read_data<double>(dset, timestep - 1);
+    // running_avg = running_mean(avg, prev_avg, avg_dims, timestep - 1);
+  }
 
   dset.close();
   file.close();

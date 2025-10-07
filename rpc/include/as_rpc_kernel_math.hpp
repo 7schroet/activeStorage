@@ -34,6 +34,17 @@ namespace kernel_impl
 template <typename T>
 std::pair<std::vector<double>, std::vector<hsize_t>>
 mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+               const std::vector<char>& reduce_along_dim);
+
+std::vector<double> running_mean(const std::vector<double>& mean,
+                                 const std::vector<double>& running_mean,
+                                 const std::vector<hsize_t>& dims,
+                                 int timestep);
+
+// Template impl
+template <typename T>
+std::pair<std::vector<double>, std::vector<hsize_t>>
+mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                const std::vector<char>& reduce_along_dim)
 {
   assert((data.size() != 0) && "Passed vector of size 0!");
