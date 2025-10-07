@@ -21,4 +21,8 @@ function cleanup(){
 }
 trap cleanup EXIT
 
-@HDF5_DIFF_EXECUTABLE@ "$RESULT" "$RESULT_REF"
+h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$RESULT" "$RESULT_REF")
+if [[ "$h5diff_result" ]]; then
+  echo "$h5diff_result"
+  exit 1
+fi
