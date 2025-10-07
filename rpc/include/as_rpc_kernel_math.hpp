@@ -32,9 +32,9 @@ namespace kernel_impl
 {
 
 template <typename T>
-std::vector<double> mean_reduction(const std::vector<T>& data,
-                                   const std::vector<hsize_t>& dims,
-                                   const std::vector<char>& reduce_along_dim)
+std::pair<std::vector<double>, std::vector<hsize_t>>
+mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+               const std::vector<char>& reduce_along_dim)
 {
   assert((data.size() != 0) && "Passed vector of size 0!");
   assert((dims.size() == reduce_along_dim.size()) &&
@@ -46,8 +46,8 @@ std::vector<double> mean_reduction(const std::vector<T>& data,
   if (reduce_to_single_value)
   {
     const double sum = std::reduce(data.begin(), data.end(), 0.0);
-    const auto avg = sum / data.size();
-    return {avg};
+    const double avg = sum / data.size();
+    return {{avg}, {1}};
   }
 
   std::vector<hsize_t> new_dims{dims};
@@ -84,7 +84,8 @@ std::vector<double> mean_reduction(const std::vector<T>& data,
     result = std::move(tmp);
   }
 
-  return result;
+  std::erase(new_dims, 1);
+  return {std::move(result), std::move(new_dims)};
 }
 
 } // namespace kernel_impl

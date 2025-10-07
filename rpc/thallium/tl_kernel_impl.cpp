@@ -26,6 +26,7 @@
 #include <print>
 #include <string>
 #include <thallium.hpp>
+#include <tuple>
 #include <vector>
 
 namespace
@@ -59,26 +60,30 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
   std::vector<double> avg;
+  std::vector<hsize_t> avg_dims;
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
     const auto [data, dims] = h5::read_data<double>(dset, timestep);
-    avg = mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) =
+        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
     const auto [data, dims] = h5::read_data<float>(dset, timestep);
-    avg = mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) =
+        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
   }
   else
   {
     const auto [data, dims] = h5::read_data<int>(dset, timestep);
-    avg = mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) =
+        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
   }
 
   std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
-  h5::write_data(avg, {1}, timestep, result_filename);
+  h5::write_data(avg, avg_dims, timestep, result_filename);
 
   dset.close();
   file.close();
