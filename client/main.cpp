@@ -24,6 +24,7 @@
 #include <print>
 #include <random>
 #include <string>
+#include <vector>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -158,11 +159,12 @@ int main(int argc, char** argv)
   std::string dset_name{DSET_NAME};
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
+  std::vector<char> reduce_along_dim{1, 1};
   for (std::string in; std::getline(std::cin, in);)
   {
     add_timestep(file, config.randomize_data);
     std::println("Appended time step {}", count);
-    search->second.on(server)(filename, dset_name, count);
+    search->second.on(server)(filename, dset_name, count, reduce_along_dim);
     count++;
   }
   std::println("Terminating...");

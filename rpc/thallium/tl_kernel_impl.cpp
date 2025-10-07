@@ -54,7 +54,7 @@ void hello([[maybe_unused]] const thallium::request& req)
 }
 
 void mean([[maybe_unused]] const thallium::request& req, std::string filename,
-          std::string dataset, int timestep)
+          std::string dataset, int timestep, std::vector<char> reduce_along_dim)
 {
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
@@ -65,20 +65,17 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
     const auto [data, dims] = h5::read_data<double>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) = mean_reduction(data, dims, reduce_along_dim);
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
     const auto [data, dims] = h5::read_data<float>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) = mean_reduction(data, dims, reduce_along_dim);
   }
   else
   {
     const auto [data, dims] = h5::read_data<int>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, std::vector<char>(dims.size(), 1));
+    std::tie(avg, avg_dims) = mean_reduction(data, dims, reduce_along_dim);
   }
 
   std::string result_filename =

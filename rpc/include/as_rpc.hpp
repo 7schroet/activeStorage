@@ -28,4 +28,5 @@
 #include "as_rpc_utils.hpp"
 
 #include <thallium/serialization/stl/string.hpp>
+#include <thallium/serialization/stl/vector.hpp>
 #endif

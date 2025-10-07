@@ -23,6 +23,7 @@
 #include <string>
 #include <thallium.hpp>
 #include <thallium/serialization/stl/string.hpp>
+#include <thallium/serialization/stl/vector.hpp>
 
 namespace as_rpc
 {
@@ -30,7 +31,8 @@ namespace kernel_impl
 {
 void hello(const thallium::request& req);
 void mean(const thallium::request& req, std::string filename,
-          std::string dataset, int timestep);
+          std::string dataset, int timestep,
+          std::vector<char> reduce_along_dim);
 } // namespace kernel_impl
 } // namespace as_rpc
 
