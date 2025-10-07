@@ -107,7 +107,7 @@ read_data(const H5::DataSet& dset, int timestep)
   {
     data_dims = {count.begin() + 1, count.end()};
   }
-  return std::make_pair(std::move(data), std::move(data_dims));
+  return {std::move(data), std::move(data_dims)};
 }
 
 template std::pair<std::vector<double>, std::vector<hsize_t>>
