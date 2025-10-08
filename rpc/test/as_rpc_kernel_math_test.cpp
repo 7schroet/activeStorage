@@ -19,10 +19,95 @@
 
 #include "../include/as_rpc_kernel_math.hpp"
 #include <gtest/gtest.h>
+#include <numeric>
 #include <vector>
 
 namespace
 {
+TEST(Math, RunningAvgSingleElements)
+{
+  const std::vector<double> first{20.0};
+  const std::vector<double> second{30.0};
+  const std::vector<double> expected{25.0};
+
+  const auto actual = as_rpc::kernel_impl::running_mean(second, first, 1);
+  EXPECT_EQ(expected.size(), actual.size());
+  EXPECT_DOUBLE_EQ(expected[0], actual[0]);
+}
+
+TEST(Math, RunningAvgSingleElementsManyTimesteps)
+{
+  const size_t timesteps = 50;
+  std::vector<double> data(timesteps);
+  std::iota(data.begin(), data.end(), 2.0);
+  const std::vector<double> prev_running_avg = {
+      std::reduce(data.begin(), data.end() - 1) / (timesteps - 1)};
+  const std::vector<double> expected = {std::reduce(data.begin(), data.end()) /
+                                        timesteps};
+  const auto actual = as_rpc::kernel_impl::running_mean(
+      {data[timesteps - 1]}, prev_running_avg, timesteps - 1);
+
+  EXPECT_EQ(expected.size(), actual.size());
+  EXPECT_DOUBLE_EQ(expected[0], actual[0]);
+}
+
+TEST(Math, RunningAvgVectors)
+{
+  const std::vector<double> first{20.0, 30.0, 40.0, 50.0};
+  const std::vector<double> second{25.0, 31.0, 42.2, 49.4};
+  const std::vector<double> expected{22.5, 30.5, 41.1, 49.7};
+
+  const auto actual = as_rpc::kernel_impl::running_mean(second, first, 1);
+  EXPECT_EQ(expected.size(), actual.size());
+  for (auto i = 0ul; i < expected.size(); i++)
+    EXPECT_DOUBLE_EQ(expected[i], actual[i]);
+}
+
+TEST(Math, RunningAvgVectorsManyTimesteps)
+{
+  const size_t vector_size = 20;
+  const size_t timesteps = 50;
+  std::vector<double> prev_running_avg(vector_size);
+  std::vector<double> current_in(vector_size);
+  std::vector<double> expected(vector_size);
+  std::vector<std::vector<double>> data(timesteps);
+
+  for (auto i = 0ul; i < timesteps; i++)
+  {
+    data[i].resize(vector_size);
+    std::iota(data[i].begin(), data[i].end(), 2.0 + i);
+  }
+
+  for (auto i = 0ul; i < vector_size; i++)
+  {
+    double sum = 0.0;
+    for (auto j = 0ul; j < timesteps; j++)
+      sum += data[j][i];
+
+    expected[i] = sum / timesteps;
+    prev_running_avg[i] = (sum - data[timesteps - 1][i]) / (timesteps - 1);
+    current_in[i] = data[timesteps - 1][i];
+  }
+
+  const auto actual = as_rpc::kernel_impl::running_mean(
+      current_in, prev_running_avg, timesteps - 1);
+  EXPECT_EQ(expected.size(), actual.size());
+  for (auto i = 0ul; i < expected.size(); i++)
+    EXPECT_DOUBLE_EQ(expected[i], actual[i]);
+}
+
+TEST(Math, RunningAvgSizeMismatchDeathTest)
+{
+  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::running_mean({1, 1}, {1}, 1),
+                     "Passed vectors must have the same size!");
+}
+
+TEST(Math, RunningAvgSizeZeroDeathTest)
+{
+  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::running_mean({}, {}, 0),
+                     "Running mean must contain elements!");
+}
+
 TEST(Math, MeanOneElement)
 {
   const std::vector<double> expected_data{5.0};
@@ -115,7 +200,8 @@ TEST(Math, MeanReduceFirst2D)
   const auto [actual_data, actual_dims] =
       as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
   EXPECT_EQ(10, actual_data.size());
-  EXPECT_EQ(expected_data, actual_data);
+  for (auto i = 0ul; i < expected_data.size(); i++)
+    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
   EXPECT_EQ(expected_dims, actual_dims);
 }
 
@@ -140,7 +226,8 @@ TEST(Math, MeanReduceSecond2D)
   const auto [actual_data, actual_dims] =
       as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
   EXPECT_EQ(5, actual_data.size());
-  EXPECT_EQ(expected_data, actual_data);
+  for (auto i = 0ul; i < expected_data.size(); i++)
+    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
   EXPECT_EQ(expected_dims, actual_dims);
 }
 
