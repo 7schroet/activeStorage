@@ -52,6 +52,7 @@ static void assert_config_eq(const Config& expected, const Config& actual)
   EXPECT_EQ(expected.server_address_file, actual.server_address_file);
   EXPECT_EQ(expected.protocol, actual.protocol);
   EXPECT_EQ(expected.randomize_data, actual.randomize_data);
+  EXPECT_EQ(expected.reduce_along_dim, actual.reduce_along_dim);
 }
 
 TEST_F(ClientConfigTest, Default)
@@ -97,16 +98,29 @@ TEST_F(ClientConfigTest, PassRandom)
   assert_config_eq(expected, actual);
 }
 
+TEST_F(ClientConfigTest, PassMeanReduce)
+{
+  Config expected{};
+  expected.reduce_along_dim = {1, 0, 1};
+
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--mean", "101"};
+  Config actual = parse_args(argc, const_cast<char**>(argv));
+  assert_config_eq(expected, actual);
+}
+
 TEST_F(ClientConfigTest, PassAll)
 {
   Config expected{};
   expected.protocol = as_rpc::Protocol::tcp;
   expected.server_address_file = "file";
   expected.randomize_data = true;
+  expected.reduce_along_dim = {0, 0, 1};
 
-  constexpr int argc = 6;
+  constexpr int argc = 8;
   const char* argv[argc] = {"as-client",     "--protocol", "tcp",
-                            "--addressfile", "file",       "--random"};
+                            "--addressfile", "file",       "--random",
+                            "--mean",        "001"};
   Config actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
@@ -132,6 +146,22 @@ TEST_F(ClientConfigTest, UnknownProtocolDeathTest)
 {
   constexpr int argc = 3;
   const char* argv[argc] = {"as-client", "--protocol", "unknown"};
+  EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
+              testing::ExitedWithCode(EXIT_FAILURE), "");
+}
+
+TEST_F(ClientConfigTest, MeanStringLengthDeathTest)
+{
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--mean", "11111"};
+  EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
+              testing::ExitedWithCode(EXIT_FAILURE), "");
+}
+
+TEST_F(ClientConfigTest, MeanStringSymbolDeathTest)
+{
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--mean", "131"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }

@@ -20,6 +20,7 @@
 #include "argparse.hpp"
 #include "as_rpc_protocols.hpp"
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <getopt.h>
 #include <iostream>
@@ -34,6 +35,10 @@
                "server's address (default: ./servername)\n";
   std::cerr
       << "\t--random:\t\tAdd random numbers in [0,1) to the written data\n";
+  std::cerr << "\t--mean:\t\t\tChoose which dimensions to calculate the mean "
+               "over (default: \"111\")\n";
+  std::cerr << "\t\t\t\tThe input is always 3 digits (0 to keep the dimension, "
+               "1 to reduce it)\n";
   std::exit(exit_code);
 }
 
@@ -46,6 +51,7 @@ Config parse_args(int argc, char** argv)
       {"protocol", required_argument, NULL, 'p'},
       {"addressfile", required_argument, NULL, 'f'},
       {"random", no_argument, NULL, 'r'},
+      {"mean", required_argument, NULL, 'm'},
       {NULL, 0, NULL, 0},
   };
 
@@ -73,6 +79,27 @@ Config parse_args(int argc, char** argv)
       break;
     case 'r':
       config.randomize_data = true;
+      break;
+    case 'm':
+      if (strlen(optarg) != 3)
+      {
+        std::cerr << "Argument for " << argv[optind - 2]
+                  << " must be of size 3, aborting...\n";
+        usage(EXIT_FAILURE);
+      }
+      for (auto i = 0; i < 3; i++)
+      {
+        if (optarg[i] == '1')
+          config.reduce_along_dim[i] = 1;
+        else if (optarg[i] == '0')
+          config.reduce_along_dim[i] = 0;
+        else
+        {
+          std::cerr << "Unknown state " << optarg[i] << " for "
+                    << argv[optind - 2] << ", aborting...\n";
+          usage(EXIT_FAILURE);
+        }
+      }
       break;
     case ':':
       std::cerr << "Missing argument for " << argv[optind - 1]

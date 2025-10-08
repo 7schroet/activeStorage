@@ -22,15 +22,17 @@
 
 #include "as_rpc_protocols.hpp"
 #include <filesystem>
+#include <vector>
 struct Config
 {
   as_rpc::Protocol protocol;
   std::filesystem::path server_address_file;
   bool randomize_data;
+  std::vector<char> reduce_along_dim;
 
   Config()
       : protocol{as_rpc::Protocol::tcp}, server_address_file{"servername"},
-        randomize_data{false} {};
+        randomize_data{false}, reduce_along_dim{1, 1, 1} {};
 };
 
 Config parse_args(int argc, char** argv);
