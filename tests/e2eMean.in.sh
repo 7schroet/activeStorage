@@ -13,7 +13,7 @@ PID=$!
 
 sleep 1
 
-(for _ in $(seq 1 20); do echo ; done) | $2 --addressfile $ADDRESS_FILE
+(for _ in $(seq 1 20); do echo ; done) | $2 --addressfile $ADDRESS_FILE --mean "011"
 
 function cleanup(){
   rm "$RESULT" "$ADDRESS_FILE" "$H5FILE"
@@ -21,8 +21,15 @@ function cleanup(){
 }
 trap cleanup EXIT
 
+# h5diff is somewhat inconsistent. If the files can be diffed and there are
+# no differences, the exit code is 0 and there is not stdout. If there are
+# differences, the exit code is 1 and there is something on stdout. So far
+# everything works as expected, but if the files cannot be diffed, the exit code
+# is still 0. This case if obviously a failure. So for that case, we need to also
+# capture stdout and check if it is empty, alongside the exit code check.
+set +e
 h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$RESULT" "$RESULT_REF")
-if [[ "$h5diff_result" ]]; then
+if [[ "$h5diff_result" || $? != 0 ]]; then
   echo "Failure while comparing to $RESULT_REF:"
   echo "$h5diff_result"
 
