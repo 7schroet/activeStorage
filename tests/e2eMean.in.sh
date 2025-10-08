@@ -23,6 +23,12 @@ trap cleanup EXIT
 
 h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$RESULT" "$RESULT_REF")
 if [[ "$h5diff_result" ]]; then
+  echo "Failure while comparing to $RESULT_REF:"
   echo "$h5diff_result"
+
+  COPY_ON_FAIL="./failure.h5"
+  echo "Copying failed file to $(realpath $COPY_ON_FAIL)"
+  cp "$RESULT" "$COPY_ON_FAIL"
+
   exit 1
 fi
