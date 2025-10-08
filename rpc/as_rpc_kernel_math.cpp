@@ -18,10 +18,27 @@
  */
 
 #include "as_rpc_kernel_math.hpp"
+#include <cassert>
 
+namespace as_rpc
+{
+namespace kernel_impl
+{
 std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
-                                 const std::vector<hsize_t>& dims, int timestep)
+                                 int num_entries)
 {
-  return {};
+  assert((mean.size() == running_mean.size()) &&
+         "Passed vectors must have the same size!");
+  assert((running_mean.size() != 0) && "Running mean must contain elements!");
+
+  const double reciprocal = 1.0 / (num_entries + 1);
+  std::vector<double> result(mean.size());
+  for (auto i = 0ul; i < mean.size(); i++)
+  {
+    result[i] = (mean[i] + num_entries * running_mean[i]) * reciprocal;
+  }
+  return result;
 }
+} // namespace kernel_impl
+} // namespace as_rpc

@@ -38,8 +38,7 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
 std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
-                                 const std::vector<hsize_t>& dims,
-                                 int timestep);
+                                 int num_entries);
 
 // Template impl
 template <typename T>
