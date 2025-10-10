@@ -3,6 +3,7 @@ project(ActiveStorage)
 
 option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
+option(COVERAGE "Calculate test coverage (requires gcov and lcov)" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -30,9 +31,15 @@ if(ENABLE_SANITIZER)
 endif()
 
 if(ENABLE_TESTS)
+  include(CTest)
   find_package(GTest REQUIRED)
   enable_testing()
   include(GoogleTest)
+endif()
+
+if(COVERAGE)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  include(coverage)
 endif()
 
 include(GNUInstallDirs)

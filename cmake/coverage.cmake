@@ -1,0 +1,33 @@
+find_program(GCOV_EXE gcov REQUIRED)
+find_program(LCOV_EXE lcov REQUIRED)
+find_program(GENHTML_EXE genhtml REQUIRED)
+
+if(NOT ENABLE_TESTS)
+  message(FATAL_ERROR "Coverage requires tests to be enabled!")
+endif()
+
+message(STATUS "Overriding build type to Debug for coverage calculation")
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+
+add_compile_options("--coverage")
+add_link_options("--coverage")
+
+set(exclude_patterns
+  "c++"
+  "cereal"
+  "gmock"
+  "gtest"
+  "hdf5"
+  "mercury"
+  "mochi"
+)
+list(TRANSFORM exclude_patterns PREPEND "--exclude;" OUTPUT_VARIABLE exclude_patterns)
+
+add_custom_target(coverage
+  COMMAND ${CMAKE_CTEST_COMMAND} -T Test -T Coverage
+  COMMAND ${LCOV_EXE} -d . -b . --capture
+            --output-file coverage.info
+            --ignore-errors mismatch,mismatch
+            ${exclude_patterns}
+  COMMAND ${GENHTML_EXE} --demangle-cpp -o coverage coverage.info
+)
