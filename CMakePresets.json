@@ -1,0 +1,64 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "ENABLE_SANITIZER": "ON",
+        "ENABLE_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_STATIC_ANALYSIS": "ON",
+        "ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "ENABLE_SANITIZER": "OFF",
+        "ENABLE_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_STATIC_ANALYSIS": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "gcc-release",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "clang-debug",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "clang-release",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    }
+  ]
+}
