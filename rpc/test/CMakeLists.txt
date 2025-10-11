@@ -11,6 +11,11 @@ add_test(NAME tl_integration_test
 # HDF5 helper functions unit tests
 set(H5_TEST_INPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 configure_file(h5_helpers_test.in.cpp h5_helpers_test.cpp @ONLY)
+# Required to make clang-tidy actually ignore the
+# newly created test file as intended.
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_executable(h5_helpers_test h5_helpers_test.cpp)
 target_include_directories(h5_helpers_test PRIVATE ../include)

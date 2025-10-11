@@ -1,0 +1,28 @@
+---
+Checks: 'clang-diagnostic-*,
+        clang-analyzer-*,
+        -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+        modernize-*,
+        -modernize-use-trailing-return-type,
+        -modernize-avoid-c-arrays,
+        -modernize-macro-to-enum,
+        -modernize-use-designated-initializers,
+        misc-*,
+        -misc-include-cleaner,
+        performance-*'
+WarningsAsErrors: '*'
+HeaderFileExtensions:
+  - h
+  - hpp
+ImplementationFileExtensions:
+  - c
+  - cpp
+HeaderFilterRegex: ''
+ExcludeHeaderFilterRegex: ''
+FormatStyle:     none
+CheckOptions:
+  cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: 'true'
+SystemHeaders:   false
+UseColor: true
+...
+
