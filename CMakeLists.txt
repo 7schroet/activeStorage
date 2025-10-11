@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.25)
 project(ActiveStorage)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 option(ENABLE_SANITIZER "Build with asan, lsan and ubsan" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
-option(COVERAGE "Calculate test coverage (requires gcov and lcov)" OFF)
+option(ENABLE_COVERAGE "Create target 'coverage' to calculate test coverage (requires gcov and lcov)" OFF)
+option(ENABLE_STATIC_ANALYSIS "Run static analysis via cppcheck" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
@@ -37,9 +40,12 @@ if(ENABLE_TESTS)
   include(GoogleTest)
 endif()
 
-if(COVERAGE)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+if(ENABLE_COVERAGE)
   include(coverage)
+endif()
+
+if(ENABLE_STATIC_ANALYSIS)
+  include(static_analysis)
 endif()
 
 include(GNUInstallDirs)

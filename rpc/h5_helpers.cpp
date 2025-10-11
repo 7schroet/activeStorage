@@ -87,7 +87,7 @@ read_data(const H5::DataSet& dset, int timestep)
   {
     dtype = H5::PredType::NATIVE_FLOAT;
   }
-  else
+  else if constexpr (std::is_same_v<T, int>)
   {
     dtype = H5::PredType::NATIVE_INT;
   }

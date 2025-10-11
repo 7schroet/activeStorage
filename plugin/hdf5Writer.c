@@ -59,7 +59,7 @@ int main(void)
   int current_timestep = 0;
   const int bufsize = 256;
   char input[bufsize];
-  char* res;
+  const char* res;
   srand((unsigned)time(NULL));
 
   printf("Press Enter to write a new time step, or Ctrl+D to terminate\n");
