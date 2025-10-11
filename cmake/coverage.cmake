@@ -6,6 +6,10 @@ if(NOT ENABLE_TESTS)
   message(FATAL_ERROR "Coverage requires tests to be enabled!")
 endif()
 
+if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  message(FATAL_ERROR "Coverage requires gcc!")
+endif()
+
 message(STATUS "Overriding build type to Debug for coverage calculation")
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 
