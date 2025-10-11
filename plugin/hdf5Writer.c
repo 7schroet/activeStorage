@@ -44,13 +44,13 @@ int main(void)
 {
   hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-  const hsize_t dims[RANK] = {1, DSET_X, DSET_Y};
+  const hsize_t initial_dims[RANK] = {1, DSET_X, DSET_Y};
   const hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
 
   hid_t dcpl = H5Pcreate(H5P_DATASET_CREATE);
-  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims));
+  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, initial_dims));
 
-  hid_t dspace = H5Screate_simple(RANK, dims, max_dims);
+  hid_t dspace = H5Screate_simple(RANK, initial_dims, max_dims);
   hid_t dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace,
                          H5P_DEFAULT, dcpl, H5P_DEFAULT);
 

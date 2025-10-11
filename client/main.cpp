@@ -105,10 +105,7 @@ void add_timestep(hid_t file, bool randomize)
   {
     for (auto j = 0; j < DSET_Y; j++)
     {
-      double random_value = 0.5 * j;
-      if (randomize)
-        random_value = dis(gen);
-
+      const double random_value = randomize ? dis(gen) : 0.5 * j;
       data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + random_value;
     }
   }
