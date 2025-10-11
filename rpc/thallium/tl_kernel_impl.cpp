@@ -36,16 +36,14 @@ std::string generate_result_filename(const std::string& filename,
                                      const std::string& op)
 {
   std::string stripped_dataset(dataset);
-  std::replace(stripped_dataset.begin(), stripped_dataset.end(), '/', '_');
-  std::filesystem::path basename{filename};
+  std::ranges::replace(stripped_dataset, '/', '_');
+  const std::filesystem::path basename{filename};
   return "asrpc_results_" + basename.stem().string() + "_" + stripped_dataset +
          "_" + op + ".h5";
 }
 } // namespace
 
-namespace as_rpc
-{
-namespace kernel_impl
+namespace as_rpc::kernel_impl
 {
 
 void hello([[maybe_unused]] const thallium::request& req)
@@ -53,8 +51,9 @@ void hello([[maybe_unused]] const thallium::request& req)
   std::println("Received RPC");
 }
 
-void mean([[maybe_unused]] const thallium::request& req, std::string filename,
-          std::string dataset, int timestep, std::vector<char> reduce_along_dim)
+void mean([[maybe_unused]] const thallium::request& req,
+          const std::string& filename, const std::string& dataset, int timestep,
+          const std::vector<char>& reduce_along_dim)
 {
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);
@@ -84,7 +83,7 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
         mean_reduction(data, dims, reduction_dims_without_time);
   }
 
-  std::string result_filename =
+  const std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
   if (reduce_along_dim[0] == 0 || timestep == 0)
   {
@@ -104,5 +103,4 @@ void mean([[maybe_unused]] const thallium::request& req, std::string filename,
   dset.close();
   file.close();
 }
-} // namespace kernel_impl
-} // namespace as_rpc
+} // namespace as_rpc::kernel_impl

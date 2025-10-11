@@ -149,8 +149,8 @@ TEST(Dtype, double)
 
 TEST(Dtype, float)
 {
-  H5::H5File file{TEST_INPUT_BASE + "3dFloats.h5", H5F_ACC_RDONLY};
-  auto dset = file.openDataSet(DSET_NAME);
+  const H5::H5File file{TEST_INPUT_BASE + "3dFloats.h5", H5F_ACC_RDONLY};
+  const auto dset = file.openDataSet(DSET_NAME);
   const auto expected = H5::PredType::NATIVE_FLOAT;
 
   auto actual = as_rpc::h5::determine_datatype(dset);
@@ -159,8 +159,8 @@ TEST(Dtype, float)
 
 TEST(Dtype, int)
 {
-  H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};
-  auto dset = file.openDataSet(DSET_NAME);
+  const H5::H5File file{TEST_INPUT_BASE + "2dInts.h5", H5F_ACC_RDONLY};
+  const auto dset = file.openDataSet(DSET_NAME);
   const auto expected = H5::PredType::NATIVE_INT;
 
   auto actual = as_rpc::h5::determine_datatype(dset);
@@ -204,8 +204,8 @@ TEST_F(Write, twoDim)
     as_rpc::h5::write_data(expected_data, expected_dims, timestep, tmp_filename,
                            DSET_NAME_WRITE);
 
-    H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
-    auto dset = file.openDataSet(DSET_NAME_WRITE);
+    const H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
+    const auto dset = file.openDataSet(DSET_NAME_WRITE);
     const auto [actual_data, actual_dims] =
         as_rpc::h5::read_data<double>(dset, timestep);
 
@@ -222,15 +222,15 @@ TEST_F(Write, threeDim)
 
   for (auto timestep = 0; timestep < max_timesteps; timestep++)
   {
-    std::vector<double> expected_data{};
+    std::vector<double> expected_data(elements_per_timestep);
     for (auto i = 0; i < elements_per_timestep; i++)
-      expected_data.push_back(10.0 * timestep + 1.5 * i);
+      expected_data[i] = 10.0 * timestep + 1.5 * i;
 
     as_rpc::h5::write_data(expected_data, expected_dims, timestep, tmp_filename,
                            DSET_NAME_WRITE);
 
-    H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
-    auto dset = file.openDataSet(DSET_NAME_WRITE);
+    const H5::H5File file{tmp_filename, H5F_ACC_RDONLY};
+    const auto dset = file.openDataSet(DSET_NAME_WRITE);
     const auto [actual_data, actual_dims] =
         as_rpc::h5::read_data<double>(dset, timestep);
 

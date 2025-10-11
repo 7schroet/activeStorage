@@ -24,7 +24,9 @@
 #include <getopt.h>
 #include <iostream>
 
-[[noreturn]] static void usage(int exit_code)
+namespace
+{
+[[noreturn]] void usage(int exit_code)
 {
   std::cerr << "Start the Active Storage server.\n";
   std::cerr << "Usage:\n";
@@ -35,17 +37,18 @@
                "server's address (default: ./servername)\n";
   std::exit(exit_code);
 }
+} // namespace
 
 Config parse_args(int argc, char** argv)
 {
   Config config{};
 
   const struct option options[] = {
-      {"help", no_argument, NULL, 'h'},
-      {"protocol", required_argument, NULL, 'p'},
-      {"port", required_argument, NULL, 'o'},
-      {"addressfile", required_argument, NULL, 'f'},
-      {NULL, 0, NULL, 0},
+      {"help", no_argument, nullptr, 'h'},
+      {"protocol", required_argument, nullptr, 'p'},
+      {"port", required_argument, nullptr, 'o'},
+      {"addressfile", required_argument, nullptr, 'f'},
+      {nullptr, 0, nullptr, 0},
   };
 
   int opt = 0;

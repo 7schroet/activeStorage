@@ -28,7 +28,7 @@
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
   {                                                                            \
-    herr_t err = (func);                                                       \
+    const herr_t err = (func);                                                 \
     if (err < 0)                                                               \
     {                                                                          \
       std::println(stderr,                                                     \
@@ -44,9 +44,11 @@
 #define DSET_X 10
 #define DSET_Y 10
 
+namespace
+{
 void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 
-hid_t create_file(void)
+hid_t create_file()
 {
   hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC | H5F_ACC_SWMR_WRITE,
                          H5P_DEFAULT, H5P_DEFAULT);
@@ -122,10 +124,11 @@ void add_timestep(hid_t file, bool randomize)
   H5ERROR_CHECK(H5Dclose(dset));
   current_timestep++;
 }
+} // namespace
 
 int main(int argc, char** argv)
 {
-  Config config = parse_args(argc, argv);
+  const Config config = parse_args(argc, argv);
   const std::string client_address =
       as_rpc::protocol_to_string(config.protocol);
 
@@ -135,7 +138,7 @@ int main(int argc, char** argv)
 
   const std::string server_address =
       as_rpc::get_address_from_file(config.server_address_file);
-  as_rpc::ServerEndpoint server =
+  const as_rpc::ServerEndpoint server =
       as_rpc::connect_to_server(engine, server_address);
 
   auto search = rpc_kernels.find(as_rpc::Kernel::hello);

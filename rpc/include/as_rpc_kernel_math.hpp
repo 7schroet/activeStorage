@@ -26,9 +26,7 @@
 #include <numeric>
 #include <vector>
 
-namespace as_rpc
-{
-namespace kernel_impl
+namespace as_rpc::kernel_impl
 {
 
 template <typename T>
@@ -98,6 +96,5 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
   return {std::move(result), std::move(new_dims)};
 }
 
-} // namespace kernel_impl
-} // namespace as_rpc
+} // namespace as_rpc::kernel_impl
 #endif

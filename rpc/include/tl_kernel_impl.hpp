@@ -25,15 +25,12 @@
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/vector.hpp>
 
-namespace as_rpc
-{
-namespace kernel_impl
+namespace as_rpc::kernel_impl
 {
 void hello(const thallium::request& req);
-void mean(const thallium::request& req, std::string filename,
-          std::string dataset, int timestep,
-          std::vector<char> reduce_along_dim);
-} // namespace kernel_impl
-} // namespace as_rpc
+void mean(const thallium::request& req, const std::string& filename,
+          const std::string& dataset, int timestep,
+          const std::vector<char>& reduce_along_dim);
+} // namespace as_rpc::kernel_impl
 
 #endif

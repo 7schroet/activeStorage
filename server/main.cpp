@@ -22,6 +22,8 @@
 #include <csignal>
 #include <print>
 
+namespace
+{
 static as_rpc::Engine engine;
 static struct sigaction sa;
 
@@ -36,15 +38,17 @@ void setup_interrupt_handle()
   sa.sa_handler = stop_handler;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
-  sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGTERM, &sa, NULL);
+  sigaction(SIGINT, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
 }
+} // namespace
 
 int main(int argc, char** argv)
 {
-  Config config = parse_args(argc, argv);
+  const Config config = parse_args(argc, argv);
 
-  std::string addr = as_rpc::construct_address(config.protocol, config.port);
+  const std::string addr =
+      as_rpc::construct_address(config.protocol, config.port);
   engine = as_rpc::init_engine(addr, true);
   as_rpc::write_address_to_file(engine, config.address_file);
 

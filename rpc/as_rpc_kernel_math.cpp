@@ -20,9 +20,7 @@
 #include "as_rpc_kernel_math.hpp"
 #include <cassert>
 
-namespace as_rpc
-{
-namespace kernel_impl
+namespace as_rpc::kernel_impl
 {
 std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
@@ -40,5 +38,4 @@ std::vector<double> running_mean(const std::vector<double>& mean,
   }
   return result;
 }
-} // namespace kernel_impl
-} // namespace as_rpc
+} // namespace as_rpc::kernel_impl

@@ -24,9 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace as_rpc
-{
-namespace h5
+namespace as_rpc::h5
 {
 
 const H5::PredType& determine_datatype(const H5::DataSet& dset)
@@ -186,5 +184,4 @@ void write_data(const std::vector<double>& data,
   dset.close();
   file.close();
 }
-} // namespace h5
-} // namespace as_rpc
+} // namespace as_rpc::h5

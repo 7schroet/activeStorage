@@ -59,11 +59,10 @@ int main(void)
   int current_timestep = 0;
   const int bufsize = 256;
   char input[bufsize];
-  const char* res;
   srand((unsigned)time(NULL));
 
   printf("Press Enter to write a new time step, or Ctrl+D to terminate\n");
-  while ((res = fgets(input, bufsize, stdin)))
+  while (fgets(input, bufsize, stdin))
   {
     if (current_timestep != 0)
     {
