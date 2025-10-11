@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 project(ActiveStorage)
 
-option(ENABLE_SANITIZER "Build with asan and ubsan" OFF)
+option(ENABLE_SANITIZER "Build with asan, lsan and ubsan" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
 option(COVERAGE "Calculate test coverage (requires gcov and lcov)" OFF)
 
@@ -23,11 +23,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(thallium REQUIRED)
 find_package(HDF5 COMPONENTS C;CXX REQUIRED)
 
-add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>")
+add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>")
 
 if(ENABLE_SANITIZER)
-  add_compile_options("-fsanitize=address,undefined")
-  add_link_options("-fsanitize=address,undefined")
+  add_compile_options("-fsanitize=address,leak,undefined")
+  add_link_options("-fsanitize=address,leak,undefined")
 endif()
 
 if(ENABLE_TESTS)
