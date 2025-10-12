@@ -41,6 +41,8 @@ namespace
                "over (default: \"111\")\n";
   std::cerr << "\t\t\t\tThe input is always 3 digits (0 to keep the dimension, "
                "1 to reduce it)\n";
+  std::cerr << "\t--type:\t\t\tData type for written data (double[default], "
+               "int, float)\n";
   std::exit(exit_code);
 }
 } // namespace
@@ -55,6 +57,7 @@ ClientConfig parse_args(int argc, char** argv)
       {"addressfile", required_argument, nullptr, 'f'},
       {"random", no_argument, nullptr, 'r'},
       {"mean", required_argument, nullptr, 'm'},
+      {"type", required_argument, nullptr, 't'},
       {nullptr, 0, nullptr, 0},
   };
 
@@ -102,6 +105,19 @@ ClientConfig parse_args(int argc, char** argv)
                     << argv[optind - 2] << ", aborting...\n";
           usage(EXIT_FAILURE);
         }
+      }
+      break;
+    case 't':
+      if (strcmp(optarg, "double") == 0)
+        config.value_type = Datatype::DOUBLE;
+      else if (strcmp(optarg, "float") == 0)
+        config.value_type = Datatype::FLOAT;
+      else if (strcmp(optarg, "int") == 0)
+        config.value_type = Datatype::INT;
+      else
+      {
+        std::cerr << "Unknown type " << optarg << ", aborting\n";
+        usage(EXIT_FAILURE);
       }
       break;
     case ':':

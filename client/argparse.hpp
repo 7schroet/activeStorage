@@ -21,14 +21,24 @@
 #define ARGPARSE_HPP
 
 #include "as_rpc_protocols.hpp"
+#include <cstdint>
 #include <filesystem>
 #include <vector>
+
+enum class Datatype : std::uint8_t
+{
+  FLOAT,
+  DOUBLE,
+  INT,
+};
+
 struct ClientConfig
 {
   as_rpc::Protocol protocol{};
   std::filesystem::path server_address_file{"servername"};
-  bool randomize_data{};
   std::vector<char> reduce_along_dim{1, 1, 1};
+  Datatype value_type{Datatype::DOUBLE};
+  bool randomize_data{};
 };
 
 ClientConfig parse_args(int argc, char** argv);

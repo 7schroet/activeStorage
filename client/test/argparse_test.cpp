@@ -54,6 +54,7 @@ static void assert_config_eq(const ClientConfig& expected,
   EXPECT_EQ(expected.protocol, actual.protocol);
   EXPECT_EQ(expected.randomize_data, actual.randomize_data);
   EXPECT_EQ(expected.reduce_along_dim, actual.reduce_along_dim);
+  EXPECT_EQ(expected.value_type, actual.value_type);
 }
 
 TEST_F(ClientConfigTest, Default)
@@ -110,6 +111,17 @@ TEST_F(ClientConfigTest, PassMeanReduce)
   assert_config_eq(expected, actual);
 }
 
+TEST_F(ClientConfigTest, PassDatatype)
+{
+  ClientConfig expected{};
+  expected.value_type = Datatype::INT;
+
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--type", "int"};
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
+  assert_config_eq(expected, actual);
+}
+
 TEST_F(ClientConfigTest, PassAll)
 {
   ClientConfig expected{};
@@ -117,11 +129,12 @@ TEST_F(ClientConfigTest, PassAll)
   expected.server_address_file = "file";
   expected.randomize_data = true;
   expected.reduce_along_dim = {0, 0, 1};
+  expected.value_type = Datatype::FLOAT;
 
-  constexpr int argc = 8;
-  const char* argv[argc] = {"as-client",     "--protocol", "tcp",
-                            "--addressfile", "file",       "--random",
-                            "--mean",        "001"};
+  constexpr int argc = 10;
+  const char* argv[argc] = {
+      "as-client", "--protocol", "tcp", "--addressfile", "file",
+      "--random",  "--mean",     "001", "--type",        "float"};
   ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
@@ -147,6 +160,14 @@ TEST_F(ClientConfigTest, UnknownProtocolDeathTest)
 {
   constexpr int argc = 3;
   const char* argv[argc] = {"as-client", "--protocol", "unknown"};
+  EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
+              testing::ExitedWithCode(EXIT_FAILURE), "");
+}
+
+TEST_F(ClientConfigTest, UnknownDatatypeDeathTest)
+{
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--type", "unknown"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
