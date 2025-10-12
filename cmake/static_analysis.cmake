@@ -21,3 +21,6 @@ add_custom_target(clang-tidy
     -p ${CMAKE_BINARY_DIR}
     -allow-no-checks
 )
+
+add_custom_target(analysis)
+add_dependencies(analysis clang-tidy cppcheck)
