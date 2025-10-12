@@ -47,7 +47,8 @@ protected:
   std::streambuf* old_out;
 };
 
-static void assert_config_eq(const Config& expected, const Config& actual)
+static void assert_config_eq(const ServerConfig& expected,
+                             const ServerConfig& actual)
 {
   EXPECT_EQ(expected.address_file, actual.address_file);
   EXPECT_EQ(expected.port, actual.port);
@@ -56,50 +57,50 @@ static void assert_config_eq(const Config& expected, const Config& actual)
 
 TEST_F(ServerConfigTest, Default)
 {
-  Config expected{};
+  ServerConfig expected{};
 
   constexpr int argc = 1;
   const char* argv[argc] = {"as-server"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ServerConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ServerConfigTest, PassPort)
 {
-  Config expected{};
+  ServerConfig expected{};
   expected.port = "12345";
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--port", "12345"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ServerConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ServerConfigTest, PassProtocol)
 {
-  Config expected{};
+  ServerConfig expected{};
   expected.protocol = as_rpc::Protocol::verbs;
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--protocol", "verbs"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ServerConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ServerConfigTest, PassAddress)
 {
-  Config expected{};
+  ServerConfig expected{};
   expected.address_file = "../filename";
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-server", "--addressfile", "../filename"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ServerConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ServerConfigTest, PassAll)
 {
-  Config expected{};
+  ServerConfig expected{};
   expected.protocol = as_rpc::Protocol::tcp;
   expected.address_file = "file";
   expected.port = "6666";
@@ -107,7 +108,7 @@ TEST_F(ServerConfigTest, PassAll)
   constexpr int argc = 7;
   const char* argv[argc] = {"as-server", "--port",        "6666", "--protocol",
                             "tcp",       "--addressfile", "file"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ServerConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 

@@ -23,7 +23,7 @@
 #include "as_rpc_protocols.hpp"
 #include <filesystem>
 #include <vector>
-struct Config
+struct ClientConfig
 {
   as_rpc::Protocol protocol{};
   std::filesystem::path server_address_file{"servername"};
@@ -31,6 +31,6 @@ struct Config
   std::vector<char> reduce_along_dim{1, 1, 1};
 };
 
-Config parse_args(int argc, char** argv);
+ClientConfig parse_args(int argc, char** argv);
 
 #endif

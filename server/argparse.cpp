@@ -39,9 +39,9 @@ namespace
 }
 } // namespace
 
-Config parse_args(int argc, char** argv)
+ServerConfig parse_args(int argc, char** argv)
 {
-  Config config{};
+  ServerConfig config{};
 
   const struct option options[] = {
       {"help", no_argument, nullptr, 'h'},

@@ -128,7 +128,7 @@ void add_timestep(hid_t file, bool randomize)
 
 int main(int argc, char** argv)
 {
-  const Config config = parse_args(argc, argv);
+  const ClientConfig config = parse_args(argc, argv);
   const std::string client_address =
       as_rpc::protocol_to_string(config.protocol);
 

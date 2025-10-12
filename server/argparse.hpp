@@ -23,13 +23,13 @@
 #include "as_rpc_protocols.hpp"
 #include <filesystem>
 #include <string>
-struct Config
+struct ServerConfig
 {
   as_rpc::Protocol protocol{};
   std::filesystem::path address_file{"servername"};
   std::string port{"8080"};
 };
 
-Config parse_args(int argc, char** argv);
+ServerConfig parse_args(int argc, char** argv);
 
 #endif

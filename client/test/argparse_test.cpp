@@ -47,7 +47,8 @@ protected:
   std::streambuf* old_out;
 };
 
-static void assert_config_eq(const Config& expected, const Config& actual)
+static void assert_config_eq(const ClientConfig& expected,
+                             const ClientConfig& actual)
 {
   EXPECT_EQ(expected.server_address_file, actual.server_address_file);
   EXPECT_EQ(expected.protocol, actual.protocol);
@@ -57,61 +58,61 @@ static void assert_config_eq(const Config& expected, const Config& actual)
 
 TEST_F(ClientConfigTest, Default)
 {
-  Config expected{};
+  ClientConfig expected{};
 
   constexpr int argc = 1;
   const char* argv[argc] = {"as-client"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ClientConfigTest, PassProtocol)
 {
-  Config expected{};
+  ClientConfig expected{};
   expected.protocol = as_rpc::Protocol::verbs;
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-client", "--protocol", "verbs"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ClientConfigTest, PassAddress)
 {
-  Config expected{};
+  ClientConfig expected{};
   expected.server_address_file = "../filename";
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-client", "--addressfile", "../filename"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ClientConfigTest, PassRandom)
 {
-  Config expected{};
+  ClientConfig expected{};
   expected.randomize_data = true;
 
   constexpr int argc = 2;
   const char* argv[argc] = {"as-client", "--random"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ClientConfigTest, PassMeanReduce)
 {
-  Config expected{};
+  ClientConfig expected{};
   expected.reduce_along_dim = {1, 0, 1};
 
   constexpr int argc = 3;
   const char* argv[argc] = {"as-client", "--mean", "101"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 
 TEST_F(ClientConfigTest, PassAll)
 {
-  Config expected{};
+  ClientConfig expected{};
   expected.protocol = as_rpc::Protocol::tcp;
   expected.server_address_file = "file";
   expected.randomize_data = true;
@@ -121,7 +122,7 @@ TEST_F(ClientConfigTest, PassAll)
   const char* argv[argc] = {"as-client",     "--protocol", "tcp",
                             "--addressfile", "file",       "--random",
                             "--mean",        "001"};
-  Config actual = parse_args(argc, const_cast<char**>(argv));
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }
 

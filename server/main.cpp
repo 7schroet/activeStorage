@@ -45,7 +45,7 @@ void setup_interrupt_handle()
 
 int main(int argc, char** argv)
 {
-  const Config config = parse_args(argc, argv);
+  const ServerConfig config = parse_args(argc, argv);
 
   const std::string addr =
       as_rpc::construct_address(config.protocol, config.port);
