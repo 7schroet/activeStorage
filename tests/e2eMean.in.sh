@@ -25,7 +25,7 @@ trap cleanup EXIT
 for input in "${MEAN_INPUTS[@]}"; do
 
   RESULT_REF="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean${input}.h5"
-  (for _ in $(seq 1 20); do echo ; done) | $2 --addressfile $ADDRESS_FILE --mean "$input"
+  (for _ in $(seq 1 20); do echo ; done) | $2 --addressfile $ADDRESS_FILE --mean "$input" --type double
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are
@@ -45,5 +45,27 @@ for input in "${MEAN_INPUTS[@]}"; do
 
     exit 1
   fi
+  set -e
+  rm "$RESULT"
+done
+
+for input in "float" "int"; do
+
+  RESULT_REF="@CMAKE_CURRENT_SOURCE_DIR@/e2eMeanType${input}.h5"
+  (for _ in $(seq 1 20); do echo ; done) | $2 --addressfile $ADDRESS_FILE --mean "011" --type "$input"
+
+  set +e
+  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$RESULT" "$RESULT_REF")
+  if [[ "$h5diff_result" || $? != 0 ]]; then
+    echo "Failure while comparing to $RESULT_REF:"
+    echo "$h5diff_result"
+
+    COPY_ON_FAIL="./failure.h5"
+    echo "Copying failed file to $(realpath $COPY_ON_FAIL)"
+    cp "$RESULT" "$COPY_ON_FAIL"
+
+    exit 1
+  fi
+  set -e
   rm "$RESULT"
 done
