@@ -24,6 +24,7 @@
 #include <print>
 #include <random>
 #include <string>
+#include <vector>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -48,6 +49,7 @@ namespace
 {
 void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 
+template <typename T>
 hid_t create_file()
 {
   hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC | H5F_ACC_SWMR_WRITE,
@@ -59,9 +61,19 @@ hid_t create_file()
   auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
   H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims));
 
+  const hid_t dtype = []
+  {
+    if constexpr (std::is_same_v<T, double>)
+      return H5T_NATIVE_DOUBLE;
+    else if constexpr (std::is_same_v<T, float>)
+      return H5T_NATIVE_FLOAT;
+    else if constexpr (std::is_same_v<T, int>)
+      return H5T_NATIVE_INT;
+  }();
+
   auto dspace = H5Screate_simple(RANK, dims, max_dims);
-  auto dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace, H5P_DEFAULT,
-                        dcpl, H5P_DEFAULT);
+  auto dset =
+      H5Dcreate(file, DSET_NAME, dtype, dspace, H5P_DEFAULT, dcpl, H5P_DEFAULT);
 
   H5ERROR_CHECK(H5Pclose(dcpl));
   H5ERROR_CHECK(H5Dclose(dset));
@@ -73,6 +85,41 @@ hid_t create_file()
   return file;
 }
 
+template <typename T>
+std::vector<T> generate_data(unsigned base_value, bool randomize)
+{
+  std::vector<T> result(DSET_X * DSET_Y);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<T> dis(0.0, 1.0);
+  for (auto i = 0u; i < DSET_X; i++)
+  {
+    for (auto j = 0u; j < DSET_Y; j++)
+    {
+      const T random_value = randomize ? dis(gen) : static_cast<T>(0.5) * j;
+      result[i * DSET_Y + j] = static_cast<T>(1.0) * base_value +
+                               static_cast<T>(10.0) + random_value;
+    }
+  }
+  return result;
+}
+
+template <>
+std::vector<int> generate_data<int>(unsigned base_value,
+                                    [[maybe_unused]] bool randomize)
+{
+  std::vector<int> result(DSET_X * DSET_Y);
+  for (auto i = 0u; i < DSET_X; i++)
+  {
+    for (auto j = 0u; j < DSET_Y; j++)
+    {
+      result[i * DSET_Y + j] = base_value + 10 + j;
+    }
+  }
+  return result;
+}
+
+template <typename T>
 void add_timestep(hid_t file, bool randomize)
 {
   static int current_timestep = 0;
@@ -99,24 +146,23 @@ void add_timestep(hid_t file, bool randomize)
   H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
                                     count, nullptr));
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dis(0.0, 1.0);
-  double data[DSET_X * DSET_Y];
-  for (auto i = 0; i < DSET_X; i++)
+  auto data = generate_data<T>(offset[0], randomize);
+
+  const hid_t dtype = []
   {
-    for (auto j = 0; j < DSET_Y; j++)
-    {
-      const double random_value = randomize ? dis(gen) : 0.5 * j;
-      data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + random_value;
-    }
-  }
+    if constexpr (std::is_same_v<T, double>)
+      return H5T_NATIVE_DOUBLE;
+    else if constexpr (std::is_same_v<T, float>)
+      return H5T_NATIVE_FLOAT;
+    else if constexpr (std::is_same_v<T, int>)
+      return H5T_NATIVE_INT;
+  }();
 
   auto memspace = H5Screate_simple(RANK, count, nullptr);
   H5ERROR_CHECK(memspace);
 
   H5ERROR_CHECK(
-      H5Dwrite(dset, H5T_NATIVE_DOUBLE, memspace, dspace, H5P_DEFAULT, data));
+      H5Dwrite(dset, dtype, memspace, dspace, H5P_DEFAULT, data.data()));
   H5ERROR_CHECK(H5Dflush(dset));
 
   H5ERROR_CHECK(H5Sclose(dspace));
@@ -153,14 +199,30 @@ int main(int argc, char** argv)
     std::println(stderr, "Couldn't find mean RPC!");
     exit(1);
   }
-  auto file = create_file();
+
+  const hid_t file = [&]
+  {
+    if (config.value_type == Datatype::DOUBLE)
+      return create_file<double>();
+    else if (config.value_type == Datatype::FLOAT)
+      return create_file<float>();
+    else
+      return create_file<int>();
+  }();
+
   const std::string filename{FILE_NAME};
   const std::string dset_name{DSET_NAME};
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
   for (std::string in; std::getline(std::cin, in);)
   {
-    add_timestep(file, config.randomize_data);
+    if (config.value_type == Datatype::DOUBLE)
+      add_timestep<double>(file, config.randomize_data);
+    else if (config.value_type == Datatype::FLOAT)
+      add_timestep<float>(file, config.randomize_data);
+    else
+      add_timestep<int>(file, config.randomize_data);
+
     std::println("Appended time step {}", count);
     search->second.on(server)(filename, dset_name, count,
                               config.reduce_along_dim);
