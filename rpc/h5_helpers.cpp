@@ -76,19 +76,15 @@ read_data(const H5::DataSet& dset, int timestep)
   auto elements =
       std::reduce(count.begin(), count.end(), 1, std::multiplies<>());
 
-  H5::PredType dtype = H5::PredType::PREDTYPE_CONST;
-  if constexpr (std::is_same_v<T, double>)
+  const H5::PredType dtype = []
   {
-    dtype = H5::PredType::NATIVE_DOUBLE;
-  }
-  else if constexpr (std::is_same_v<T, float>)
-  {
-    dtype = H5::PredType::NATIVE_FLOAT;
-  }
-  else if constexpr (std::is_same_v<T, int>)
-  {
-    dtype = H5::PredType::NATIVE_INT;
-  }
+    if constexpr (std::is_same_v<T, double>)
+      return H5::PredType::NATIVE_DOUBLE;
+    else if constexpr (std::is_same_v<T, float>)
+      return H5::PredType::NATIVE_FLOAT;
+    else if constexpr (std::is_same_v<T, int>)
+      return H5::PredType::NATIVE_INT;
+  }();
 
   std::vector<T> data(elements);
   dset.read(data.data(), dtype, memspace, dspace);
