@@ -25,7 +25,7 @@
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
   {                                                                            \
-    herr_t err = (func);                                                       \
+    const herr_t err = (func);                                                 \
     if (err < 0)                                                               \
     {                                                                          \
       fprintf(stderr, "Error in HDF5 function call at %d in %s, aborting\n",   \
@@ -42,24 +42,25 @@
 
 int main(void)
 {
-  hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  const hid_t file =
+      H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-  const hsize_t initial_dims[RANK] = {1, DSET_X, DSET_Y};
-  const hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
+  constexpr hsize_t initial_dims[RANK] = {1, DSET_X, DSET_Y};
+  constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
 
-  hid_t dcpl = H5Pcreate(H5P_DATASET_CREATE);
+  const hid_t dcpl = H5Pcreate(H5P_DATASET_CREATE);
   H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, initial_dims));
 
   hid_t dspace = H5Screate_simple(RANK, initial_dims, max_dims);
-  hid_t dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace,
-                         H5P_DEFAULT, dcpl, H5P_DEFAULT);
+  const hid_t dset = H5Dcreate(file, DSET_NAME, H5T_NATIVE_DOUBLE, dspace,
+                               H5P_DEFAULT, dcpl, H5P_DEFAULT);
 
   H5ERROR_CHECK(H5Dflush(dset));
 
   int current_timestep = 0;
-  const int bufsize = 256;
+  constexpr int bufsize = 256;
   char input[bufsize];
-  srand((unsigned)time(NULL));
+  srand((unsigned)time(nullptr));
 
   printf("Press Enter to write a new time step, or Ctrl+D to terminate\n");
   while (fgets(input, bufsize, stdin))
@@ -67,7 +68,7 @@ int main(void)
     if (current_timestep != 0)
     {
       hsize_t dims[RANK];
-      H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, NULL));
+      H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
       dims[0]++;
       H5ERROR_CHECK(H5Dset_extent(dset, dims));
       // dspace must be reopened according to docs
@@ -75,11 +76,10 @@ int main(void)
       dspace = H5Dget_space(dset);
       H5ERROR_CHECK(dspace);
     }
-    const hsize_t count[RANK] = {1, DSET_X, DSET_Y};
-    hsize_t offset[RANK] = {0, 0, 0};
-    offset[0] = current_timestep;
-    H5ERROR_CHECK(
-        H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, NULL, count, NULL));
+    constexpr hsize_t count[RANK] = {1, DSET_X, DSET_Y};
+    const hsize_t offset[RANK] = {current_timestep, 0, 0};
+    H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
+                                      count, nullptr));
 
     double data[DSET_X * DSET_Y];
     for (int i = 0; i < DSET_X; i++)
@@ -89,7 +89,7 @@ int main(void)
             1.0 * offset[0] + 10.0 + ((double)rand() / (double)(RAND_MAX));
     }
 
-    hid_t memspace = H5Screate_simple(RANK, count, NULL);
+    const hid_t memspace = H5Screate_simple(RANK, count, nullptr);
     H5ERROR_CHECK(memspace);
 
     H5ERROR_CHECK(
