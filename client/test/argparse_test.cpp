@@ -150,8 +150,8 @@ TEST_F(ClientConfigTest, HelpDeathTest)
 TEST_F(ClientConfigTest, MissingArgDeathTest)
 {
   constexpr int argc = 4;
-  const char* argv[argc] = {"as-client", "--protocol", "--addressfile",
-                            "long/file/path"};
+  const char* argv[argc] = {"as-client", "--addressfile", "long/file/path",
+                            "--protocol"};
   EXPECT_EXIT(parse_args(argc, const_cast<char**>(argv)),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
