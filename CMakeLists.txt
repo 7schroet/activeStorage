@@ -27,6 +27,7 @@ find_package(thallium REQUIRED)
 find_package(HDF5 COMPONENTS C;CXX REQUIRED)
 
 add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>")
+add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>")
 
 if(ENABLE_SANITIZER)
   add_compile_options("-fsanitize=address,leak,undefined")
