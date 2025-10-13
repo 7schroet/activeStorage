@@ -141,8 +141,7 @@ void add_timestep(hid_t file, bool randomize)
   }
 
   constexpr hsize_t count[RANK] = {1, DSET_X, DSET_Y};
-  hsize_t offset[RANK] = {0, 0, 0};
-  offset[0] = current_timestep;
+  const hsize_t offset[RANK] = {static_cast<hsize_t>(current_timestep), 0, 0};
   H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
                                     count, nullptr));
 
