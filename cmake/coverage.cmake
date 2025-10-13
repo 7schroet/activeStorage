@@ -24,6 +24,7 @@ set(exclude_patterns
   "hdf5"
   "mercury"
   "mochi"
+  "/test"
 )
 list(TRANSFORM exclude_patterns PREPEND "--exclude;" OUTPUT_VARIABLE exclude_patterns)
 
