@@ -14,7 +14,7 @@ add_custom_target(cppcheck
     --cppcheck-build-dir=${cppcheck_dir}
 )
 
-find_program(CLANG_TIDY_EXE run-clang-tidy)
+find_program(CLANG_TIDY_EXE run-clang-tidy REQUIRED)
 add_custom_target(clang-tidy
   COMMAND ${CLANG_TIDY_EXE}
     -config=

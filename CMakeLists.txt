@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(ENABLE_SANITIZER "Build with asan, lsan and ubsan" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
 option(ENABLE_COVERAGE "Create target 'coverage' to calculate test coverage (requires gcov and lcov)" OFF)
-option(ENABLE_STATIC_ANALYSIS "Run static analysis via cppcheck" OFF)
+option(ENABLE_STATIC_ANALYSIS "Create target 'analysis' for static analyses (requires cppcheck and clang-tidy)" OFF)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
