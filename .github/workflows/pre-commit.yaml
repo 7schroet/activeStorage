@@ -1,0 +1,23 @@
+name: CI pre-commit
+on:
+  push:
+    branches: ["main"]
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get update && sudo apt-get upgrade -y
+          sudo apt-get install -y --no-install-recommends pre-commit git
+      - name: Checkout repo
+        uses: actions/checkout@v5
+      - name: Configure git
+        run: |
+          git config --local user.name "username"
+          git config --local user.email "e@mail.com"
+      - name: Run pre-commit
+        run: |
+          pre-commit install
+          pre-commit run --all-files --verbose --show-diff-on-failure
