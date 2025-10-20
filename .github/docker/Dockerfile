@@ -1,0 +1,24 @@
+FROM registry.fedoraproject.org/fedora:42
+
+RUN dnf -y --setopt=tsflags=nodocs install \
+      automake          \
+      cmake             \
+      clang             \
+      clang-tools-extra \
+      cppcheck          \
+      gcc               \
+      git               \
+      lcov              \
+      libasan           \
+      libubsan          \
+      patch             \
+      zlib-devel        \
+    && dnf clean all
+
+ARG SPACK_COMMIT=0b06bb793e577852ddb5ff0cb55bb2c5aca0a9f3
+RUN git clone --depth 1 --revision=${SPACK_COMMIT} https://github.com/spack/spack.git && \
+    . spack/share/spack/setup-env.sh                                                  && \
+    spack compiler find                                                               && \
+    spack external find                                                               && \
+    spack install googletest@1.17.0 hdf5@1.14.6+cxx mochi-thallium@0.15.0             && \
+    spack gc -y && rm -rf /tmp/* spack/.git
