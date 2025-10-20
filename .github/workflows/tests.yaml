@@ -1,0 +1,53 @@
+name: CI Testing
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  RunTests:
+    runs-on: ubuntu-latest
+    container: 7schroet/active-storage-test
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [gcc-debug, gcc-release, clang-debug, clang-release]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+      - name: Run tests
+        run: |
+          . /spack/share/spack/setup-env.sh
+          spack load mochi-thallium googletest hdf5
+          mkdir build && cd $_
+          cmake .. --preset ${{ matrix.preset }}
+          make -j
+          ctest -j
+
+  StaticAnalysis:
+    runs-on: ubuntu-latest
+    container: 7schroet/active-storage-test
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+      - name: Run analysis
+        run: |
+          . /spack/share/spack/setup-env.sh
+          spack load mochi-thallium googletest hdf5
+          mkdir build && cd $_
+          cmake .. --preset gcc-debug
+          make analysis
+
+  Coverage:
+    runs-on: ubuntu-latest
+    container: 7schroet/active-storage-test
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+      - name: Run coverage
+        run: |
+          . /spack/share/spack/setup-env.sh
+          spack load mochi-thallium googletest hdf5
+          mkdir build && cd $_
+          cmake .. --preset gcc-debug
+          make -j
+          make coverage
