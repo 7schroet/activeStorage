@@ -1,4 +1,7 @@
 # Active Storage
+
+[![CI](https://github.com/7schroet/activeStorage/actions/workflows/tests.yaml/badge.svg)](https://github.com/7schroet/activeStorage/actions/workflows/tests.yaml)
+
 yes
 
 ## Dependencies
