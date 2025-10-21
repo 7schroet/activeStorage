@@ -50,4 +50,17 @@ jobs:
           mkdir build && cd $_
           cmake .. --preset gcc-debug
           make -j
-          make coverage
+          make coverage |& tee out
+          cov=$(grep -o "lines.*:[^%]*" out | grep -o "[0-9]\+[^\.]")
+          echo "cov=$cov" >> $GITHUB_ENV
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 8e4e4da82638ecfb5c987b161dc405da
+          filename: coverage.svg
+          label: "Code Coverage"
+          message: "${{ env.cov }}%"
+          valColorRange: ${{ env.cov }}
+          maxColorRange: 100
+          minColorRange: 0
