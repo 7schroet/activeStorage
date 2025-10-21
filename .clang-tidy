@@ -20,8 +20,6 @@ ImplementationFileExtensions:
 HeaderFilterRegex: ''
 ExcludeHeaderFilterRegex: ''
 FormatStyle:     none
-CheckOptions:
-  cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: 'true'
 SystemHeaders:   false
 UseColor: true
 ...
