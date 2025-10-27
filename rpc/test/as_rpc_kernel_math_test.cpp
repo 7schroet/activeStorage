@@ -142,7 +142,7 @@ TEST(Math, MeanInts1D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, expected_dims, {1});
+      as_rpc::kernel_impl::mean_reduction(data, dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
