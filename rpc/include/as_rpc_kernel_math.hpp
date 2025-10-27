@@ -61,6 +61,11 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
   std::vector<hsize_t> new_dims{dims};
   std::vector<double> result(data.begin(), data.end());
 
+  /**
+   * Each iteration of this loop reduces one dimension down to 1, if requested
+   * for the specific dimension. We start from the back to at least try to
+   * take memory into account.
+   */
   for (int current_dim = new_dims.size() - 1; current_dim >= 0; current_dim--)
   {
     if (!(reduce_along_dim[current_dim]))
@@ -69,22 +74,50 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
     const auto elements_post_reduction = result.size() / new_dims[current_dim];
     std::vector<double> tmp(elements_post_reduction);
 
-    const auto stride_for_reduction =
+    /**
+     * Each reduction operates in 'blocks'. A block in this case is a contiguous
+     * sequence in memory. The number of elements in a block is basically given
+     * by @stride_between_blocks@. Most of this loop is concerned with getting
+     * the offsets right.
+     */
+    const auto stride_for_reduction_steps =
         std::reduce(new_dims.begin() + current_dim + 1, new_dims.end(), 1ul,
                     std::multiplies<>());
 
-    const auto stride_between_starts =
-        stride_for_reduction == 1 ? new_dims[current_dim] : 1ul;
+    const auto stride_reduction_start =
+        stride_for_reduction_steps == 1 ? new_dims[current_dim] : 1ul;
+
+    const auto stride_between_blocks =
+        std::reduce(new_dims.begin() + current_dim, new_dims.end(), 1ul,
+                    std::multiplies<>());
+
+    auto block_offset = 0ul;
+    auto element_in_current_block = 0ul;
 
     for (auto i = 0ul; i < elements_post_reduction; i++)
     {
       double sum = 0.0;
-      auto offset = i * stride_between_starts;
+      auto offset =
+          element_in_current_block * stride_reduction_start + block_offset;
       for (auto count = 0ul; count < new_dims[current_dim]; count++)
       {
         sum += result[offset];
-        offset += stride_for_reduction;
+        offset += stride_for_reduction_steps;
       }
+
+      /**
+       * True if a new block will start with the next iteration.
+       */
+      if ((i + 1) % stride_for_reduction_steps == 0)
+      {
+        block_offset += stride_between_blocks;
+        element_in_current_block = 0ul;
+      }
+      else
+      {
+        element_in_current_block++;
+      }
+
       tmp[i] = sum / new_dims[current_dim];
     }
 
