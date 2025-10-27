@@ -64,7 +64,9 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
   /**
    * Each iteration of this loop reduces one dimension down to 1, if requested
    * for the specific dimension. We start from the back to at least try to
-   * take memory into account.
+   * take memory into account. Reduced dimensions are kept around as degenerate
+   * dimensions of size 1 until the end. Though for the purposes of the
+   * algorithm, these dimensions are nonexistent.
    */
   for (int current_dim = new_dims.size() - 1; current_dim >= 0; current_dim--)
   {
@@ -76,49 +78,51 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
     /**
      * Each reduction operates in 'blocks'. A block in this case is a contiguous
-     * sequence in memory. The number of elements in a block is basically given
-     * by @stride_between_blocks@. Most of this loop is concerned with getting
-     * the offsets right.
+     * sequence in memory. The number of elements in a block is given by the
+     * product of all dimensions, starting at the current one.
+     */
+    const auto elements_in_block =
+        std::reduce(new_dims.begin() + current_dim, new_dims.end(), 1ul,
+                    std::multiplies<>());
+
+    const auto num_blocks = result.size() / elements_in_block;
+
+    /**
+     * The following two variables handle the stride for the reduction within
+     * a block. There are two cases. Either the reduction happens along the
+     * dimension that is consecutive in memory, in which case the
+     * @stride_for_reduction_steps@ == 1. This happens if the reduction is
+     * applied alongside the last dimension (excluding degenerates from
+     * previous reductions).
+     *
+     * In the other case the reduction does not happen consecutive in memory,
+     * which means that subsequent elements have a stride > 1. In that case the
+     * other value, @stride_reduction_starts@, must be 1 though, as the
+     * starting points for each reduction must be consecutive in memory.
      */
     const auto stride_for_reduction_steps =
         std::reduce(new_dims.begin() + current_dim + 1, new_dims.end(), 1ul,
                     std::multiplies<>());
 
-    const auto stride_reduction_start =
+    const auto stride_reduction_starts =
         stride_for_reduction_steps == 1 ? new_dims[current_dim] : 1ul;
 
-    const auto stride_between_blocks =
-        std::reduce(new_dims.begin() + current_dim, new_dims.end(), 1ul,
-                    std::multiplies<>());
-
-    auto block_offset = 0ul;
-    auto element_in_current_block = 0ul;
-
-    for (auto i = 0ul; i < elements_post_reduction; i++)
+    for (auto i = 0ul; i < num_blocks; i++)
     {
-      double sum = 0.0;
-      auto offset =
-          element_in_current_block * stride_reduction_start + block_offset;
-      for (auto count = 0ul; count < new_dims[current_dim]; count++)
-      {
-        sum += result[offset];
-        offset += stride_for_reduction_steps;
-      }
+      auto block_offset = i * elements_in_block;
 
-      /**
-       * True if a new block will start with the next iteration.
-       */
-      if ((i + 1) % stride_for_reduction_steps == 0)
+      for (auto j = 0ul; j < stride_for_reduction_steps; j++)
       {
-        block_offset += stride_between_blocks;
-        element_in_current_block = 0ul;
-      }
-      else
-      {
-        element_in_current_block++;
-      }
+        double sum = 0.0;
+        auto offset = j * stride_reduction_starts + block_offset;
+        for (auto element = 0ul; element < new_dims[current_dim]; element++)
+        {
+          sum += result[offset];
+          offset += stride_for_reduction_steps;
+        }
 
-      tmp[i] = sum / new_dims[current_dim];
+        tmp[j + i * stride_for_reduction_steps] = sum / new_dims[current_dim];
+      }
     }
 
     new_dims[current_dim] = 1;
