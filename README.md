@@ -27,6 +27,18 @@ setting the option `-DENABLE_TESTS=ON`. Run them via `ctest` after `make`.
 
 For an overview of all available CMake options, run `cmake -LH`.
 
+## Using the HDF5 plugin
+The `as-rpc` library is connected to HDF5 via a [VOL plugin](https://support.hdfgroup.org/documentation/hdf5/latest/_h5_v_l__u_g.html).
+As such, you only need to set two environment variables whenever you want to use the `as-rpc` library with your HDF5 application.
+After building the plugin, set:
+```sh
+export HDF5_PLUGIN_PATH=<path/to/dir/with/plugin>
+export HDF5_VOL_CONNECTOR="as-rpc-hdf5"
+```
+Now all HDF5 calls will go through this connector. The plugin is currently built as a pass-through connector. This means that all
+your HDF5 calls will behave as they normally do (i.e., write calls will still write the data), but some functions also invoke
+`as-rpc` calls to calculate statistics in-situ. For a thorough overview, refer to TODO.
+
 ## Development
 ### Pre-commit
 To keep license information and formatting consistent, we use
