@@ -12,6 +12,7 @@ add_custom_target(cppcheck
     --error-exitcode=3
     -j 4 --std=c++23
     --cppcheck-build-dir=${cppcheck_dir}
+    --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck_suppress.txt
 )
 
 find_program(CLANG_TIDY_EXE run-clang-tidy REQUIRED)
