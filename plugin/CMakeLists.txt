@@ -3,6 +3,11 @@ target_sources(as-rpc-hdf5
   PRIVATE
    as_rpc_hdf5.cpp
    as_rpc_hdf5.hpp
+   components/wrap.cpp
+
+  PRIVATE
+  FILE_SET HEADERS
+  BASE_DIRS include
 )
 target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5)
 install(TARGETS as-rpc-hdf5)

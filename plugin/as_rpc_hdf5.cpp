@@ -18,6 +18,7 @@
  */
 
 #include "as_rpc_hdf5.hpp"
+#include "wrap.hpp"
 #include <H5VLpassthru.h>
 #include <H5VLpublic.h>
 #include <print>
@@ -35,8 +36,7 @@ herr_t H5VL_as_rpc_terminate()
 }
 
 // clang-format off
-static const H5VL_class_t H5VL_as_rpc_g =
-{
+static const H5VL_class_t H5VL_as_rpc_g = {
   .version = 3,
   .value = 567,
   .name = "as-rpc-hdf5",
@@ -53,11 +53,11 @@ static const H5VL_class_t H5VL_as_rpc_g =
     .from_str = nullptr,
   },
   .wrap_cls = {
-    .get_object = nullptr,
-    .get_wrap_ctx = nullptr,
-    .wrap_object = nullptr,
-    .unwrap_object = nullptr,
-    .free_wrap_ctx = nullptr,
+    .get_object = H5VL_as_rpc_get_object,
+    .get_wrap_ctx = H5VL_as_rpc_get_wrap_ctx,
+    .wrap_object = H5VL_as_rpc_wrap_object,
+    .unwrap_object = H5VL_as_rpc_unwrap_object,
+    .free_wrap_ctx = H5VL_as_rpc_free_wrap_ctx,
   },
   .attr_cls = {
     .create = nullptr,
