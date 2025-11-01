@@ -19,7 +19,6 @@
 
 #include "dataset.hpp"
 #include "utils.hpp"
-#include <H5VLconnector_passthru.h>
 #include <vector>
 
 void* H5VL_as_rpc_dset_create(void* obj, const H5VL_loc_params_t* loc_params,

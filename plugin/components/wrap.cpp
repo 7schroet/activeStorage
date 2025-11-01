@@ -21,7 +21,6 @@
 #include "utils.hpp"
 #include <H5Epublic.h>
 #include <H5Ipublic.h>
-#include <H5VLconnector_passthru.h>
 
 void* H5VL_as_rpc_get_object(const void* obj)
 {
