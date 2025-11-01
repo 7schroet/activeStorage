@@ -21,6 +21,7 @@
 #include "attribute.hpp"
 #include "dataset.hpp"
 #include "datatype.hpp"
+#include "info.hpp"
 #include "wrap.hpp"
 #include <H5PLextern.h>
 #include <H5VLpassthru.h>
@@ -49,12 +50,12 @@ static const H5VL_class_t H5VL_as_rpc_g = {
   .initialize = H5VL_as_rpc_init,
   .terminate = H5VL_as_rpc_terminate,
   .info_cls = {
-    .size = 0,
-    .copy = nullptr,
-    .cmp = nullptr,
-    .free = nullptr,
-    .to_str = nullptr,
-    .from_str = nullptr,
+    .size = sizeof(H5VL_as_rpc_info_t),
+    .copy = H5VL_as_rpc_info_copy,
+    .cmp = H5VL_as_rpc_info_cmp,
+    .free = H5VL_as_rpc_info_free,
+    .to_str = H5VL_as_rpc_info_to_str,
+    .from_str = H5VL_as_rpc_info_from_str,
   },
   .wrap_cls = {
     .get_object = H5VL_as_rpc_get_object,
