@@ -70,8 +70,8 @@ herr_t H5VL_as_rpc_read(void* attr, hid_t mem_type_id, void* buf, hid_t dxpl_id,
                         void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(attr);
-  herr_t ret = H5VLattr_read(o->under_object, o->under_vol_id, mem_type_id, buf,
-                             dxpl_id, req);
+  const herr_t ret = H5VLattr_read(o->under_object, o->under_vol_id,
+                                   mem_type_id, buf, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_new_obj(*req, o->under_vol_id);
@@ -83,8 +83,8 @@ herr_t H5VL_as_rpc_write(void* attr, hid_t mem_type_id, const void* buf,
                          hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(attr);
-  herr_t ret = H5VLattr_write(o->under_object, o->under_vol_id, mem_type_id,
-                              buf, dxpl_id, req);
+  const herr_t ret = H5VLattr_write(o->under_object, o->under_vol_id,
+                                    mem_type_id, buf, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_new_obj(*req, o->under_vol_id);
@@ -95,7 +95,7 @@ herr_t H5VL_as_rpc_get(void* obj, H5VL_attr_get_args_t* args, hid_t dxpl_id,
                        void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  herr_t ret =
+  const herr_t ret =
       H5VLattr_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -108,8 +108,8 @@ herr_t H5VL_as_rpc_specific(void* obj, const H5VL_loc_params_t* loc_params,
                             void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  herr_t ret = H5VLattr_specific(o->under_object, loc_params, o->under_vol_id,
-                                 args, dxpl_id, req);
+  const herr_t ret = H5VLattr_specific(o->under_object, loc_params,
+                                       o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_new_obj(*req, o->under_vol_id);
@@ -120,7 +120,7 @@ herr_t H5VL_as_rpc_optional(void* obj, H5VL_optional_args_t* args,
                             hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  herr_t ret =
+  const herr_t ret =
       H5VLattr_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -131,7 +131,8 @@ herr_t H5VL_as_rpc_optional(void* obj, H5VL_optional_args_t* args,
 herr_t H5VL_as_rpc_close(void* attr, hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(attr);
-  herr_t ret = H5VLattr_close(o->under_object, o->under_vol_id, dxpl_id, req);
+  const herr_t ret =
+      H5VLattr_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_new_obj(*req, o->under_vol_id);
