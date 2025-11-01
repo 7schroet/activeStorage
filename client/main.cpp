@@ -19,6 +19,7 @@
 
 #include "argparse.hpp"
 #include "as_rpc.hpp"
+#include <array>
 #include <cstdlib>
 #include <hdf5.h>
 #include <print>
@@ -55,11 +56,12 @@ hid_t create_file()
   hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC | H5F_ACC_SWMR_WRITE,
                          H5P_DEFAULT, H5P_DEFAULT);
 
-  constexpr hsize_t dims[RANK] = {1, DSET_X, DSET_Y};
-  constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
+  constexpr std::array<hsize_t, RANK> dims = {1, DSET_X, DSET_Y};
+  constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
+                                                  DSET_Y};
 
   auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
-  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims));
+  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims.data()));
 
   const hid_t dtype = []
   {
@@ -71,7 +73,7 @@ hid_t create_file()
       return H5T_NATIVE_INT;
   }();
 
-  auto dspace = H5Screate_simple(RANK, dims, max_dims);
+  auto dspace = H5Screate_simple(RANK, dims.data(), max_dims.data());
   auto dset =
       H5Dcreate(file, DSET_NAME, dtype, dspace, H5P_DEFAULT, dcpl, H5P_DEFAULT);
 
@@ -130,20 +132,21 @@ void add_timestep(hid_t file, bool randomize)
 
   if (current_timestep != 0)
   {
-    hsize_t dims[RANK];
-    H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
+    std::array<hsize_t, RANK> dims{};
+    H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims.data(), nullptr));
     dims[0]++;
-    H5ERROR_CHECK(H5Dset_extent(dset, dims));
+    H5ERROR_CHECK(H5Dset_extent(dset, dims.data()));
     // dspace must be reopened according to docs
     H5ERROR_CHECK(H5Sclose(dspace));
     dspace = H5Dget_space(dset);
     H5ERROR_CHECK(dspace);
   }
 
-  constexpr hsize_t count[RANK] = {1, DSET_X, DSET_Y};
-  const hsize_t offset[RANK] = {static_cast<hsize_t>(current_timestep), 0, 0};
-  H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset, nullptr,
-                                    count, nullptr));
+  constexpr std::array<hsize_t, RANK> count = {1, DSET_X, DSET_Y};
+  const std::array<hsize_t, RANK> offset = {
+      static_cast<hsize_t>(current_timestep), 0, 0};
+  H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset.data(),
+                                    nullptr, count.data(), nullptr));
 
   auto data = generate_data<T>(offset[0], randomize);
 
@@ -157,7 +160,7 @@ void add_timestep(hid_t file, bool randomize)
       return H5T_NATIVE_INT;
   }();
 
-  auto memspace = H5Screate_simple(RANK, count, nullptr);
+  auto memspace = H5Screate_simple(RANK, count.data(), nullptr);
   H5ERROR_CHECK(memspace);
 
   H5ERROR_CHECK(

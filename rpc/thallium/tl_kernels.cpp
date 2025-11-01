@@ -20,12 +20,13 @@
 #include "as_rpc_kernels.hpp"
 #include "as_rpc_types.hpp"
 #include "tl_kernel_impl.hpp"
+#include <array>
 #include <thallium.hpp>
 #include <utility>
 
 namespace
 {
-const char* kernel_strings[] = {ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
+const std::array kernel_strings = {ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
 }
 
 namespace as_rpc
