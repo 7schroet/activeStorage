@@ -27,9 +27,7 @@ void* H5VL_as_rpc_attr_create(void* obj, const H5VL_loc_params_t* loc_params,
 {
   H5VL_as_rpc_t* attr = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  void* under;
-
-  under =
+  void* under =
       H5VLattr_create(o->under_object, loc_params, o->under_vol_id, attr_name,
                       type_id, space_id, acpl_id, aapl_id, dxpl_id, req);
   if (under)
@@ -50,10 +48,8 @@ void* H5VL_as_rpc_attr_open(void* obj, const H5VL_loc_params_t* loc_params,
 {
   H5VL_as_rpc_t* attr = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  void* under;
-
-  under = H5VLattr_open(o->under_object, loc_params, o->under_vol_id, attr_name,
-                        aapl_id, dxpl_id, req);
+  void* under = H5VLattr_open(o->under_object, loc_params, o->under_vol_id,
+                              attr_name, aapl_id, dxpl_id, req);
   if (under)
   {
     attr = H5VL_as_rpc_new_obj(under, o->under_vol_id);
