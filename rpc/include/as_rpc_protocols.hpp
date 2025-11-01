@@ -21,6 +21,7 @@
 #define AS_RPC_PROTOCOLS_HPP
 
 #include "as_rpc_macros.hpp"
+#include <cstdint>
 #include <string_view>
 
 #define ASRPC_FOREACH_PROT(PROT)                                               \
@@ -30,7 +31,7 @@
 namespace as_rpc
 {
 
-enum class Protocol
+enum class Protocol : std::uint8_t
 {
   ASRPC_FOREACH_PROT(ASRPC_GENERATE_ENUM)
 };
