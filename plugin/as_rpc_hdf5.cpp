@@ -20,6 +20,7 @@
 #include "as_rpc_hdf5.hpp"
 #include "attribute.hpp"
 #include "dataset.hpp"
+#include "datatype.hpp"
 #include "wrap.hpp"
 #include <H5PLextern.h>
 #include <H5VLpassthru.h>
@@ -83,12 +84,12 @@ static const H5VL_class_t H5VL_as_rpc_g = {
     .close = H5VL_as_rpc_dset_close,
    },
   .datatype_cls = {
-    .commit = nullptr,
-    .open = nullptr,
-    .get = nullptr,
-    .specific = nullptr,
-    .optional = nullptr,
-    .close = nullptr,
+    .commit = H5VL_as_rpc_dtype_commit,
+    .open = H5VL_as_rpc_dtype_open,
+    .get = H5VL_as_rpc_dtype_get,
+    .specific = H5VL_as_rpc_dtype_specific,
+    .optional = H5VL_as_rpc_dtype_optional,
+    .close = H5VL_as_rpc_dtype_close,
   },
   .file_cls = {
     .create = nullptr,
