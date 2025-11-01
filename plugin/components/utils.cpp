@@ -17,24 +17,24 @@
  * limitations under the License.
  */
 
-#ifndef WRAP_HPP
-#define WRAP_HPP
+#include "utils.hpp"
 
-#include <hdf5.h>
-
-#ifdef __cplusplus
-extern "C"
+H5VL_as_rpc_t* H5VL_as_rpc_new_obj(void* under_obj, hid_t under_vol_id)
 {
-#endif
-
-  void* H5VL_as_rpc_get_object(const void* obj);
-  herr_t H5VL_as_rpc_get_wrap_ctx(const void* obj, void** wrap_ctx);
-  void* H5VL_as_rpc_wrap_object(void* obj, H5I_type_t obj_type, void* wrap_ctx);
-  void* H5VL_as_rpc_unwrap_object(void* obj);
-  herr_t H5VL_as_rpc_free_wrap_ctx(void* wrap_ctx);
-
-#ifdef __cplusplus
+  H5VL_as_rpc_t* new_obj;
+  new_obj = new H5VL_as_rpc_t;
+  new_obj->under_object = under_obj;
+  new_obj->under_vol_id = under_vol_id;
+  H5Iinc_ref(under_vol_id);
+  return new_obj;
 }
-#endif
 
-#endif
+herr_t H5VL_as_rpc_free_obj(H5VL_as_rpc_t* obj)
+{
+  hid_t err;
+  err = H5Eget_current_stack();
+  H5Idec_ref(obj->under_vol_id);
+  H5Eset_current_stack(err);
+  delete obj;
+  return 0;
+}

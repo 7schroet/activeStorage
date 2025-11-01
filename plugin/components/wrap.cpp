@@ -18,34 +18,10 @@
  */
 
 #include "wrap.hpp"
+#include "utils.hpp"
 #include <H5Epublic.h>
 #include <H5Ipublic.h>
 #include <H5VLconnector_passthru.h>
-#include <cstdlib>
-
-namespace
-{
-H5VL_as_rpc_t* H5VL_as_rpc_new_obj(void* under_obj, hid_t under_vol_id)
-{
-  H5VL_as_rpc_t* new_obj;
-  new_obj = new H5VL_as_rpc_t;
-  new_obj->under_object = under_obj;
-  new_obj->under_vol_id = under_vol_id;
-  H5Iinc_ref(under_vol_id);
-  return new_obj;
-}
-
-herr_t H5VL_as_rpc_free_obj(H5VL_as_rpc_t* obj)
-{
-  hid_t err;
-  err = H5Eget_current_stack();
-  H5Idec_ref(obj->under_vol_id);
-  H5Eset_current_stack(err);
-  delete obj;
-  return 0;
-}
-
-} // namespace
 
 void* H5VL_as_rpc_get_object(const void* obj)
 {
