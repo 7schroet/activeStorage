@@ -18,7 +18,9 @@
  */
 
 #include "as_rpc_hdf5.hpp"
+#include "attribute.hpp"
 #include "wrap.hpp"
+#include <H5PLextern.h>
 #include <H5VLpassthru.h>
 #include <H5VLpublic.h>
 #include <print>
@@ -60,14 +62,14 @@ static const H5VL_class_t H5VL_as_rpc_g = {
     .free_wrap_ctx = H5VL_as_rpc_free_wrap_ctx,
   },
   .attr_cls = {
-    .create = nullptr,
-    .open = nullptr,
-    .read = nullptr,
-    .write = nullptr,
-    .get = nullptr,
-    .specific = nullptr,
-    .optional = nullptr,
-    .close = nullptr,
+    .create = H5VL_as_rpc_attr_create,
+    .open = H5VL_as_rpc_attr_open,
+    .read = H5VL_as_rpc_read,
+    .write = H5VL_as_rpc_write,
+    .get = H5VL_as_rpc_get,
+    .specific = H5VL_as_rpc_specific,
+    .optional = H5VL_as_rpc_optional,
+    .close = H5VL_as_rpc_close,
    },
   .dataset_cls = {
     .create = nullptr,

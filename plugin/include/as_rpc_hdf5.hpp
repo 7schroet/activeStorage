@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 
-#include <H5PLextern.h>
 #include <hdf5.h>
 
 #ifdef __cplusplus

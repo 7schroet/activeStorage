@@ -1,3 +1,3 @@
 # These functions are required by the HDF5 plugin mechanism
 unusedFunction:plugin/as_rpc_hdf5.cpp:151
-unusedFunction:plugin/as_rpc_hdf5.cpp:149
+unusedFunction:plugin/as_rpc_hdf5.cpp:153
