@@ -19,8 +19,6 @@
 
 #include "wrap.hpp"
 #include "utils.hpp"
-#include <H5Epublic.h>
-#include <H5Ipublic.h>
 
 void* H5VL_as_rpc_get_object(const void* obj)
 {
