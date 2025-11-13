@@ -34,27 +34,27 @@
 /************/
 
 /* The pass through VOL connector's object */
-typedef struct H5VL_pass_through_ext_t
+typedef struct H5VL_as_rpc_t
 {
   hid_t under_vol_id; /* ID for underlying VOL connector */
   void* under_object; /* Underlying VOL connector's object */
-} H5VL_pass_through_ext_t;
+} H5VL_as_rpc_t;
 
 /* The pass through VOL wrapper context */
-typedef struct H5VL_pass_through_ext_wrap_ctx_t
+typedef struct H5VL_as_rpc_wrap_ctx_t
 {
   hid_t under_vol_id;   /* VOL ID for under VOL */
   void* under_wrap_ctx; /* Object wrapping context for under VOL */
-} H5VL_pass_through_ext_wrap_ctx_t;
+} H5VL_as_rpc_wrap_ctx_t;
 
 /********************* */
 /* Function prototypes */
 /********************* */
 
 /* Helper routines */
-static H5VL_pass_through_ext_t*
-H5VL_pass_through_ext_new_obj(void* under_obj, hid_t under_vol_id);
-static herr_t H5VL_pass_through_ext_free_obj(H5VL_pass_through_ext_t* obj);
+static H5VL_as_rpc_t* H5VL_pass_through_ext_new_obj(void* under_obj,
+                                                    hid_t under_vol_id);
+static herr_t H5VL_pass_through_ext_free_obj(H5VL_as_rpc_t* obj);
 
 /* "Management" callbacks */
 static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
@@ -301,12 +301,12 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
     H5VL_pass_through_ext_term,                  /* terminate    */
     {
         /* info_cls */
-        sizeof(H5VL_pass_through_ext_info_t), /* size    */
-        H5VL_pass_through_ext_info_copy,      /* copy    */
-        H5VL_pass_through_ext_info_cmp,       /* compare */
-        H5VL_pass_through_ext_info_free,      /* free    */
-        H5VL_pass_through_ext_info_to_str,    /* to_str  */
-        H5VL_pass_through_ext_str_to_info     /* from_str */
+        sizeof(H5VL_as_rpc_info_t),        /* size    */
+        H5VL_pass_through_ext_info_copy,   /* copy    */
+        H5VL_pass_through_ext_info_cmp,    /* compare */
+        H5VL_pass_through_ext_info_free,   /* free    */
+        H5VL_pass_through_ext_info_to_str, /* to_str  */
+        H5VL_pass_through_ext_str_to_info  /* from_str */
     },
     {
         /* wrap_cls */
@@ -440,13 +440,12 @@ extern "C"
  *
  *-------------------------------------------------------------------------
  */
-static H5VL_pass_through_ext_t*
-H5VL_pass_through_ext_new_obj(void* under_obj, hid_t under_vol_id)
+static H5VL_as_rpc_t* H5VL_pass_through_ext_new_obj(void* under_obj,
+                                                    hid_t under_vol_id)
 {
-  H5VL_pass_through_ext_t* new_obj;
+  H5VL_as_rpc_t* new_obj;
 
-  new_obj =
-      (H5VL_pass_through_ext_t*)calloc(1, sizeof(H5VL_pass_through_ext_t));
+  new_obj = (H5VL_as_rpc_t*)calloc(1, sizeof(H5VL_as_rpc_t));
   new_obj->under_object = under_obj;
   new_obj->under_vol_id = under_vol_id;
   H5Iinc_ref(new_obj->under_vol_id);
@@ -470,7 +469,7 @@ H5VL_pass_through_ext_new_obj(void* under_obj, hid_t under_vol_id)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t H5VL_pass_through_ext_free_obj(H5VL_pass_through_ext_t* obj)
+static herr_t H5VL_pass_through_ext_free_obj(H5VL_as_rpc_t* obj)
 {
   hid_t err_id;
 
@@ -570,17 +569,15 @@ static herr_t H5VL_pass_through_ext_term(void)
  */
 static void* H5VL_pass_through_ext_info_copy(const void* _info)
 {
-  const H5VL_pass_through_ext_info_t* info =
-      (const H5VL_pass_through_ext_info_t*)_info;
-  H5VL_pass_through_ext_info_t* new_info;
+  const H5VL_as_rpc_info_t* info = (const H5VL_as_rpc_info_t*)_info;
+  H5VL_as_rpc_info_t* new_info;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
   printf("------- EXT PASS THROUGH VOL INFO Copy\n");
 #endif
 
   /* Allocate new VOL info struct for the pass through connector */
-  new_info = (H5VL_pass_through_ext_info_t*)calloc(
-      1, sizeof(H5VL_pass_through_ext_info_t));
+  new_info = (H5VL_as_rpc_info_t*)calloc(1, sizeof(H5VL_as_rpc_info_t));
 
   /* Increment reference count on underlying VOL ID, and copy the VOL info */
   new_info->under_vol_id = info->under_vol_id;
@@ -606,10 +603,8 @@ static void* H5VL_pass_through_ext_info_copy(const void* _info)
 static herr_t H5VL_pass_through_ext_info_cmp(int* cmp_value, const void* _info1,
                                              const void* _info2)
 {
-  const H5VL_pass_through_ext_info_t* info1 =
-      (const H5VL_pass_through_ext_info_t*)_info1;
-  const H5VL_pass_through_ext_info_t* info2 =
-      (const H5VL_pass_through_ext_info_t*)_info2;
+  const H5VL_as_rpc_info_t* info1 = (const H5VL_as_rpc_info_t*)_info1;
+  const H5VL_as_rpc_info_t* info2 = (const H5VL_as_rpc_info_t*)_info2;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
   printf("------- EXT PASS THROUGH VOL INFO Compare\n");
@@ -651,7 +646,7 @@ static herr_t H5VL_pass_through_ext_info_cmp(int* cmp_value, const void* _info1,
  */
 static herr_t H5VL_pass_through_ext_info_free(void* _info)
 {
-  H5VL_pass_through_ext_info_t* info = (H5VL_pass_through_ext_info_t*)_info;
+  H5VL_as_rpc_info_t* info = (H5VL_as_rpc_info_t*)_info;
   hid_t err_id;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -685,8 +680,7 @@ static herr_t H5VL_pass_through_ext_info_free(void* _info)
  */
 static herr_t H5VL_pass_through_ext_info_to_str(const void* _info, char** str)
 {
-  const H5VL_pass_through_ext_info_t* info =
-      (const H5VL_pass_through_ext_info_t*)_info;
+  const H5VL_as_rpc_info_t* info = (const H5VL_as_rpc_info_t*)_info;
   H5VL_class_value_t under_value = (H5VL_class_value_t)-1;
   char* under_vol_string = NULL;
   size_t under_vol_str_len = 0;
@@ -735,7 +729,7 @@ static herr_t H5VL_pass_through_ext_info_to_str(const void* _info, char** str)
  */
 static herr_t H5VL_pass_through_ext_str_to_info(const char* str, void** _info)
 {
-  H5VL_pass_through_ext_info_t* info;
+  H5VL_as_rpc_info_t* info;
   unsigned under_vol_value;
   const char *under_vol_info_start, *under_vol_info_end;
   hid_t under_vol_id;
@@ -769,8 +763,7 @@ static herr_t H5VL_pass_through_ext_str_to_info(const char* str, void** _info)
   } /* end else */
 
   /* Allocate new pass-through VOL connector info and set its fields */
-  info = (H5VL_pass_through_ext_info_t*)calloc(
-      1, sizeof(H5VL_pass_through_ext_info_t));
+  info = (H5VL_as_rpc_info_t*)calloc(1, sizeof(H5VL_as_rpc_info_t));
   info->under_vol_id = under_vol_id;
   info->under_vol_info = under_vol_info;
 
@@ -794,7 +787,7 @@ static herr_t H5VL_pass_through_ext_str_to_info(const char* str, void** _info)
  */
 static void* H5VL_pass_through_ext_get_object(const void* obj)
 {
-  const H5VL_pass_through_ext_t* o = (const H5VL_pass_through_ext_t*)obj;
+  const H5VL_as_rpc_t* o = (const H5VL_as_rpc_t*)obj;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
   printf("------- EXT PASS THROUGH VOL Get object\n");
@@ -816,16 +809,16 @@ static void* H5VL_pass_through_ext_get_object(const void* obj)
 static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
                                                  void** wrap_ctx)
 {
-  const H5VL_pass_through_ext_t* o = (const H5VL_pass_through_ext_t*)obj;
-  H5VL_pass_through_ext_wrap_ctx_t* new_wrap_ctx;
+  const H5VL_as_rpc_t* o = (const H5VL_as_rpc_t*)obj;
+  H5VL_as_rpc_wrap_ctx_t* new_wrap_ctx;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
   printf("------- EXT PASS THROUGH VOL WRAP CTX Get\n");
 #endif
 
   /* Allocate new VOL object wrapping context for the pass through connector */
-  new_wrap_ctx = (H5VL_pass_through_ext_wrap_ctx_t*)calloc(
-      1, sizeof(H5VL_pass_through_ext_wrap_ctx_t));
+  new_wrap_ctx =
+      (H5VL_as_rpc_wrap_ctx_t*)calloc(1, sizeof(H5VL_as_rpc_wrap_ctx_t));
 
   /* Increment reference count on underlying VOL ID, and copy the VOL info */
   new_wrap_ctx->under_vol_id = o->under_vol_id;
@@ -852,9 +845,8 @@ static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
 static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
                                                void* _wrap_ctx)
 {
-  H5VL_pass_through_ext_wrap_ctx_t* wrap_ctx =
-      (H5VL_pass_through_ext_wrap_ctx_t*)_wrap_ctx;
-  H5VL_pass_through_ext_t* new_obj;
+  H5VL_as_rpc_wrap_ctx_t* wrap_ctx = (H5VL_as_rpc_wrap_ctx_t*)_wrap_ctx;
+  H5VL_as_rpc_t* new_obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -885,7 +877,7 @@ static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
  */
 static void* H5VL_pass_through_ext_unwrap_object(void* obj)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -916,8 +908,7 @@ static void* H5VL_pass_through_ext_unwrap_object(void* obj)
  */
 static herr_t H5VL_pass_through_ext_free_wrap_ctx(void* _wrap_ctx)
 {
-  H5VL_pass_through_ext_wrap_ctx_t* wrap_ctx =
-      (H5VL_pass_through_ext_wrap_ctx_t*)_wrap_ctx;
+  H5VL_as_rpc_wrap_ctx_t* wrap_ctx = (H5VL_as_rpc_wrap_ctx_t*)_wrap_ctx;
   hid_t err_id;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -954,8 +945,8 @@ static void* H5VL_pass_through_ext_attr_create(
     hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id, hid_t dxpl_id,
     void** req)
 {
-  H5VL_pass_through_ext_t* attr;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* attr;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -993,8 +984,8 @@ H5VL_pass_through_ext_attr_open(void* obj, const H5VL_loc_params_t* loc_params,
                                 const char* name, hid_t aapl_id, hid_t dxpl_id,
                                 void** req)
 {
-  H5VL_pass_through_ext_t* attr;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* attr;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1031,7 +1022,7 @@ static herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id,
                                               void* buf, hid_t dxpl_id,
                                               void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)attr;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1062,7 +1053,7 @@ static herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
                                                const void* buf, hid_t dxpl_id,
                                                void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)attr;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1093,7 +1084,7 @@ static herr_t H5VL_pass_through_ext_attr_get(void* obj,
                                              H5VL_attr_get_args_t* args,
                                              hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1124,7 +1115,7 @@ static herr_t H5VL_pass_through_ext_attr_specific(
     void* obj, const H5VL_loc_params_t* loc_params,
     H5VL_attr_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1155,7 +1146,7 @@ static herr_t H5VL_pass_through_ext_attr_optional(void* obj,
                                                   H5VL_optional_args_t* args,
                                                   hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1185,7 +1176,7 @@ static herr_t H5VL_pass_through_ext_attr_optional(void* obj,
 static herr_t H5VL_pass_through_ext_attr_close(void* attr, hid_t dxpl_id,
                                                void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)attr;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1220,8 +1211,8 @@ static void* H5VL_pass_through_ext_dataset_create(
     hid_t lcpl_id, hid_t type_id, hid_t space_id, hid_t dcpl_id, hid_t dapl_id,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* dset;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* dset;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1259,8 +1250,8 @@ static void* H5VL_pass_through_ext_dataset_open(
     void* obj, const H5VL_loc_params_t* loc_params, const char* name,
     hid_t dapl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* dset;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* dset;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1306,11 +1297,11 @@ static herr_t H5VL_pass_through_ext_dataset_read(
 #endif
 
   /* Populate the array of under objects */
-  under_vol_id = ((H5VL_pass_through_ext_t*)(dset[0]))->under_vol_id;
+  under_vol_id = ((H5VL_as_rpc_t*)(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
   {
-    o_arr[u] = ((H5VL_pass_through_ext_t*)(dset[u]))->under_object;
-    assert(under_vol_id == ((H5VL_pass_through_ext_t*)(dset[u]))->under_vol_id);
+    o_arr[u] = ((H5VL_as_rpc_t*)(dset[u]))->under_object;
+    assert(under_vol_id == ((H5VL_as_rpc_t*)(dset[u]))->under_vol_id);
   }
 
   ret_value = H5VLdataset_read(count, o_arr, under_vol_id, mem_type_id,
@@ -1346,11 +1337,11 @@ static herr_t H5VL_pass_through_ext_dataset_write(
 #endif
 
   /* Populate the array of under objects */
-  under_vol_id = ((H5VL_pass_through_ext_t*)(dset[0]))->under_vol_id;
+  under_vol_id = ((H5VL_as_rpc_t*)(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
   {
-    o_arr[u] = ((H5VL_pass_through_ext_t*)(dset[u]))->under_object;
-    assert(under_vol_id == ((H5VL_pass_through_ext_t*)(dset[u]))->under_vol_id);
+    o_arr[u] = ((H5VL_as_rpc_t*)(dset[u]))->under_object;
+    assert(under_vol_id == ((H5VL_as_rpc_t*)(dset[u]))->under_vol_id);
   }
 
   ret_value =
@@ -1378,7 +1369,7 @@ static herr_t H5VL_pass_through_ext_dataset_get(void* dset,
                                                 H5VL_dataset_get_args_t* args,
                                                 hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)dset;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dset;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1408,7 +1399,7 @@ static herr_t H5VL_pass_through_ext_dataset_get(void* dset,
 static herr_t H5VL_pass_through_ext_dataset_specific(
     void* obj, H5VL_dataset_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   hid_t under_vol_id;
   herr_t ret_value;
 
@@ -1444,7 +1435,7 @@ static herr_t H5VL_pass_through_ext_dataset_optional(void* obj,
                                                      H5VL_optional_args_t* args,
                                                      hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1474,7 +1465,7 @@ static herr_t H5VL_pass_through_ext_dataset_optional(void* obj,
 static herr_t H5VL_pass_through_ext_dataset_close(void* dset, hid_t dxpl_id,
                                                   void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)dset;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dset;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1509,8 +1500,8 @@ static void* H5VL_pass_through_ext_datatype_commit(
     hid_t type_id, hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id, hid_t dxpl_id,
     void** req)
 {
-  H5VL_pass_through_ext_t* dt;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* dt;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1548,8 +1539,8 @@ static void* H5VL_pass_through_ext_datatype_open(
     void* obj, const H5VL_loc_params_t* loc_params, const char* name,
     hid_t tapl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* dt;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* dt;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1586,7 +1577,7 @@ static herr_t H5VL_pass_through_ext_datatype_get(void* dt,
                                                  H5VL_datatype_get_args_t* args,
                                                  hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)dt;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dt;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1616,7 +1607,7 @@ static herr_t H5VL_pass_through_ext_datatype_get(void* dt,
 static herr_t H5VL_pass_through_ext_datatype_specific(
     void* obj, H5VL_datatype_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   hid_t under_vol_id;
   herr_t ret_value;
 
@@ -1652,7 +1643,7 @@ static herr_t
 H5VL_pass_through_ext_datatype_optional(void* obj, H5VL_optional_args_t* args,
                                         hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1682,7 +1673,7 @@ H5VL_pass_through_ext_datatype_optional(void* obj, H5VL_optional_args_t* args,
 static herr_t H5VL_pass_through_ext_datatype_close(void* dt, hid_t dxpl_id,
                                                    void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)dt;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dt;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1719,8 +1710,8 @@ static void* H5VL_pass_through_ext_file_create(const char* name, unsigned flags,
                                                hid_t fcpl_id, hid_t fapl_id,
                                                hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_info_t* info;
-  H5VL_pass_through_ext_t* file;
+  H5VL_as_rpc_info_t* info;
+  H5VL_as_rpc_t* file;
   hid_t under_fapl_id;
   void* under;
 
@@ -1777,8 +1768,8 @@ static void* H5VL_pass_through_ext_file_open(const char* name, unsigned flags,
                                              hid_t fapl_id, hid_t dxpl_id,
                                              void** req)
 {
-  H5VL_pass_through_ext_info_t* info;
-  H5VL_pass_through_ext_t* file;
+  H5VL_as_rpc_info_t* info;
+  H5VL_as_rpc_t* file;
   hid_t under_fapl_id;
   void* under;
 
@@ -1835,7 +1826,7 @@ static herr_t H5VL_pass_through_ext_file_get(void* file,
                                              H5VL_file_get_args_t* args,
                                              hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)file;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)file;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -1866,11 +1857,11 @@ static herr_t
 H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
                                     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)file;
-  H5VL_pass_through_ext_t* new_o;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)file;
+  H5VL_as_rpc_t* new_o;
   H5VL_file_specific_args_t my_args;
   H5VL_file_specific_args_t* new_args;
-  H5VL_pass_through_ext_info_t* info;
+  H5VL_as_rpc_info_t* info;
   hid_t under_vol_id = -1;
   herr_t ret_value;
 
@@ -1950,7 +1941,7 @@ H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
     new_args = args;
 
     /* Set object pointer for operation */
-    new_o = (H5VL_pass_through_ext_t*)o->under_object;
+    new_o = (H5VL_as_rpc_t*)o->under_object;
   } /* end else */
 
   ret_value = H5VLfile_specific(new_o, under_vol_id, new_args, dxpl_id, req);
@@ -2002,7 +1993,7 @@ static herr_t H5VL_pass_through_ext_file_optional(void* file,
                                                   H5VL_optional_args_t* args,
                                                   hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)file;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)file;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2032,7 +2023,7 @@ static herr_t H5VL_pass_through_ext_file_optional(void* file,
 static herr_t H5VL_pass_through_ext_file_close(void* file, hid_t dxpl_id,
                                                void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)file;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)file;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2066,8 +2057,8 @@ static void* H5VL_pass_through_ext_group_create(
     void* obj, const H5VL_loc_params_t* loc_params, const char* name,
     hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* group;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* group;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2105,8 +2096,8 @@ H5VL_pass_through_ext_group_open(void* obj, const H5VL_loc_params_t* loc_params,
                                  const char* name, hid_t gapl_id, hid_t dxpl_id,
                                  void** req)
 {
-  H5VL_pass_through_ext_t* group;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* group;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2143,7 +2134,7 @@ static herr_t H5VL_pass_through_ext_group_get(void* obj,
                                               H5VL_group_get_args_t* args,
                                               hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2173,7 +2164,7 @@ static herr_t H5VL_pass_through_ext_group_get(void* obj,
 static herr_t H5VL_pass_through_ext_group_specific(
     void* obj, H5VL_group_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   H5VL_group_specific_args_t my_args;
   H5VL_group_specific_args_t* new_args;
   hid_t under_vol_id;
@@ -2196,7 +2187,7 @@ static herr_t H5VL_pass_through_ext_group_specific(
 
     /* Set the object for the child file */
     my_args.args.mount.child_file =
-        ((H5VL_pass_through_ext_t*)args->args.mount.child_file)->under_object;
+        ((H5VL_as_rpc_t*)args->args.mount.child_file)->under_object;
 
     /* Point to modified arguments */
     new_args = &my_args;
@@ -2228,7 +2219,7 @@ static herr_t H5VL_pass_through_ext_group_optional(void* obj,
                                                    H5VL_optional_args_t* args,
                                                    hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2258,7 +2249,7 @@ static herr_t H5VL_pass_through_ext_group_optional(void* obj,
 static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
                                                 void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)grp;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)grp;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2296,7 +2287,7 @@ H5VL_pass_through_ext_link_create(H5VL_link_create_args_t* args, void* obj,
 {
   H5VL_link_create_args_t my_args;
   H5VL_link_create_args_t* new_args;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   hid_t under_vol_id = -1;
   herr_t ret_value;
 
@@ -2320,12 +2311,11 @@ H5VL_pass_through_ext_link_create(H5VL_link_create_args_t* args, void* obj,
 
       /* Check if we still need the "under" VOL ID */
       if (under_vol_id < 0)
-        under_vol_id =
-            ((H5VL_pass_through_ext_t*)args->args.hard.curr_obj)->under_vol_id;
+        under_vol_id = ((H5VL_as_rpc_t*)args->args.hard.curr_obj)->under_vol_id;
 
       /* Set the object for the link target */
       my_args.args.hard.curr_obj =
-          ((H5VL_pass_through_ext_t*)args->args.hard.curr_obj)->under_object;
+          ((H5VL_as_rpc_t*)args->args.hard.curr_obj)->under_object;
 
       /* Set argument pointer to modified parameters */
       new_args = &my_args;
@@ -2367,8 +2357,8 @@ static herr_t H5VL_pass_through_ext_link_copy(
     const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o_src = (H5VL_pass_through_ext_t*)src_obj;
-  H5VL_pass_through_ext_t* o_dst = (H5VL_pass_through_ext_t*)dst_obj;
+  H5VL_as_rpc_t* o_src = (H5VL_as_rpc_t*)src_obj;
+  H5VL_as_rpc_t* o_dst = (H5VL_as_rpc_t*)dst_obj;
   hid_t under_vol_id = -1;
   herr_t ret_value;
 
@@ -2414,8 +2404,8 @@ static herr_t H5VL_pass_through_ext_link_move(
     const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o_src = (H5VL_pass_through_ext_t*)src_obj;
-  H5VL_pass_through_ext_t* o_dst = (H5VL_pass_through_ext_t*)dst_obj;
+  H5VL_as_rpc_t* o_src = (H5VL_as_rpc_t*)src_obj;
+  H5VL_as_rpc_t* o_dst = (H5VL_as_rpc_t*)dst_obj;
   hid_t under_vol_id = -1;
   herr_t ret_value;
 
@@ -2456,7 +2446,7 @@ H5VL_pass_through_ext_link_get(void* obj, const H5VL_loc_params_t* loc_params,
                                H5VL_link_get_args_t* args, hid_t dxpl_id,
                                void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2487,7 +2477,7 @@ static herr_t H5VL_pass_through_ext_link_specific(
     void* obj, const H5VL_loc_params_t* loc_params,
     H5VL_link_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2518,7 +2508,7 @@ static herr_t H5VL_pass_through_ext_link_optional(
     void* obj, const H5VL_loc_params_t* loc_params, H5VL_optional_args_t* args,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2549,8 +2539,8 @@ static void* H5VL_pass_through_ext_object_open(
     void* obj, const H5VL_loc_params_t* loc_params, H5I_type_t* opened_type,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* new_obj;
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* new_obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   void* under;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2589,8 +2579,8 @@ static herr_t H5VL_pass_through_ext_object_copy(
     const H5VL_loc_params_t* dst_loc_params, const char* dst_name,
     hid_t ocpypl_id, hid_t lcpl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o_src = (H5VL_pass_through_ext_t*)src_obj;
-  H5VL_pass_through_ext_t* o_dst = (H5VL_pass_through_ext_t*)dst_obj;
+  H5VL_as_rpc_t* o_src = (H5VL_as_rpc_t*)src_obj;
+  H5VL_as_rpc_t* o_dst = (H5VL_as_rpc_t*)dst_obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2624,7 +2614,7 @@ H5VL_pass_through_ext_object_get(void* obj, const H5VL_loc_params_t* loc_params,
                                  H5VL_object_get_args_t* args, hid_t dxpl_id,
                                  void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2655,7 +2645,7 @@ static herr_t H5VL_pass_through_ext_object_specific(
     void* obj, const H5VL_loc_params_t* loc_params,
     H5VL_object_specific_args_t* args, hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   hid_t under_vol_id;
   herr_t ret_value;
 
@@ -2691,7 +2681,7 @@ static herr_t H5VL_pass_through_ext_object_optional(
     void* obj, const H5VL_loc_params_t* loc_params, H5VL_optional_args_t* args,
     hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2720,7 +2710,7 @@ static herr_t H5VL_pass_through_ext_object_optional(
 herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
     void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2753,8 +2743,7 @@ herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
 herr_t H5VL_pass_through_ext_introspect_get_cap_flags(const void* _info,
                                                       uint64_t* cap_flags)
 {
-  const H5VL_pass_through_ext_info_t* info =
-      (const H5VL_pass_through_ext_info_t*)_info;
+  const H5VL_as_rpc_info_t* info = (const H5VL_as_rpc_info_t*)_info;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2785,7 +2774,7 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
                                                   H5VL_subclass_t cls,
                                                   int op_type, uint64_t* flags)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2814,7 +2803,7 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
 static herr_t H5VL_pass_through_ext_request_wait(void* obj, uint64_t timeout,
                                                  H5VL_request_status_t* status)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2844,7 +2833,7 @@ static herr_t H5VL_pass_through_ext_request_notify(void* obj,
                                                    H5VL_request_notify_t cb,
                                                    void* ctx)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2871,7 +2860,7 @@ static herr_t H5VL_pass_through_ext_request_notify(void* obj,
 static herr_t
 H5VL_pass_through_ext_request_cancel(void* obj, H5VL_request_status_t* status)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2897,7 +2886,7 @@ static herr_t
 H5VL_pass_through_ext_request_specific(void* obj,
                                        H5VL_request_specific_args_t* args)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value = -1;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2922,7 +2911,7 @@ H5VL_pass_through_ext_request_specific(void* obj,
 static herr_t H5VL_pass_through_ext_request_optional(void* obj,
                                                      H5VL_optional_args_t* args)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2947,7 +2936,7 @@ static herr_t H5VL_pass_through_ext_request_optional(void* obj,
  */
 static herr_t H5VL_pass_through_ext_request_free(void* obj)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2974,7 +2963,7 @@ static herr_t H5VL_pass_through_ext_request_free(void* obj)
 herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf, size_t size,
                                       void* blob_id, void* ctx)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -2999,7 +2988,7 @@ herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf, size_t size,
 herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id, void* buf,
                                       size_t size, void* ctx)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3024,7 +3013,7 @@ herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id, void* buf,
 herr_t H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
                                            H5VL_blob_specific_args_t* args)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3049,7 +3038,7 @@ herr_t H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
 herr_t H5VL_pass_through_ext_blob_optional(void* obj, void* blob_id,
                                            H5VL_optional_args_t* args)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3078,7 +3067,7 @@ static herr_t H5VL_pass_through_ext_token_cmp(void* obj,
                                               const H5O_token_t* token2,
                                               int* cmp_value)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3111,7 +3100,7 @@ static herr_t H5VL_pass_through_ext_token_to_str(void* obj, H5I_type_t obj_type,
                                                  const H5O_token_t* token,
                                                  char** token_str)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3144,7 +3133,7 @@ static herr_t H5VL_pass_through_ext_token_from_str(void* obj,
                                                    const char* token_str,
                                                    H5O_token_t* token)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
@@ -3174,7 +3163,7 @@ static herr_t H5VL_pass_through_ext_token_from_str(void* obj,
 herr_t H5VL_pass_through_ext_optional(void* obj, H5VL_optional_args_t* args,
                                       hid_t dxpl_id, void** req)
 {
-  H5VL_pass_through_ext_t* o = (H5VL_pass_through_ext_t*)obj;
+  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING

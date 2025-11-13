@@ -35,11 +35,11 @@
 #define H5VL_PASSTHRU_EXT_VALUE 517 /* VOL connector ID */
 
 /* Pass-through VOL connector info */
-typedef struct H5VL_pass_through_ext_info_t
+typedef struct H5VL_as_rpc_info_t
 {
   hid_t under_vol_id;   /* VOL ID for under VOL */
   void* under_vol_info; /* VOL info for under VOL */
-} H5VL_pass_through_ext_info_t;
+} H5VL_as_rpc_info_t;
 
 #ifdef __cplusplus
 extern "C"
