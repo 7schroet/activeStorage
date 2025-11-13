@@ -25,7 +25,7 @@
 #include <string.h>
 
 /* This connector's private header */
-#include "H5VLpassthru_ext_private.hpp"
+#include "H5VLpassthru_ext.hpp"
 
 #define ENABLE_EXT_PASSTHRU_LOGGING
 
