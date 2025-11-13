@@ -1,7 +1,7 @@
 add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
-  H5VLpassthru_ext.cpp
+    H5VLpassthru_ext.cpp
 
   PRIVATE
   FILE_SET HEADERS

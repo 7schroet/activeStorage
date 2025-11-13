@@ -86,387 +86,393 @@ typedef struct H5VL_pass_through_ext_wrap_ctx_t
 /* Function prototypes */
 /********************* */
 
-/* Helper routines */
-static H5VL_pass_through_ext_t*
-H5VL_pass_through_ext_new_obj(void* under_obj, hid_t under_vol_id);
-static herr_t H5VL_pass_through_ext_free_obj(H5VL_pass_through_ext_t* obj);
+extern "C"
+{
+  /* Helper routines */
+  static H5VL_pass_through_ext_t*
+  H5VL_pass_through_ext_new_obj(void* under_obj, hid_t under_vol_id);
+  static herr_t H5VL_pass_through_ext_free_obj(H5VL_pass_through_ext_t* obj);
 
-/* "Management" callbacks */
-static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
-static herr_t H5VL_pass_through_ext_term(void);
+  /* "Management" callbacks */
+  static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
+  static herr_t H5VL_pass_through_ext_term(void);
 
-/* VOL info callbacks */
-static void* H5VL_pass_through_ext_info_copy(const void* info);
-static herr_t H5VL_pass_through_ext_info_cmp(int* cmp_value, const void* info1,
-                                             const void* info2);
-static herr_t H5VL_pass_through_ext_info_free(void* info);
-static herr_t H5VL_pass_through_ext_info_to_str(const void* info, char** str);
-static herr_t H5VL_pass_through_ext_str_to_info(const char* str, void** info);
+  /* VOL info callbacks */
+  static void* H5VL_pass_through_ext_info_copy(const void* info);
+  static herr_t H5VL_pass_through_ext_info_cmp(int* cmp_value,
+                                               const void* info1,
+                                               const void* info2);
+  static herr_t H5VL_pass_through_ext_info_free(void* info);
+  static herr_t H5VL_pass_through_ext_info_to_str(const void* info, char** str);
+  static herr_t H5VL_pass_through_ext_str_to_info(const char* str, void** info);
 
-/* VOL object wrap / retrieval callbacks */
-static void* H5VL_pass_through_ext_get_object(const void* obj);
-static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
-                                                 void** wrap_ctx);
-static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
-                                               void* wrap_ctx);
-static void* H5VL_pass_through_ext_unwrap_object(void* obj);
-static herr_t H5VL_pass_through_ext_free_wrap_ctx(void* obj);
+  /* VOL object wrap / retrieval callbacks */
+  static void* H5VL_pass_through_ext_get_object(const void* obj);
+  static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
+                                                   void** wrap_ctx);
+  static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
+                                                 void* wrap_ctx);
+  static void* H5VL_pass_through_ext_unwrap_object(void* obj);
+  static herr_t H5VL_pass_through_ext_free_wrap_ctx(void* obj);
 
-/* Attribute callbacks */
-static void* H5VL_pass_through_ext_attr_create(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id, hid_t dxpl_id,
-    void** req);
-static void*
-H5VL_pass_through_ext_attr_open(void* obj, const H5VL_loc_params_t* loc_params,
-                                const char* name, hid_t aapl_id, hid_t dxpl_id,
-                                void** req);
-static herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id,
-                                              void* buf, hid_t dxpl_id,
-                                              void** req);
-static herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
-                                               const void* buf, hid_t dxpl_id,
-                                               void** req);
-static herr_t H5VL_pass_through_ext_attr_get(void* obj,
-                                             H5VL_attr_get_args_t* args,
-                                             hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_attr_specific(
-    void* obj, const H5VL_loc_params_t* loc_params,
-    H5VL_attr_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_attr_optional(void* obj,
-                                                  H5VL_optional_args_t* args,
+  /* Attribute callbacks */
+  static void* H5VL_pass_through_ext_attr_create(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id,
+      hid_t dxpl_id, void** req);
+  static void* H5VL_pass_through_ext_attr_open(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t aapl_id, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id,
+                                                void* buf, hid_t dxpl_id,
+                                                void** req);
+  static herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
+                                                 const void* buf, hid_t dxpl_id,
+                                                 void** req);
+  static herr_t H5VL_pass_through_ext_attr_get(void* obj,
+                                               H5VL_attr_get_args_t* args,
+                                               hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_attr_specific(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_attr_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_attr_optional(void* obj,
+                                                    H5VL_optional_args_t* args,
+                                                    hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_attr_close(void* attr, hid_t dxpl_id,
+                                                 void** req);
+
+  /* Dataset callbacks */
+  static void* H5VL_pass_through_ext_dataset_create(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t lcpl_id, hid_t type_id, hid_t space_id, hid_t dcpl_id,
+      hid_t dapl_id, hid_t dxpl_id, void** req);
+  static void* H5VL_pass_through_ext_dataset_open(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t dapl_id, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_dataset_read(
+      size_t count, void* dset[], hid_t mem_type_id[], hid_t mem_space_id[],
+      hid_t file_space_id[], hid_t plist_id, void* buf[], void** req);
+  static herr_t H5VL_pass_through_ext_dataset_write(
+      size_t count, void* dset[], hid_t mem_type_id[], hid_t mem_space_id[],
+      hid_t file_space_id[], hid_t plist_id, const void* buf[], void** req);
+  static herr_t H5VL_pass_through_ext_dataset_get(void* dset,
+                                                  H5VL_dataset_get_args_t* args,
                                                   hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_attr_close(void* attr, hid_t dxpl_id,
-                                               void** req);
+  static herr_t H5VL_pass_through_ext_dataset_specific(
+      void* obj, H5VL_dataset_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t
+  H5VL_pass_through_ext_dataset_optional(void* obj, H5VL_optional_args_t* args,
+                                         hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_dataset_close(void* dset, hid_t dxpl_id,
+                                                    void** req);
 
-/* Dataset callbacks */
-static void* H5VL_pass_through_ext_dataset_create(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t lcpl_id, hid_t type_id, hid_t space_id, hid_t dcpl_id, hid_t dapl_id,
-    hid_t dxpl_id, void** req);
-static void* H5VL_pass_through_ext_dataset_open(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t dapl_id, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_dataset_read(
-    size_t count, void* dset[], hid_t mem_type_id[], hid_t mem_space_id[],
-    hid_t file_space_id[], hid_t plist_id, void* buf[], void** req);
-static herr_t H5VL_pass_through_ext_dataset_write(
-    size_t count, void* dset[], hid_t mem_type_id[], hid_t mem_space_id[],
-    hid_t file_space_id[], hid_t plist_id, const void* buf[], void** req);
-static herr_t H5VL_pass_through_ext_dataset_get(void* dset,
-                                                H5VL_dataset_get_args_t* args,
+  /* Datatype callbacks */
+  static void* H5VL_pass_through_ext_datatype_commit(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t type_id, hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id, hid_t dxpl_id,
+      void** req);
+  static void* H5VL_pass_through_ext_datatype_open(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t tapl_id, hid_t dxpl_id, void** req);
+  static herr_t
+  H5VL_pass_through_ext_datatype_get(void* dt, H5VL_datatype_get_args_t* args,
+                                     hid_t dxpl_id, void** req);
+  static herr_t
+  H5VL_pass_through_ext_datatype_specific(void* obj,
+                                          H5VL_datatype_specific_args_t* args,
+                                          hid_t dxpl_id, void** req);
+  static herr_t
+  H5VL_pass_through_ext_datatype_optional(void* obj, H5VL_optional_args_t* args,
+                                          hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_datatype_close(void* dt, hid_t dxpl_id,
+                                                     void** req);
+
+  /* File callbacks */
+  static void* H5VL_pass_through_ext_file_create(const char* name,
+                                                 unsigned flags, hid_t fcpl_id,
+                                                 hid_t fapl_id, hid_t dxpl_id,
+                                                 void** req);
+  static void* H5VL_pass_through_ext_file_open(const char* name, unsigned flags,
+                                               hid_t fapl_id, hid_t dxpl_id,
+                                               void** req);
+  static herr_t H5VL_pass_through_ext_file_get(void* file,
+                                               H5VL_file_get_args_t* args,
+                                               hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_file_specific(
+      void* file, H5VL_file_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_file_optional(void* file,
+                                                    H5VL_optional_args_t* args,
+                                                    hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_file_close(void* file, hid_t dxpl_id,
+                                                 void** req);
+
+  /* Group callbacks */
+  static void* H5VL_pass_through_ext_group_create(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id, void** req);
+  static void* H5VL_pass_through_ext_group_open(
+      void* obj, const H5VL_loc_params_t* loc_params, const char* name,
+      hid_t gapl_id, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_group_get(void* obj,
+                                                H5VL_group_get_args_t* args,
                                                 hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_dataset_specific(
-    void* obj, H5VL_dataset_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_dataset_optional(void* obj,
+  static herr_t H5VL_pass_through_ext_group_specific(
+      void* obj, H5VL_group_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_group_optional(void* obj,
                                                      H5VL_optional_args_t* args,
                                                      hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_dataset_close(void* dset, hid_t dxpl_id,
+  static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
                                                   void** req);
 
-/* Datatype callbacks */
-static void* H5VL_pass_through_ext_datatype_commit(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t type_id, hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id, hid_t dxpl_id,
-    void** req);
-static void* H5VL_pass_through_ext_datatype_open(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t tapl_id, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_datatype_get(void* dt,
-                                                 H5VL_datatype_get_args_t* args,
-                                                 hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_datatype_specific(
-    void* obj, H5VL_datatype_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t
-H5VL_pass_through_ext_datatype_optional(void* obj, H5VL_optional_args_t* args,
-                                        hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_datatype_close(void* dt, hid_t dxpl_id,
-                                                   void** req);
-
-/* File callbacks */
-static void* H5VL_pass_through_ext_file_create(const char* name, unsigned flags,
-                                               hid_t fcpl_id, hid_t fapl_id,
-                                               hid_t dxpl_id, void** req);
-static void* H5VL_pass_through_ext_file_open(const char* name, unsigned flags,
-                                             hid_t fapl_id, hid_t dxpl_id,
-                                             void** req);
-static herr_t H5VL_pass_through_ext_file_get(void* file,
-                                             H5VL_file_get_args_t* args,
-                                             hid_t dxpl_id, void** req);
-static herr_t
-H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
-                                    hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_file_optional(void* file,
-                                                  H5VL_optional_args_t* args,
-                                                  hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_file_close(void* file, hid_t dxpl_id,
-                                               void** req);
-
-/* Group callbacks */
-static void* H5VL_pass_through_ext_group_create(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id, void** req);
-static void*
-H5VL_pass_through_ext_group_open(void* obj, const H5VL_loc_params_t* loc_params,
-                                 const char* name, hid_t gapl_id, hid_t dxpl_id,
+  /* Link callbacks */
+  static herr_t
+  H5VL_pass_through_ext_link_create(H5VL_link_create_args_t* args, void* obj,
+                                    const H5VL_loc_params_t* loc_params,
+                                    hid_t lcpl_id, hid_t lapl_id, hid_t dxpl_id,
+                                    void** req);
+  static herr_t H5VL_pass_through_ext_link_copy(
+      void* src_obj, const H5VL_loc_params_t* loc_params1, void* dst_obj,
+      const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
+      hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_link_move(
+      void* src_obj, const H5VL_loc_params_t* loc_params1, void* dst_obj,
+      const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
+      hid_t dxpl_id, void** req);
+  static herr_t
+  H5VL_pass_through_ext_link_get(void* obj, const H5VL_loc_params_t* loc_params,
+                                 H5VL_link_get_args_t* args, hid_t dxpl_id,
                                  void** req);
-static herr_t H5VL_pass_through_ext_group_get(void* obj,
-                                              H5VL_group_get_args_t* args,
-                                              hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_specific(
-    void* obj, H5VL_group_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_optional(void* obj,
-                                                   H5VL_optional_args_t* args,
-                                                   hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
-                                                void** req);
+  static herr_t H5VL_pass_through_ext_link_specific(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_link_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_link_optional(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_optional_args_t* args, hid_t dxpl_id, void** req);
 
-/* Link callbacks */
-static herr_t
-H5VL_pass_through_ext_link_create(H5VL_link_create_args_t* args, void* obj,
-                                  const H5VL_loc_params_t* loc_params,
-                                  hid_t lcpl_id, hid_t lapl_id, hid_t dxpl_id,
-                                  void** req);
-static herr_t H5VL_pass_through_ext_link_copy(
-    void* src_obj, const H5VL_loc_params_t* loc_params1, void* dst_obj,
-    const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
-    hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_link_move(
-    void* src_obj, const H5VL_loc_params_t* loc_params1, void* dst_obj,
-    const H5VL_loc_params_t* loc_params2, hid_t lcpl_id, hid_t lapl_id,
-    hid_t dxpl_id, void** req);
-static herr_t
-H5VL_pass_through_ext_link_get(void* obj, const H5VL_loc_params_t* loc_params,
-                               H5VL_link_get_args_t* args, hid_t dxpl_id,
-                               void** req);
-static herr_t H5VL_pass_through_ext_link_specific(
-    void* obj, const H5VL_loc_params_t* loc_params,
-    H5VL_link_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_link_optional(
-    void* obj, const H5VL_loc_params_t* loc_params, H5VL_optional_args_t* args,
-    hid_t dxpl_id, void** req);
+  /* Object callbacks */
+  static void* H5VL_pass_through_ext_object_open(
+      void* obj, const H5VL_loc_params_t* loc_params, H5I_type_t* opened_type,
+      hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_object_copy(
+      void* src_obj, const H5VL_loc_params_t* src_loc_params,
+      const char* src_name, void* dst_obj,
+      const H5VL_loc_params_t* dst_loc_params, const char* dst_name,
+      hid_t ocpypl_id, hid_t lcpl_id, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_object_get(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_object_get_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_object_specific(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_object_specific_args_t* args, hid_t dxpl_id, void** req);
+  static herr_t H5VL_pass_through_ext_object_optional(
+      void* obj, const H5VL_loc_params_t* loc_params,
+      H5VL_optional_args_t* args, hid_t dxpl_id, void** req);
 
-/* Object callbacks */
-static void* H5VL_pass_through_ext_object_open(
-    void* obj, const H5VL_loc_params_t* loc_params, H5I_type_t* opened_type,
-    hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_object_copy(
-    void* src_obj, const H5VL_loc_params_t* src_loc_params,
-    const char* src_name, void* dst_obj,
-    const H5VL_loc_params_t* dst_loc_params, const char* dst_name,
-    hid_t ocpypl_id, hid_t lcpl_id, hid_t dxpl_id, void** req);
-static herr_t
-H5VL_pass_through_ext_object_get(void* obj, const H5VL_loc_params_t* loc_params,
-                                 H5VL_object_get_args_t* args, hid_t dxpl_id,
-                                 void** req);
-static herr_t H5VL_pass_through_ext_object_specific(
-    void* obj, const H5VL_loc_params_t* loc_params,
-    H5VL_object_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_object_optional(
-    void* obj, const H5VL_loc_params_t* loc_params, H5VL_optional_args_t* args,
-    hid_t dxpl_id, void** req);
+  /* Container/connector introspection callbacks */
+  static herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
+      void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls);
+  static herr_t
+  H5VL_pass_through_ext_introspect_get_cap_flags(const void* info,
+                                                 uint64_t* cap_flags);
+  static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
+                                                           H5VL_subclass_t cls,
+                                                           int op_type,
+                                                           uint64_t* flags);
 
-/* Container/connector introspection callbacks */
-static herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
-    void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls);
-static herr_t
-H5VL_pass_through_ext_introspect_get_cap_flags(const void* info,
-                                               uint64_t* cap_flags);
-static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
-                                                         H5VL_subclass_t cls,
-                                                         int op_type,
-                                                         uint64_t* flags);
+  /* Async request callbacks */
+  static herr_t
+  H5VL_pass_through_ext_request_wait(void* req, uint64_t timeout,
+                                     H5VL_request_status_t* status);
+  static herr_t H5VL_pass_through_ext_request_notify(void* obj,
+                                                     H5VL_request_notify_t cb,
+                                                     void* ctx);
+  static herr_t
+  H5VL_pass_through_ext_request_cancel(void* req,
+                                       H5VL_request_status_t* status);
+  static herr_t
+  H5VL_pass_through_ext_request_specific(void* req,
+                                         H5VL_request_specific_args_t* args);
+  static herr_t
+  H5VL_pass_through_ext_request_optional(void* req, H5VL_optional_args_t* args);
+  static herr_t H5VL_pass_through_ext_request_free(void* req);
 
-/* Async request callbacks */
-static herr_t H5VL_pass_through_ext_request_wait(void* req, uint64_t timeout,
-                                                 H5VL_request_status_t* status);
-static herr_t H5VL_pass_through_ext_request_notify(void* obj,
-                                                   H5VL_request_notify_t cb,
-                                                   void* ctx);
-static herr_t
-H5VL_pass_through_ext_request_cancel(void* req, H5VL_request_status_t* status);
-static herr_t
-H5VL_pass_through_ext_request_specific(void* req,
-                                       H5VL_request_specific_args_t* args);
-static herr_t
-H5VL_pass_through_ext_request_optional(void* req, H5VL_optional_args_t* args);
-static herr_t H5VL_pass_through_ext_request_free(void* req);
+  /* Blob callbacks */
+  static herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf,
+                                               size_t size, void* blob_id,
+                                               void* ctx);
+  static herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id,
+                                               void* buf, size_t size,
+                                               void* ctx);
+  static herr_t
+  H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
+                                      H5VL_blob_specific_args_t* args);
+  static herr_t H5VL_pass_through_ext_blob_optional(void* obj, void* blob_id,
+                                                    H5VL_optional_args_t* args);
 
-/* Blob callbacks */
-static herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf,
-                                             size_t size, void* blob_id,
-                                             void* ctx);
-static herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id,
-                                             void* buf, size_t size, void* ctx);
-static herr_t
-H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
-                                    H5VL_blob_specific_args_t* args);
-static herr_t H5VL_pass_through_ext_blob_optional(void* obj, void* blob_id,
-                                                  H5VL_optional_args_t* args);
-
-/* Token callbacks */
-static herr_t H5VL_pass_through_ext_token_cmp(void* obj,
-                                              const H5O_token_t* token1,
-                                              const H5O_token_t* token2,
-                                              int* cmp_value);
-static herr_t H5VL_pass_through_ext_token_to_str(void* obj, H5I_type_t obj_type,
-                                                 const H5O_token_t* token,
-                                                 char** token_str);
-static herr_t H5VL_pass_through_ext_token_from_str(void* obj,
+  /* Token callbacks */
+  static herr_t H5VL_pass_through_ext_token_cmp(void* obj,
+                                                const H5O_token_t* token1,
+                                                const H5O_token_t* token2,
+                                                int* cmp_value);
+  static herr_t H5VL_pass_through_ext_token_to_str(void* obj,
                                                    H5I_type_t obj_type,
-                                                   const char* token_str,
-                                                   H5O_token_t* token);
+                                                   const H5O_token_t* token,
+                                                   char** token_str);
+  static herr_t H5VL_pass_through_ext_token_from_str(void* obj,
+                                                     H5I_type_t obj_type,
+                                                     const char* token_str,
+                                                     H5O_token_t* token);
 
-/* Generic optional callback */
-static herr_t H5VL_pass_through_ext_optional(void* obj,
-                                             H5VL_optional_args_t* args,
-                                             hid_t dxpl_id, void** req);
+  /* Generic optional callback */
+  static herr_t H5VL_pass_through_ext_optional(void* obj,
+                                               H5VL_optional_args_t* args,
+                                               hid_t dxpl_id, void** req);
+  /*******************/
+  /* Local variables */
+  /*******************/
 
-/*******************/
-/* Local variables */
-/*******************/
+  /* Pass through VOL connector class struct */
+  static const H5VL_class_t H5VL_pass_through_ext_g = {
+      H5VL_VERSION, /* VOL class struct version */
+      (H5VL_class_value_t)H5VL_PASSTHRU_EXT_VALUE, /* value        */
+      H5VL_PASSTHRU_EXT_NAME,                      /* name         */
+      H5VL_PASSTHRU_EXT_VERSION,                   /* connector version */
+      0,                                           /* capability flags */
+      H5VL_pass_through_ext_init,                  /* initialize   */
+      H5VL_pass_through_ext_term,                  /* terminate    */
+      {
+          /* info_cls */
+          sizeof(H5VL_pass_through_ext_info_t), /* size    */
+          H5VL_pass_through_ext_info_copy,      /* copy    */
+          H5VL_pass_through_ext_info_cmp,       /* compare */
+          H5VL_pass_through_ext_info_free,      /* free    */
+          H5VL_pass_through_ext_info_to_str,    /* to_str  */
+          H5VL_pass_through_ext_str_to_info     /* from_str */
+      },
+      {
+          /* wrap_cls */
+          H5VL_pass_through_ext_get_object,    /* get_object   */
+          H5VL_pass_through_ext_get_wrap_ctx,  /* get_wrap_ctx */
+          H5VL_pass_through_ext_wrap_object,   /* wrap_object  */
+          H5VL_pass_through_ext_unwrap_object, /* unwrap_object */
+          H5VL_pass_through_ext_free_wrap_ctx  /* free_wrap_ctx */
+      },
+      {
+          /* attribute_cls */
+          H5VL_pass_through_ext_attr_create,   /* create */
+          H5VL_pass_through_ext_attr_open,     /* open */
+          H5VL_pass_through_ext_attr_read,     /* read */
+          H5VL_pass_through_ext_attr_write,    /* write */
+          H5VL_pass_through_ext_attr_get,      /* get */
+          H5VL_pass_through_ext_attr_specific, /* specific */
+          H5VL_pass_through_ext_attr_optional, /* optional */
+          H5VL_pass_through_ext_attr_close     /* close */
+      },
+      {
+          /* dataset_cls */
+          H5VL_pass_through_ext_dataset_create,   /* create */
+          H5VL_pass_through_ext_dataset_open,     /* open */
+          H5VL_pass_through_ext_dataset_read,     /* read */
+          H5VL_pass_through_ext_dataset_write,    /* write */
+          H5VL_pass_through_ext_dataset_get,      /* get */
+          H5VL_pass_through_ext_dataset_specific, /* specific */
+          H5VL_pass_through_ext_dataset_optional, /* optional */
+          H5VL_pass_through_ext_dataset_close     /* close */
+      },
+      {
+          /* datatype_cls */
+          H5VL_pass_through_ext_datatype_commit,   /* commit */
+          H5VL_pass_through_ext_datatype_open,     /* open */
+          H5VL_pass_through_ext_datatype_get,      /* get_size */
+          H5VL_pass_through_ext_datatype_specific, /* specific */
+          H5VL_pass_through_ext_datatype_optional, /* optional */
+          H5VL_pass_through_ext_datatype_close     /* close */
+      },
+      {
+          /* file_cls */
+          H5VL_pass_through_ext_file_create,   /* create */
+          H5VL_pass_through_ext_file_open,     /* open */
+          H5VL_pass_through_ext_file_get,      /* get */
+          H5VL_pass_through_ext_file_specific, /* specific */
+          H5VL_pass_through_ext_file_optional, /* optional */
+          H5VL_pass_through_ext_file_close     /* close */
+      },
+      {
+          /* group_cls */
+          H5VL_pass_through_ext_group_create,   /* create */
+          H5VL_pass_through_ext_group_open,     /* open */
+          H5VL_pass_through_ext_group_get,      /* get */
+          H5VL_pass_through_ext_group_specific, /* specific */
+          H5VL_pass_through_ext_group_optional, /* optional */
+          H5VL_pass_through_ext_group_close     /* close */
+      },
+      {
+          /* link_cls */
+          H5VL_pass_through_ext_link_create,   /* create */
+          H5VL_pass_through_ext_link_copy,     /* copy */
+          H5VL_pass_through_ext_link_move,     /* move */
+          H5VL_pass_through_ext_link_get,      /* get */
+          H5VL_pass_through_ext_link_specific, /* specific */
+          H5VL_pass_through_ext_link_optional  /* optional */
+      },
+      {
+          /* object_cls */
+          H5VL_pass_through_ext_object_open,     /* open */
+          H5VL_pass_through_ext_object_copy,     /* copy */
+          H5VL_pass_through_ext_object_get,      /* get */
+          H5VL_pass_through_ext_object_specific, /* specific */
+          H5VL_pass_through_ext_object_optional  /* optional */
+      },
+      {
+          /* introspect_cls */
+          H5VL_pass_through_ext_introspect_get_conn_cls,  /* get_conn_cls */
+          H5VL_pass_through_ext_introspect_get_cap_flags, /* get_cap_flags */
+          H5VL_pass_through_ext_introspect_opt_query,     /* opt_query */
+      },
+      {
+          /* request_cls */
+          H5VL_pass_through_ext_request_wait,     /* wait */
+          H5VL_pass_through_ext_request_notify,   /* notify */
+          H5VL_pass_through_ext_request_cancel,   /* cancel */
+          H5VL_pass_through_ext_request_specific, /* specific */
+          H5VL_pass_through_ext_request_optional, /* optional */
+          H5VL_pass_through_ext_request_free      /* free */
+      },
+      {
+          /* blob_cls */
+          H5VL_pass_through_ext_blob_put,      /* put */
+          H5VL_pass_through_ext_blob_get,      /* get */
+          H5VL_pass_through_ext_blob_specific, /* specific */
+          H5VL_pass_through_ext_blob_optional  /* optional */
+      },
+      {
+          /* token_cls */
+          H5VL_pass_through_ext_token_cmp,     /* cmp */
+          H5VL_pass_through_ext_token_to_str,  /* to_str */
+          H5VL_pass_through_ext_token_from_str /* from_str */
+      },
+      H5VL_pass_through_ext_optional /* optional */
+  };
 
-/* Pass through VOL connector class struct */
-static const H5VL_class_t H5VL_pass_through_ext_g = {
-    H5VL_VERSION,                                /* VOL class struct version */
-    (H5VL_class_value_t)H5VL_PASSTHRU_EXT_VALUE, /* value        */
-    H5VL_PASSTHRU_EXT_NAME,                      /* name         */
-    H5VL_PASSTHRU_EXT_VERSION,                   /* connector version */
-    0,                                           /* capability flags */
-    H5VL_pass_through_ext_init,                  /* initialize   */
-    H5VL_pass_through_ext_term,                  /* terminate    */
-    {
-        /* info_cls */
-        sizeof(H5VL_pass_through_ext_info_t), /* size    */
-        H5VL_pass_through_ext_info_copy,      /* copy    */
-        H5VL_pass_through_ext_info_cmp,       /* compare */
-        H5VL_pass_through_ext_info_free,      /* free    */
-        H5VL_pass_through_ext_info_to_str,    /* to_str  */
-        H5VL_pass_through_ext_str_to_info     /* from_str */
-    },
-    {
-        /* wrap_cls */
-        H5VL_pass_through_ext_get_object,    /* get_object   */
-        H5VL_pass_through_ext_get_wrap_ctx,  /* get_wrap_ctx */
-        H5VL_pass_through_ext_wrap_object,   /* wrap_object  */
-        H5VL_pass_through_ext_unwrap_object, /* unwrap_object */
-        H5VL_pass_through_ext_free_wrap_ctx  /* free_wrap_ctx */
-    },
-    {
-        /* attribute_cls */
-        H5VL_pass_through_ext_attr_create,   /* create */
-        H5VL_pass_through_ext_attr_open,     /* open */
-        H5VL_pass_through_ext_attr_read,     /* read */
-        H5VL_pass_through_ext_attr_write,    /* write */
-        H5VL_pass_through_ext_attr_get,      /* get */
-        H5VL_pass_through_ext_attr_specific, /* specific */
-        H5VL_pass_through_ext_attr_optional, /* optional */
-        H5VL_pass_through_ext_attr_close     /* close */
-    },
-    {
-        /* dataset_cls */
-        H5VL_pass_through_ext_dataset_create,   /* create */
-        H5VL_pass_through_ext_dataset_open,     /* open */
-        H5VL_pass_through_ext_dataset_read,     /* read */
-        H5VL_pass_through_ext_dataset_write,    /* write */
-        H5VL_pass_through_ext_dataset_get,      /* get */
-        H5VL_pass_through_ext_dataset_specific, /* specific */
-        H5VL_pass_through_ext_dataset_optional, /* optional */
-        H5VL_pass_through_ext_dataset_close     /* close */
-    },
-    {
-        /* datatype_cls */
-        H5VL_pass_through_ext_datatype_commit,   /* commit */
-        H5VL_pass_through_ext_datatype_open,     /* open */
-        H5VL_pass_through_ext_datatype_get,      /* get_size */
-        H5VL_pass_through_ext_datatype_specific, /* specific */
-        H5VL_pass_through_ext_datatype_optional, /* optional */
-        H5VL_pass_through_ext_datatype_close     /* close */
-    },
-    {
-        /* file_cls */
-        H5VL_pass_through_ext_file_create,   /* create */
-        H5VL_pass_through_ext_file_open,     /* open */
-        H5VL_pass_through_ext_file_get,      /* get */
-        H5VL_pass_through_ext_file_specific, /* specific */
-        H5VL_pass_through_ext_file_optional, /* optional */
-        H5VL_pass_through_ext_file_close     /* close */
-    },
-    {
-        /* group_cls */
-        H5VL_pass_through_ext_group_create,   /* create */
-        H5VL_pass_through_ext_group_open,     /* open */
-        H5VL_pass_through_ext_group_get,      /* get */
-        H5VL_pass_through_ext_group_specific, /* specific */
-        H5VL_pass_through_ext_group_optional, /* optional */
-        H5VL_pass_through_ext_group_close     /* close */
-    },
-    {
-        /* link_cls */
-        H5VL_pass_through_ext_link_create,   /* create */
-        H5VL_pass_through_ext_link_copy,     /* copy */
-        H5VL_pass_through_ext_link_move,     /* move */
-        H5VL_pass_through_ext_link_get,      /* get */
-        H5VL_pass_through_ext_link_specific, /* specific */
-        H5VL_pass_through_ext_link_optional  /* optional */
-    },
-    {
-        /* object_cls */
-        H5VL_pass_through_ext_object_open,     /* open */
-        H5VL_pass_through_ext_object_copy,     /* copy */
-        H5VL_pass_through_ext_object_get,      /* get */
-        H5VL_pass_through_ext_object_specific, /* specific */
-        H5VL_pass_through_ext_object_optional  /* optional */
-    },
-    {
-        /* introspect_cls */
-        H5VL_pass_through_ext_introspect_get_conn_cls,  /* get_conn_cls */
-        H5VL_pass_through_ext_introspect_get_cap_flags, /* get_cap_flags */
-        H5VL_pass_through_ext_introspect_opt_query,     /* opt_query */
-    },
-    {
-        /* request_cls */
-        H5VL_pass_through_ext_request_wait,     /* wait */
-        H5VL_pass_through_ext_request_notify,   /* notify */
-        H5VL_pass_through_ext_request_cancel,   /* cancel */
-        H5VL_pass_through_ext_request_specific, /* specific */
-        H5VL_pass_through_ext_request_optional, /* optional */
-        H5VL_pass_through_ext_request_free      /* free */
-    },
-    {
-        /* blob_cls */
-        H5VL_pass_through_ext_blob_put,      /* put */
-        H5VL_pass_through_ext_blob_get,      /* get */
-        H5VL_pass_through_ext_blob_specific, /* specific */
-        H5VL_pass_through_ext_blob_optional  /* optional */
-    },
-    {
-        /* token_cls */
-        H5VL_pass_through_ext_token_cmp,     /* cmp */
-        H5VL_pass_through_ext_token_to_str,  /* to_str */
-        H5VL_pass_through_ext_token_from_str /* from_str */
-    },
-    H5VL_pass_through_ext_optional /* optional */
-};
+  /* The connector identification number, initialized at runtime */
+  static hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
 
-/* The connector identification number, initialized at runtime */
-static hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
+  /* Operation values for new "API" routines */
+  /* These are initialized in the VOL connector's 'init' callback at runtime.
+   *      It's good practice to reset them back to -1 in the 'term' callback.
+   */
+  static int H5VL_passthru_dataset_foo_op_g = -1;
+  static int H5VL_passthru_dataset_bar_op_g = -1;
+  static int H5VL_passthru_group_fiddle_op_g = -1;
 
-/* Operation values for new "API" routines */
-/* These are initialized in the VOL connector's 'init' callback at runtime.
- *      It's good practice to reset them back to -1 in the 'term' callback.
- */
-static int H5VL_passthru_dataset_foo_op_g = -1;
-static int H5VL_passthru_dataset_bar_op_g = -1;
-static int H5VL_passthru_group_fiddle_op_g = -1;
-
-/* Required shim routines, to enable dynamic loading of shared library */
-/* The HDF5 library _must_ find routines with these names and signatures
- *      for a shared library that contains a VOL connector to be detected
- *      and loaded at runtime.
- */
-H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
-const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
+  /* Required shim routines, to enable dynamic loading of shared library */
+  /* The HDF5 library _must_ find routines with these names and signatures
+   *      for a shared library that contains a VOL connector to be detected
+   *      and loaded at runtime.
+   */
+  H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
+  const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
+}
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL__pass_through_new_obj
@@ -2074,7 +2080,7 @@ H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
     new_args = args;
 
     /* Set object pointer for operation */
-    new_o = o->under_object;
+    new_o = (H5VL_pass_through_ext_t*)o->under_object;
   } /* end else */
 
   ret_value = H5VLfile_specific(new_o, under_vol_id, new_args, dxpl_id, req);
