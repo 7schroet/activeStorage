@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* This connector's private header */
 #include "H5VLpassthru_ext.hpp"
 
 #define ENABLE_EXT_PASSTHRU_LOGGING
@@ -292,13 +291,13 @@ static herr_t H5VL_pass_through_ext_optional(void* obj,
 
 /* Pass through VOL connector class struct */
 static const H5VL_class_t H5VL_pass_through_ext_g = {
-    H5VL_VERSION,                                /* VOL class struct version */
-    (H5VL_class_value_t)H5VL_PASSTHRU_EXT_VALUE, /* value        */
-    H5VL_PASSTHRU_EXT_NAME,                      /* name         */
-    H5VL_PASSTHRU_EXT_VERSION,                   /* connector version */
-    0,                                           /* capability flags */
-    H5VL_pass_through_ext_init,                  /* initialize   */
-    H5VL_pass_through_ext_term,                  /* terminate    */
+    H5VL_VERSION,               /* VOL class struct version */
+    1234,                       /* value        */
+    "as-rpc-hdf5",              /* name         */
+    1,                          /* connector version */
+    0,                          /* capability flags */
+    H5VL_pass_through_ext_init, /* initialize   */
+    H5VL_pass_through_ext_term, /* terminate    */
     {
         /* info_cls */
         sizeof(H5VL_as_rpc_info_t),        /* size    */

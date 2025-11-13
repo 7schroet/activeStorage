@@ -27,14 +27,6 @@
 /* Public headers needed by this file */
 #include "H5VLpublic.h" /* Virtual Object Layer                 */
 
-/* Identifier for the pass-through VOL connector */
-#define H5VL_PASSTHRU_EXT (H5VL_pass_through_ext_register())
-
-/* Public characteristics of the pass-through VOL connector */
-#define H5VL_PASSTHRU_EXT_NAME "pass_through_ext"
-#define H5VL_PASSTHRU_EXT_VALUE 517 /* VOL connector ID */
-#define H5VL_PASSTHRU_EXT_VERSION 0
-
 /* Pass-through VOL connector info */
 typedef struct H5VL_as_rpc_info_t
 {
