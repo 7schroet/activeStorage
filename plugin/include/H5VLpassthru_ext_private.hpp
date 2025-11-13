@@ -30,30 +30,6 @@
 /* Private characteristics of the pass-through VOL connector */
 #define H5VL_PASSTHRU_EXT_VERSION 0
 
-/* Names for dynamically registered operations */
-#define H5VL_PASSTHRU_EXT_DYN_FOO "org.example.ext_passthru.foo"
-#define H5VL_PASSTHRU_EXT_DYN_BAR "org.example.ext_passthru.bar"
-#define H5VL_PASSTHRU_EXT_DYN_FIDDLE "org.example.ext_passthru.fiddle"
-
-/* Parameters for each of the dynamically registered operations */
-
-/* H5VL_PASSTHRU_EXT_DYN_FOO */
-typedef struct H5VL_passthru_ext_dataset_foo_args_t
-{
-  int i;
-  double d;
-} H5VL_passthru_ext_dataset_foo_args_t;
-
-/* H5VL_PASSTHRU_EXT_DYN_BAR */
-typedef struct H5VL_passthru_ext_dataset_bar_args_t
-{
-  double* dp;
-  unsigned* up;
-} H5VL_passthru_ext_dataset_bar_args_t;
-
-/* H5VL_PASSTHRU_EXT_DYN_FIDDLE */
-/* No args */
-
 #ifdef __cplusplus
 extern "C"
 {

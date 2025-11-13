@@ -17,52 +17,17 @@
  * limitations under the License.
  */
 
-/*
- * Purpose:     This is a "pass through" VOL connector, which forwards each
- *              VOL callback to an underlying connector.
- *
- *              It is designed as an example VOL connector for developers to
- *              use when creating new connectors, especially connectors that
- *              are outside of the HDF5 library.  As such, it should _NOT_
- *              include _any_ private HDF5 header files.  This connector should
- *              therefore only make public HDF5 API calls and use standard C /
- *              POSIX calls.
- *
- *              Note that the HDF5 error stack must be preserved on code paths
- *              that could be invoked when the underlying VOL connector's
- *              callback can fail.
- *
- */
-
-/* Header files needed */
-/* Do NOT include private HDF5 files here! */
+#include "hdf5.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Public HDF5 headers */
-#include "hdf5.h"
-
 /* This connector's private header */
 #include "H5VLpassthru_ext_private.hpp"
 
 #define ENABLE_EXT_PASSTHRU_LOGGING
-/**********/
-/* Macros */
-/**********/
-
-/* Whether to display log messge when callback is invoked */
-/* (Uncomment to enable) */
-/* #define ENABLE_EXT_PASSTHRU_LOGGING */
-
-/* Hack for missing va_copy() in old Visual Studio editions
- * (from H5win2_defs.h - used on VS2012 and earlier)
- */
-#if defined(_WIN32) && defined(_MSC_VER) && (_MSC_VER < 1800)
-#define va_copy(D, S) ((D) = (S))
-#endif
 
 /************/
 /* Typedefs */
@@ -457,14 +422,6 @@ extern "C"
   /* The connector identification number, initialized at runtime */
   static hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
 
-  /* Operation values for new "API" routines */
-  /* These are initialized in the VOL connector's 'init' callback at runtime.
-   *      It's good practice to reset them back to -1 in the 'term' callback.
-   */
-  static int H5VL_passthru_dataset_foo_op_g = -1;
-  static int H5VL_passthru_dataset_bar_op_g = -1;
-  static int H5VL_passthru_group_fiddle_op_g = -1;
-
   /* Required shim routines, to enable dynamic loading of shared library */
   /* The HDF5 library _must_ find routines with these names and signatures
    *      for a shared library that contains a VOL connector to be detected
@@ -577,24 +534,6 @@ static herr_t H5VL_pass_through_ext_init(hid_t vipl_id)
   /* Shut compiler up about unused parameter */
   (void)vipl_id;
 
-  /* Acquire operation values for new "API" routines to use */
-  assert(-1 == H5VL_passthru_dataset_foo_op_g);
-  if (H5VLregister_opt_operation(H5VL_SUBCLS_DATASET, H5VL_PASSTHRU_EXT_DYN_FOO,
-                                 &H5VL_passthru_dataset_foo_op_g) < 0)
-    return (-1);
-  assert(-1 != H5VL_passthru_dataset_foo_op_g);
-  assert(-1 == H5VL_passthru_dataset_bar_op_g);
-  if (H5VLregister_opt_operation(H5VL_SUBCLS_DATASET, H5VL_PASSTHRU_EXT_DYN_BAR,
-                                 &H5VL_passthru_dataset_bar_op_g) < 0)
-    return (-1);
-  assert(-1 != H5VL_passthru_dataset_bar_op_g);
-  assert(-1 == H5VL_passthru_group_fiddle_op_g);
-  if (H5VLregister_opt_operation(H5VL_SUBCLS_GROUP,
-                                 H5VL_PASSTHRU_EXT_DYN_FIDDLE,
-                                 &H5VL_passthru_group_fiddle_op_g) < 0)
-    return (-1);
-  assert(-1 != H5VL_passthru_group_fiddle_op_g);
-
   return 0;
 } /* end H5VL_pass_through_ext_init() */
 
@@ -619,29 +558,6 @@ static herr_t H5VL_pass_through_ext_term(void)
 
   /* Reset VOL ID */
   H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
-
-  /* Reset operation values for new "API" routines */
-  if (-1 != H5VL_passthru_dataset_foo_op_g)
-  {
-    if (H5VLunregister_opt_operation(H5VL_SUBCLS_DATASET,
-                                     H5VL_PASSTHRU_EXT_DYN_FOO) < 0)
-      return (-1);
-    H5VL_passthru_dataset_foo_op_g = (-1);
-  } /* end if */
-  if (-1 != H5VL_passthru_dataset_bar_op_g)
-  {
-    if (H5VLunregister_opt_operation(H5VL_SUBCLS_DATASET,
-                                     H5VL_PASSTHRU_EXT_DYN_BAR) < 0)
-      return (-1);
-    H5VL_passthru_dataset_bar_op_g = (-1);
-  } /* end if */
-  if (-1 != H5VL_passthru_group_fiddle_op_g)
-  {
-    if (H5VLunregister_opt_operation(H5VL_SUBCLS_GROUP,
-                                     H5VL_PASSTHRU_EXT_DYN_FIDDLE) < 0)
-      return (-1);
-    H5VL_passthru_group_fiddle_op_g = (-1);
-  } /* end if */
 
   return 0;
 } /* end H5VL_pass_through_ext_term() */
@@ -1539,50 +1455,8 @@ static herr_t H5VL_pass_through_ext_dataset_optional(void* obj,
   printf("------- EXT PASS THROUGH VOL DATASET Optional\n");
 #endif
 
-  /* Sanity check */
-  assert(-1 != H5VL_passthru_dataset_foo_op_g);
-  assert(-1 != H5VL_passthru_dataset_bar_op_g);
-
-  /* Capture and perform connector-specific 'foo' and 'bar' operations */
-  if (args->op_type == H5VL_passthru_dataset_foo_op_g)
-  {
-    H5VL_passthru_ext_dataset_foo_args_t*
-        foo_args; /* Parameters for 'foo' operation */
-
-    /* Set up access to parameters for 'foo' operation */
-    foo_args = (H5VL_passthru_ext_dataset_foo_args_t*)args->args;
-    printf("foo: foo_args->i = %d, foo_args->d = %f\n", foo_args->i,
-           foo_args->d);
-
-    /* <do 'foo', with 'i' and 'd'> */
-
-    /* Set return value */
-    ret_value = 0;
-  }
-  else if (args->op_type == H5VL_passthru_dataset_bar_op_g)
-  {
-    H5VL_passthru_ext_dataset_bar_args_t*
-        bar_args; /* Parameters for 'bar' operation */
-
-    /* Set up access to parameters for 'bar' operation */
-    bar_args = (H5VL_passthru_ext_dataset_bar_args_t*)args->args;
-    printf("bar: bar_args->dp = %p, bar_args->up = %p\n", bar_args->dp,
-           bar_args->up);
-
-    /* <do 'bar', possibly with 'dp' and 'up'> */
-
-    /* Set values to return to application in parameters */
-    if (bar_args->dp)
-      *bar_args->dp = 3.14159;
-    if (bar_args->up)
-      *bar_args->up = 42;
-
-    /* Set return value */
-    ret_value = 0;
-  }
-  else
-    ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id, args,
-                                     dxpl_id, req);
+  ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id, args,
+                                   dxpl_id, req);
 
   /* Check for async request */
   if (req && *req)
@@ -2365,24 +2239,8 @@ static herr_t H5VL_pass_through_ext_group_optional(void* obj,
   printf("------- EXT PASS THROUGH VOL GROUP Optional\n");
 #endif
 
-  /* Sanity check */
-  assert(-1 != H5VL_passthru_group_fiddle_op_g);
-
-  /* Capture and perform connector-specific 'fiddle' operation */
-  if (args->op_type == H5VL_passthru_group_fiddle_op_g)
-  {
-    /* No args for 'fiddle' operation */
-
-    printf("fiddle\n");
-
-    /* <do 'fiddle'> */
-
-    /* Set return value */
-    ret_value = 0;
-  }
-  else
-    ret_value = H5VLgroup_optional(o->under_object, o->under_vol_id, args,
-                                   dxpl_id, req);
+  ret_value =
+      H5VLgroup_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   /* Check for async request */
   if (req && *req)
