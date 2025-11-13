@@ -46,7 +46,7 @@
 #include "hdf5.h"
 
 /* This connector's private header */
-#include "H5VLpassthru_ext_private.h"
+#include "H5VLpassthru_ext_private.hpp"
 
 #define ENABLE_EXT_PASSTHRU_LOGGING
 /**********/

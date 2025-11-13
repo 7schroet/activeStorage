@@ -25,7 +25,7 @@
 #define _H5VLpassthru_ext_private_H
 
 /* Public headers needed by this file */
-#include "H5VLpassthru_ext.h" /* Public header for connector */
+#include "H5VLpassthru_ext.hpp" /* Public header for connector */
 
 /* Private characteristics of the pass-through VOL connector */
 #define H5VL_PASSTHRU_EXT_VERSION 0
