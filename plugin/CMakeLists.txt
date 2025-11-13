@@ -1,13 +1,7 @@
 add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
-   as_rpc_hdf5.cpp
-   components/attribute.cpp
-   components/dataset.cpp
-   components/datatype.cpp
-   components/info.cpp
-   components/utils.cpp
-   components/wrap.cpp
+  H5VLpassthru_ext.c
 
   PRIVATE
   FILE_SET HEADERS
