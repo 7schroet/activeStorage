@@ -36,6 +36,7 @@
 #include <H5PLextern.h>
 #include <H5VLpublic.h>
 #include <hdf5.h>
+#include <print>
 
 namespace
 {
@@ -160,11 +161,11 @@ namespace
 herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
                                            const H5VL_class_t** conn_cls)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
   herr_t ret_value;
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL INTROSPECT GetConnCls\n");
+  std::print(stderr, "------- EXT PASS THROUGH VOL INTROSPECT GetConnCls\n");
 #endif
 
   /* Check for querying this connector's class */
@@ -180,19 +181,18 @@ herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
   return ret_value;
 }
 
-herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* _info,
+herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* info,
                                             uint64_t* cap_flags)
 {
-  const H5VL_as_rpc_info_t* info = (const H5VL_as_rpc_info_t*)_info;
-  herr_t ret_value;
+  auto info_cast = static_cast<const H5VL_as_rpc_info_t*>(info);
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL INTROSPECT GetCapFlags\n");
+  std::print(stderr, "------- EXT PASS THROUGH VOL INTROSPECT GetCapFlags\n");
 #endif
 
   /* Invoke the query on the underlying VOL connector */
-  ret_value = H5VLintrospect_get_cap_flags(info->under_vol_info,
-                                           info->under_vol_id, cap_flags);
+  herr_t ret_value = H5VLintrospect_get_cap_flags(
+      info_cast->under_vol_info, info_cast->under_vol_id, cap_flags);
 
   /* Bitwise OR our capability flags in */
   if (ret_value >= 0)
@@ -204,15 +204,14 @@ herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* _info,
 herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
                                         int op_type, uint64_t* flags)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
 #ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL INTROSPECT OptQuery\n");
+  std::print(stderr, "------- EXT PASS THROUGH VOL INTROSPECT OptQuery\n");
 #endif
 
-  ret_value = H5VLintrospect_opt_query(o->under_object, o->under_vol_id, cls,
-                                       op_type, flags);
+  herr_t ret_value = H5VLintrospect_opt_query(o->under_object, o->under_vol_id,
+                                              cls, op_type, flags);
 
   return ret_value;
 }
