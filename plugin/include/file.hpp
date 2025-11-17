@@ -24,14 +24,19 @@
 
 void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
                               hid_t fapl_id, hid_t dxpl_id, void** req);
+
 void* H5VL_as_rpc_file_open(const char* name, unsigned flags, hid_t fapl_id,
                             hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_file_get(void* file, H5VL_file_get_args_t* args,
                             hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_file_specific(void* file, H5VL_file_specific_args_t* args,
                                  hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_file_optional(void* file, H5VL_optional_args_t* args,
                                  hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_file_close(void* file, hid_t dxpl_id, void** req);
 
 #endif
