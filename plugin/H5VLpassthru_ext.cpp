@@ -26,6 +26,7 @@
 #include "info.hpp"
 #include "link.hpp"
 #include "object.hpp"
+#include "optional.hpp"
 #include "request.hpp"
 #include "token.hpp"
 #include "utils.hpp"
@@ -35,7 +36,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <H5VLpublic.h>
 
@@ -60,10 +60,6 @@ static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
                                                          int op_type,
                                                          uint64_t* flags);
 
-/* Generic optional callback */
-static herr_t H5VL_pass_through_ext_optional(void* obj,
-                                             H5VL_optional_args_t* args,
-                                             hid_t dxpl_id, void** req);
 /*******************/
 /* Local variables */
 /*******************/
@@ -176,7 +172,7 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_as_rpc_token_to_str,  /* to_str */
         H5VL_as_rpc_token_from_str /* from_str */
     },
-    H5VL_pass_through_ext_optional /* optional */
+    H5VL_as_rpc_optional /* optional */
 };
 
 /* The connector identification number, initialized at runtime */
@@ -353,28 +349,3 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
 
   return ret_value;
 } /* end H5VL_pass_through_ext_introspect_opt_query() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_optional
- *
- * Purpose:     Handles the generic 'optional' callback
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_optional(void* obj, H5VL_optional_args_t* args,
-                                      hid_t dxpl_id, void** req)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL generic Optional\n");
-#endif
-
-  ret_value =
-      H5VLoptional(o->under_object, o->under_vol_id, args, dxpl_id, req);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_optional() */
