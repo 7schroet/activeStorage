@@ -8,6 +8,7 @@ target_sources(as-rpc-hdf5
     components/file.cpp
     components/group.cpp
     components/info.cpp
+    components/init.cpp
     components/link.cpp
     components/object.cpp
     components/optional.cpp

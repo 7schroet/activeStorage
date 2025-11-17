@@ -24,6 +24,7 @@
 #include "file.hpp"
 #include "group.hpp"
 #include "info.hpp"
+#include "init.hpp"
 #include "link.hpp"
 #include "object.hpp"
 #include "optional.hpp"
@@ -45,10 +46,6 @@
 /* Function prototypes */
 /********************* */
 
-/* "Management" callbacks */
-static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
-static herr_t H5VL_pass_through_ext_term(void);
-
 /* Container/connector introspection callbacks */
 static herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
     void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls);
@@ -66,13 +63,13 @@ static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
 
 /* Pass through VOL connector class struct */
 static const H5VL_class_t H5VL_pass_through_ext_g = {
-    H5VL_VERSION,               /* VOL class struct version */
-    1234,                       /* value        */
-    "as-rpc-hdf5",              /* name         */
-    1,                          /* connector version */
-    0,                          /* capability flags */
-    H5VL_pass_through_ext_init, /* initialize   */
-    H5VL_pass_through_ext_term, /* terminate    */
+    H5VL_VERSION,     /* VOL class struct version */
+    1234,             /* value        */
+    "as-rpc-hdf5",    /* name         */
+    1,                /* connector version */
+    0,                /* capability flags */
+    H5VL_as_rpc_init, /* initialize   */
+    H5VL_as_rpc_term, /* terminate    */
     {
         sizeof(H5VL_as_rpc_info_t), /* size    */
         H5VL_as_rpc_info_copy,      /* copy    */
@@ -211,55 +208,6 @@ extern "C"
     return H5VL_PASSTHRU_EXT_g;
   } /* end H5VL_pass_through_ext_register() */
 }
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_init
- *
- * Purpose:     Initialize this VOL connector, performing any necessary
- *              operations for the connector that will apply to all containers
- *              accessed with the connector.
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_init(hid_t vipl_id)
-{
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL INIT\n");
-#endif
-
-  /* Shut compiler up about unused parameter */
-  (void)vipl_id;
-
-  return 0;
-} /* end H5VL_pass_through_ext_init() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_term
- *
- * Purpose:     Terminate this VOL connector, performing any necessary
- *              operations for the connector that release connector-wide
- *              resources (usually created / initialized with the 'init'
- *              callback).
- *
- * Return:      Success:    0
- *              Failure:    (Can't fail)
- *
- *---------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_term(void)
-{
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL TERM\n");
-#endif
-
-  /* Reset VOL ID */
-  H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
-
-  return 0;
-} /* end H5VL_pass_through_ext_term() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_introspect_get_conn_clss
