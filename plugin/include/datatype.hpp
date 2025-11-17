@@ -27,16 +27,21 @@ void* H5VL_as_rpc_datatype_commit(void* obj,
                                   const char* name, hid_t type_id,
                                   hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id,
                                   hid_t dxpl_id, void** req);
+
 void* H5VL_as_rpc_datatype_open(void* obj, const H5VL_loc_params_t* loc_params,
                                 const char* name, hid_t tapl_id, hid_t dxpl_id,
                                 void** req);
-herr_t H5VL_as_rpc_datatype_get(void* dt, H5VL_datatype_get_args_t* args,
+
+herr_t H5VL_as_rpc_datatype_get(void* obj, H5VL_datatype_get_args_t* args,
                                 hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_datatype_specific(void* obj,
                                      H5VL_datatype_specific_args_t* args,
                                      hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_datatype_optional(void* obj, H5VL_optional_args_t* args,
                                      hid_t dxpl_id, void** req);
-herr_t H5VL_as_rpc_datatype_close(void* dt, hid_t dxpl_id, void** req);
+
+herr_t H5VL_as_rpc_datatype_close(void* obj, hid_t dxpl_id, void** req);
 
 #endif
