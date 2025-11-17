@@ -22,14 +22,19 @@
 
 #include <hdf5.h>
 
-herr_t H5VL_as_rpc_request_wait(void* req, uint64_t timeout,
+herr_t H5VL_as_rpc_request_wait(void* obj, uint64_t timeout,
                                 H5VL_request_status_t* status);
+
 herr_t H5VL_as_rpc_request_notify(void* obj, H5VL_request_notify_t cb,
                                   void* ctx);
-herr_t H5VL_as_rpc_request_cancel(void* req, H5VL_request_status_t* status);
-herr_t H5VL_as_rpc_request_specific(void* req,
+
+herr_t H5VL_as_rpc_request_cancel(void* obj, H5VL_request_status_t* status);
+
+herr_t H5VL_as_rpc_request_specific(void* obj,
                                     H5VL_request_specific_args_t* args);
-herr_t H5VL_as_rpc_request_optional(void* req, H5VL_optional_args_t* args);
-herr_t H5VL_as_rpc_request_free(void* req);
+
+herr_t H5VL_as_rpc_request_optional(void* obj, H5VL_optional_args_t* args);
+
+herr_t H5VL_as_rpc_request_free(void* obj);
 
 #endif
