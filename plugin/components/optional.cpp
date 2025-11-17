@@ -18,20 +18,15 @@
  */
 
 #include "optional.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 
 herr_t H5VL_as_rpc_optional(void* obj, H5VL_optional_args_t* args,
                             hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL generic Optional\n");
-#endif
+  log_msg("generic Optional\n");
 
-  ret_value =
-      H5VLoptional(o->under_object, o->under_vol_id, args, dxpl_id, req);
-
-  return ret_value;
+  return H5VLoptional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 }
