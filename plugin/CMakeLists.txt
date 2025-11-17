@@ -1,6 +1,7 @@
 add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
+    components/info.cpp
     H5VLpassthru_ext.cpp
 
   PRIVATE

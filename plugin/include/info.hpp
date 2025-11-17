@@ -17,33 +17,31 @@
  * limitations under the License.
  */
 
-/*
- * Purpose:	The public header file for the pass-through VOL connector.
- */
+#ifndef INFO_HPP
+#define INFO_HPP
 
-#ifndef _H5VLpassthru_ext_H
-#define _H5VLpassthru_ext_H
+#include <hdf5.h>
 
-/* Public headers needed by this file */
-#include "H5VLpublic.h" /* Virtual Object Layer                 */
-
-/* Pass-through VOL connector info */
-typedef struct H5VL_as_rpc_info_t
+struct H5VL_as_rpc_info_t
 {
   hid_t under_vol_id;   /* VOL ID for under VOL */
   void* under_vol_info; /* VOL info for under VOL */
-} H5VL_as_rpc_info_t;
+};
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  /* Technically a private function call, but prototype must be declared here */
-  extern hid_t H5VL_pass_through_ext_register(void);
+  void* H5VL_as_rpc_info_copy(const void* info);
+  herr_t H5VL_as_rpc_info_cmp(int* cmp_value, const void* info1,
+                              const void* info2);
+  herr_t H5VL_as_rpc_info_free(void* info);
+  herr_t H5VL_as_rpc_info_to_str(const void* info, char** str);
+  herr_t H5VL_as_rpc_str_to_info(const char* str, void** info);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _H5VLpassthru_H */
+#endif
