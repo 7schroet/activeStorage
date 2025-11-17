@@ -25,6 +25,7 @@
 #include "info.hpp"
 #include "link.hpp"
 #include "object.hpp"
+#include "request.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 #include <assert.h>
@@ -56,21 +57,6 @@ static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
                                                          H5VL_subclass_t cls,
                                                          int op_type,
                                                          uint64_t* flags);
-
-/* Async request callbacks */
-static herr_t H5VL_pass_through_ext_request_wait(void* req, uint64_t timeout,
-                                                 H5VL_request_status_t* status);
-static herr_t H5VL_pass_through_ext_request_notify(void* obj,
-                                                   H5VL_request_notify_t cb,
-                                                   void* ctx);
-static herr_t
-H5VL_pass_through_ext_request_cancel(void* req, H5VL_request_status_t* status);
-static herr_t
-H5VL_pass_through_ext_request_specific(void* req,
-                                       H5VL_request_specific_args_t* args);
-static herr_t
-H5VL_pass_through_ext_request_optional(void* req, H5VL_optional_args_t* args);
-static herr_t H5VL_pass_through_ext_request_free(void* req);
 
 /* Blob callbacks */
 static herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf,
@@ -195,13 +181,12 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_pass_through_ext_introspect_opt_query,     /* opt_query */
     },
     {
-        /* request_cls */
-        H5VL_pass_through_ext_request_wait,     /* wait */
-        H5VL_pass_through_ext_request_notify,   /* notify */
-        H5VL_pass_through_ext_request_cancel,   /* cancel */
-        H5VL_pass_through_ext_request_specific, /* specific */
-        H5VL_pass_through_ext_request_optional, /* optional */
-        H5VL_pass_through_ext_request_free      /* free */
+        H5VL_as_rpc_request_wait,     /* wait */
+        H5VL_as_rpc_request_notify,   /* notify */
+        H5VL_as_rpc_request_cancel,   /* cancel */
+        H5VL_as_rpc_request_specific, /* specific */
+        H5VL_as_rpc_request_optional, /* optional */
+        H5VL_as_rpc_request_free      /* free */
     },
     {
         /* blob_cls */
@@ -393,170 +378,6 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
 
   return ret_value;
 } /* end H5VL_pass_through_ext_introspect_opt_query() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_wait
- *
- * Purpose:     Wait (with a timeout) for an async operation to complete
- *
- * Note:        Releases the request if the operation has completed and the
- *              connector callback succeeds
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_request_wait(void* obj, uint64_t timeout,
-                                                 H5VL_request_status_t* status)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Wait\n");
-#endif
-
-  ret_value =
-      H5VLrequest_wait(o->under_object, o->under_vol_id, timeout, status);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_wait() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_notify
- *
- * Purpose:     Registers a user callback to be invoked when an asynchronous
- *              operation completes
- *
- * Note:        Releases the request, if connector callback succeeds
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_request_notify(void* obj,
-                                                   H5VL_request_notify_t cb,
-                                                   void* ctx)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Notify\n");
-#endif
-
-  ret_value = H5VLrequest_notify(o->under_object, o->under_vol_id, cb, ctx);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_notify() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_cancel
- *
- * Purpose:     Cancels an asynchronous operation
- *
- * Note:        Releases the request, if connector callback succeeds
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5VL_pass_through_ext_request_cancel(void* obj, H5VL_request_status_t* status)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Cancel\n");
-#endif
-
-  ret_value = H5VLrequest_cancel(o->under_object, o->under_vol_id, status);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_cancel() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_specific
- *
- * Purpose:     Specific operation on a request
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5VL_pass_through_ext_request_specific(void* obj,
-                                       H5VL_request_specific_args_t* args)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value = -1;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Specific\n");
-#endif
-
-  ret_value = H5VLrequest_specific(o->under_object, o->under_vol_id, args);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_specific() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_optional
- *
- * Purpose:     Perform a connector-specific operation for a request
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_request_optional(void* obj,
-                                                     H5VL_optional_args_t* args)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Optional\n");
-#endif
-
-  ret_value = H5VLrequest_optional(o->under_object, o->under_vol_id, args);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_optional() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_request_free
- *
- * Purpose:     Releases a request, allowing the operation to complete without
- *              application tracking
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_request_free(void* obj)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL REQUEST Free\n");
-#endif
-
-  ret_value = H5VLrequest_free(o->under_object, o->under_vol_id);
-
-  if (ret_value >= 0)
-    H5VL_as_rpc_t_free_obj(o);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_request_free() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_blob_put
