@@ -18,21 +18,18 @@
  */
 
 #include "init.hpp"
+#include "log.hpp"
 
-herr_t H5VL_as_rpc_init(hid_t vipl_id)
+herr_t H5VL_as_rpc_init([[maybe_unused]] hid_t vipl_id)
 {
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL INIT\n");
-#endif
+  log_msg("INIT\n");
 
   return 0;
 }
 
-herr_t H5VL_as_rpc_term(void)
+herr_t H5VL_as_rpc_term()
 {
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL TERM\n");
-#endif
+  log_msg("TERM\n");
 
   return 0;
 }
