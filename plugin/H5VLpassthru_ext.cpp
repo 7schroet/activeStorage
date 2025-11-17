@@ -32,37 +32,25 @@
 #include "token.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
-#include <assert.h>
-#include <hdf5.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <H5VLpublic.h>
+#include <hdf5.h>
 
-#define ENABLE_EXT_PASSTHRU_LOGGING
+namespace
+{
+/* The connector identification number, initialized at runtime */
+hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
 
-/********************* */
-/* Function prototypes */
-/********************* */
-
-/* Container/connector introspection callbacks */
-static herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
-    void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls);
-static herr_t
-H5VL_pass_through_ext_introspect_get_cap_flags(const void* info,
-                                               uint64_t* cap_flags);
-static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
-                                                         H5VL_subclass_t cls,
-                                                         int op_type,
-                                                         uint64_t* flags);
-
-/*******************/
-/* Local variables */
-/*******************/
+/* Defined separately due to dependency on connector struct */
+herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
+                                           const H5VL_class_t** conn_cls);
+herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* info,
+                                            uint64_t* cap_flags);
+herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
+                                        int op_type, uint64_t* flags);
 
 /* Pass through VOL connector class struct */
-static const H5VL_class_t H5VL_pass_through_ext_g = {
+const H5VL_class_t H5VL_pass_through_ext_g = {
     H5VL_VERSION,     /* VOL class struct version */
     1234,             /* value        */
     "as-rpc-hdf5",    /* name         */
@@ -146,9 +134,9 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
     },
     {
         /* introspect_cls */
-        H5VL_pass_through_ext_introspect_get_conn_cls,  /* get_conn_cls */
-        H5VL_pass_through_ext_introspect_get_cap_flags, /* get_cap_flags */
-        H5VL_pass_through_ext_introspect_opt_query,     /* opt_query */
+        H5VL_as_rpc_introspect_get_conn_cls,  /* get_conn_cls */
+        H5VL_as_rpc_introspect_get_cap_flags, /* get_cap_flags */
+        H5VL_as_rpc_introspect_opt_query,     /* opt_query */
     },
     {
         H5VL_as_rpc_request_wait,     /* wait */
@@ -171,33 +159,17 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
     },
     H5VL_as_rpc_optional /* optional */
 };
+} // namespace
 
-/* The connector identification number, initialized at runtime */
-static hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
-
-/* Required shim routines, to enable dynamic loading of shared library */
-/* The HDF5 library _must_ find routines with these names and signatures
- *      for a shared library that contains a VOL connector to be detected
- *      and loaded at runtime.
+/* Required shim routines, to enable dynamic loading of shared library.
+ * The HDF5 library _must_ find routines with these names and signatures
+ * for a shared library that contains a VOL connector to be detected
+ * and loaded at runtime.
  */
 extern "C"
 {
   H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
   const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
-  /*-------------------------------------------------------------------------
-   * Function:    H5VL_pass_through_ext_register
-   *
-   * Purpose:     Register the pass-through VOL connector and retrieve an ID
-   *              for it.
-   *
-   * Return:      Success:    The ID for the pass-through VOL connector
-   *              Failure:    -1
-   *
-   * Programmer:  Quincey Koziol
-   *              Wednesday, November 28, 2018
-   *
-   *-------------------------------------------------------------------------
-   */
   hid_t H5VL_pass_through_ext_register(void)
   {
     /* Singleton register the pass-through VOL connector ID */
@@ -206,20 +178,14 @@ extern "C"
           H5VLregister_connector(&H5VL_pass_through_ext_g, H5P_DEFAULT);
 
     return H5VL_PASSTHRU_EXT_g;
-  } /* end H5VL_pass_through_ext_register() */
+  }
 }
 
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_introspect_get_conn_clss
- *
- * Purpose:     Query the connector class.
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
-    void* obj, H5VL_get_conn_lvl_t lvl, const H5VL_class_t** conn_cls)
+/* Introspection implementation */
+namespace
+{
+herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
+                                           const H5VL_class_t** conn_cls)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
@@ -233,26 +199,16 @@ herr_t H5VL_pass_through_ext_introspect_get_conn_cls(
   {
     *conn_cls = &H5VL_pass_through_ext_g;
     ret_value = 0;
-  } /* end if */
+  }
   else
     ret_value = H5VLintrospect_get_conn_cls(o->under_object, o->under_vol_id,
                                             lvl, conn_cls);
 
   return ret_value;
-} /* end H5VL_pass_through_ext_introspect_get_conn_cls() */
+}
 
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_introspect_get_cap_flags
- *
- * Purpose:     Query the capability flags for this connector and any
- *              underlying connector(s).
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_introspect_get_cap_flags(const void* _info,
-                                                      uint64_t* cap_flags)
+herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* _info,
+                                            uint64_t* cap_flags)
 {
   const H5VL_as_rpc_info_t* info = (const H5VL_as_rpc_info_t*)_info;
   herr_t ret_value;
@@ -270,20 +226,10 @@ herr_t H5VL_pass_through_ext_introspect_get_cap_flags(const void* _info,
     *cap_flags |= H5VL_pass_through_ext_g.cap_flags;
 
   return ret_value;
-} /* end H5VL_pass_through_introspect_ext_get_cap_flags() */
+}
 
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_introspect_opt_query
- *
- * Purpose:     Query if an optional operation is supported by this connector
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
-                                                  H5VL_subclass_t cls,
-                                                  int op_type, uint64_t* flags)
+herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
+                                        int op_type, uint64_t* flags)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
@@ -296,4 +242,5 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
                                        op_type, flags);
 
   return ret_value;
-} /* end H5VL_pass_through_ext_introspect_opt_query() */
+}
+} // namespace
