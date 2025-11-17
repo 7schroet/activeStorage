@@ -22,8 +22,7 @@
 
 H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id)
 {
-  H5VL_as_rpc_t* new_obj;
-  new_obj = (H5VL_as_rpc_t*)calloc(1, sizeof(H5VL_as_rpc_t));
+  auto new_obj = new H5VL_as_rpc_t();
   new_obj->under_object = under_obj;
   new_obj->under_vol_id = under_vol_id;
   H5Iinc_ref(new_obj->under_vol_id);
@@ -32,10 +31,9 @@ H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id)
 
 herr_t H5VL_as_rpc_t_free_obj(H5VL_as_rpc_t* obj)
 {
-  hid_t err_id;
-  err_id = H5Eget_current_stack();
+  hid_t err_id = H5Eget_current_stack();
   H5Idec_ref(obj->under_vol_id);
   H5Eset_current_stack(err_id);
-  free(obj);
+  delete obj;
   return 0;
 }
