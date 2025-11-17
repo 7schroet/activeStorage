@@ -18,19 +18,17 @@
  */
 
 #include "blob.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 
 herr_t H5VL_as_rpc_blob_put(void* obj, const void* buf, size_t size,
                             void* blob_id, void* ctx)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Put\n");
-#endif
+  log_msg("BLOB Put\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLblob_put(o->under_object, o->under_vol_id, buf, size, blob_id, ctx);
 
   return ret_value;
@@ -39,14 +37,11 @@ herr_t H5VL_as_rpc_blob_put(void* obj, const void* buf, size_t size,
 herr_t H5VL_as_rpc_blob_get(void* obj, const void* blob_id, void* buf,
                             size_t size, void* ctx)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Get\n");
-#endif
+  log_msg("BLOB Get\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLblob_get(o->under_object, o->under_vol_id, blob_id, buf, size, ctx);
 
   return ret_value;
@@ -55,14 +50,11 @@ herr_t H5VL_as_rpc_blob_get(void* obj, const void* blob_id, void* buf,
 herr_t H5VL_as_rpc_blob_specific(void* obj, void* blob_id,
                                  H5VL_blob_specific_args_t* args)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Specific\n");
-#endif
+  log_msg("BLOB Specific\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLblob_specific(o->under_object, o->under_vol_id, blob_id, args);
 
   return ret_value;
@@ -71,14 +63,11 @@ herr_t H5VL_as_rpc_blob_specific(void* obj, void* blob_id,
 herr_t H5VL_as_rpc_blob_optional(void* obj, void* blob_id,
                                  H5VL_optional_args_t* args)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Optional\n");
-#endif
+  log_msg("BLOB Optional\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLblob_optional(o->under_object, o->under_vol_id, blob_id, args);
 
   return ret_value;
