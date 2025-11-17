@@ -33,6 +33,7 @@
 #include "utils.hpp"
 #include "wrap.hpp"
 
+#include <H5PLextern.h>
 #include <H5VLpublic.h>
 #include <hdf5.h>
 
@@ -51,114 +52,86 @@ herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
 
 /* Pass through VOL connector class struct */
 const H5VL_class_t H5VL_pass_through_ext_g = {
-    H5VL_VERSION,     /* VOL class struct version */
-    1234,             /* value        */
-    "as-rpc-hdf5",    /* name         */
-    1,                /* connector version */
-    0,                /* capability flags */
-    H5VL_as_rpc_init, /* initialize   */
-    H5VL_as_rpc_term, /* terminate    */
-    {
-        sizeof(H5VL_as_rpc_info_t), /* size    */
-        H5VL_as_rpc_info_copy,      /* copy    */
-        H5VL_as_rpc_info_cmp,       /* compare */
-        H5VL_as_rpc_info_free,      /* free    */
-        H5VL_as_rpc_info_to_str,    /* to_str  */
-        H5VL_as_rpc_str_to_info     /* from_str */
-    },
-    {
-        H5VL_as_rpc_get_object,    /* get_object   */
-        H5VL_as_rpc_get_wrap_ctx,  /* get_wrap_ctx */
-        H5VL_as_rpc_wrap_object,   /* wrap_object  */
-        H5VL_as_rpc_unwrap_object, /* unwrap_object */
-        H5VL_as_rpc_free_wrap_ctx  /* free_wrap_ctx */
-    },
-    {
-        H5VL_as_rpc_attr_create,   /* create */
-        H5VL_as_rpc_attr_open,     /* open */
-        H5VL_as_rpc_attr_read,     /* read */
-        H5VL_as_rpc_attr_write,    /* write */
-        H5VL_as_rpc_attr_get,      /* get */
-        H5VL_as_rpc_attr_specific, /* specific */
-        H5VL_as_rpc_attr_optional, /* optional */
-        H5VL_as_rpc_attr_close     /* close */
-    },
-    {
-        H5VL_as_rpc_dataset_create,   /* create */
-        H5VL_as_rpc_dataset_open,     /* open */
-        H5VL_as_rpc_dataset_read,     /* read */
-        H5VL_as_rpc_dataset_write,    /* write */
-        H5VL_as_rpc_dataset_get,      /* get */
-        H5VL_as_rpc_dataset_specific, /* specific */
-        H5VL_as_rpc_dataset_optional, /* optional */
-        H5VL_as_rpc_dataset_close     /* close */
-    },
-    {
-        H5VL_as_rpc_datatype_commit,   /* commit */
-        H5VL_as_rpc_datatype_open,     /* open */
-        H5VL_as_rpc_datatype_get,      /* get_size */
-        H5VL_as_rpc_datatype_specific, /* specific */
-        H5VL_as_rpc_datatype_optional, /* optional */
-        H5VL_as_rpc_datatype_close     /* close */
-    },
-    {
-        H5VL_as_rpc_file_create,   /* create */
-        H5VL_as_rpc_file_open,     /* open */
-        H5VL_as_rpc_file_get,      /* get */
-        H5VL_as_rpc_file_specific, /* specific */
-        H5VL_as_rpc_file_optional, /* optional */
-        H5VL_as_rpc_file_close     /* close */
-    },
-    {
-        H5VL_as_rpc_group_create,   /* create */
-        H5VL_as_rpc_group_open,     /* open */
-        H5VL_as_rpc_group_get,      /* get */
-        H5VL_as_rpc_group_specific, /* specific */
-        H5VL_as_rpc_group_optional, /* optional */
-        H5VL_as_rpc_group_close     /* close */
-    },
-    {
-        H5VL_as_rpc_link_create,   /* create */
-        H5VL_as_rpc_link_copy,     /* copy */
-        H5VL_as_rpc_link_move,     /* move */
-        H5VL_as_rpc_link_get,      /* get */
-        H5VL_as_rpc_link_specific, /* specific */
-        H5VL_as_rpc_link_optional  /* optional */
-    },
-    {
-        H5VL_as_rpc_object_open,     /* open */
-        H5VL_as_rpc_object_copy,     /* copy */
-        H5VL_as_rpc_object_get,      /* get */
-        H5VL_as_rpc_object_specific, /* specific */
-        H5VL_as_rpc_object_optional  /* optional */
-    },
-    {
-        /* introspect_cls */
-        H5VL_as_rpc_introspect_get_conn_cls,  /* get_conn_cls */
-        H5VL_as_rpc_introspect_get_cap_flags, /* get_cap_flags */
-        H5VL_as_rpc_introspect_opt_query,     /* opt_query */
-    },
-    {
-        H5VL_as_rpc_request_wait,     /* wait */
-        H5VL_as_rpc_request_notify,   /* notify */
-        H5VL_as_rpc_request_cancel,   /* cancel */
-        H5VL_as_rpc_request_specific, /* specific */
-        H5VL_as_rpc_request_optional, /* optional */
-        H5VL_as_rpc_request_free      /* free */
-    },
-    {
-        H5VL_as_rpc_blob_put,      /* put */
-        H5VL_as_rpc_blob_get,      /* get */
-        H5VL_as_rpc_blob_specific, /* specific */
-        H5VL_as_rpc_blob_optional  /* optional */
-    },
-    {
-        H5VL_as_rpc_token_cmp,     /* cmp */
-        H5VL_as_rpc_token_to_str,  /* to_str */
-        H5VL_as_rpc_token_from_str /* from_str */
-    },
-    H5VL_as_rpc_optional /* optional */
-};
+    .version = H5VL_VERSION,
+    .value = 1234,
+    .name = "as-rpc-hdf5",
+    .conn_version = 1,
+    .cap_flags = 0,
+    .initialize = H5VL_as_rpc_init,
+    .terminate = H5VL_as_rpc_term,
+    .info_cls = {.size = sizeof(H5VL_as_rpc_info_t),
+                 .copy = H5VL_as_rpc_info_copy,
+                 .cmp = H5VL_as_rpc_info_cmp,
+                 .free = H5VL_as_rpc_info_free,
+                 .to_str = H5VL_as_rpc_info_to_str,
+                 .from_str = H5VL_as_rpc_str_to_info},
+    .wrap_cls = {.get_object = H5VL_as_rpc_get_object,
+                 .get_wrap_ctx = H5VL_as_rpc_get_wrap_ctx,
+                 .wrap_object = H5VL_as_rpc_wrap_object,
+                 .unwrap_object = H5VL_as_rpc_unwrap_object,
+                 .free_wrap_ctx = H5VL_as_rpc_free_wrap_ctx},
+    .attr_cls = {.create = H5VL_as_rpc_attr_create,
+                 .open = H5VL_as_rpc_attr_open,
+                 .read = H5VL_as_rpc_attr_read,
+                 .write = H5VL_as_rpc_attr_write,
+                 .get = H5VL_as_rpc_attr_get,
+                 .specific = H5VL_as_rpc_attr_specific,
+                 .optional = H5VL_as_rpc_attr_optional,
+                 .close = H5VL_as_rpc_attr_close},
+    .dataset_cls = {.create = H5VL_as_rpc_dataset_create,
+                    .open = H5VL_as_rpc_dataset_open,
+                    .read = H5VL_as_rpc_dataset_read,
+                    .write = H5VL_as_rpc_dataset_write,
+                    .get = H5VL_as_rpc_dataset_get,
+                    .specific = H5VL_as_rpc_dataset_specific,
+                    .optional = H5VL_as_rpc_dataset_optional,
+                    .close = H5VL_as_rpc_dataset_close},
+    .datatype_cls = {.commit = H5VL_as_rpc_datatype_commit,
+                     .open = H5VL_as_rpc_datatype_open,
+                     .get = H5VL_as_rpc_datatype_get,
+                     .specific = H5VL_as_rpc_datatype_specific,
+                     .optional = H5VL_as_rpc_datatype_optional,
+                     .close = H5VL_as_rpc_datatype_close},
+    .file_cls = {.create = H5VL_as_rpc_file_create,
+                 .open = H5VL_as_rpc_file_open,
+                 .get = H5VL_as_rpc_file_get,
+                 .specific = H5VL_as_rpc_file_specific,
+                 .optional = H5VL_as_rpc_file_optional,
+                 .close = H5VL_as_rpc_file_close},
+    .group_cls = {.create = H5VL_as_rpc_group_create,
+                  .open = H5VL_as_rpc_group_open,
+                  .get = H5VL_as_rpc_group_get,
+                  .specific = H5VL_as_rpc_group_specific,
+                  .optional = H5VL_as_rpc_group_optional,
+                  .close = H5VL_as_rpc_group_close},
+    .link_cls = {.create = H5VL_as_rpc_link_create,
+                 .copy = H5VL_as_rpc_link_copy,
+                 .move = H5VL_as_rpc_link_move,
+                 .get = H5VL_as_rpc_link_get,
+                 .specific = H5VL_as_rpc_link_specific,
+                 .optional = H5VL_as_rpc_link_optional},
+    .object_cls = {.open = H5VL_as_rpc_object_open,
+                   .copy = H5VL_as_rpc_object_copy,
+                   .get = H5VL_as_rpc_object_get,
+                   .specific = H5VL_as_rpc_object_specific,
+                   .optional = H5VL_as_rpc_object_optional},
+    .introspect_cls = {.get_conn_cls = H5VL_as_rpc_introspect_get_conn_cls,
+                       .get_cap_flags = H5VL_as_rpc_introspect_get_cap_flags,
+                       .opt_query = H5VL_as_rpc_introspect_opt_query},
+    .request_cls = {.wait = H5VL_as_rpc_request_wait,
+                    .notify = H5VL_as_rpc_request_notify,
+                    .cancel = H5VL_as_rpc_request_cancel,
+                    .specific = H5VL_as_rpc_request_specific,
+                    .optional = H5VL_as_rpc_request_optional,
+                    .free = H5VL_as_rpc_request_free},
+    .blob_cls = {.put = H5VL_as_rpc_blob_put,
+                 .get = H5VL_as_rpc_blob_get,
+                 .specific = H5VL_as_rpc_blob_specific,
+                 .optional = H5VL_as_rpc_blob_optional},
+    .token_cls = {.cmp = H5VL_as_rpc_token_cmp,
+                  .to_str = H5VL_as_rpc_token_to_str,
+                  .from_str = H5VL_as_rpc_token_from_str},
+    .optional = H5VL_as_rpc_optional};
 } // namespace
 
 /* Required shim routines, to enable dynamic loading of shared library.
