@@ -25,7 +25,7 @@ herr_t H5VL_as_rpc_token_cmp(void* obj, const H5O_token_t* token1,
                              const H5O_token_t* token2, int* cmp_value)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  log_msg("TOKEN Compare\n");
+  log_msg("TOKEN Compare");
   return H5VLtoken_cmp(o->under_object, o->under_vol_id, token1, token2,
                        cmp_value);
 }
@@ -34,7 +34,7 @@ herr_t H5VL_as_rpc_token_to_str(void* obj, H5I_type_t obj_type,
                                 const H5O_token_t* token, char** token_str)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  log_msg("TOKEN To string\n");
+  log_msg("TOKEN To string");
   return H5VLtoken_to_str(o->under_object, obj_type, o->under_vol_id, token,
                           token_str);
 }
@@ -43,7 +43,7 @@ herr_t H5VL_as_rpc_token_from_str(void* obj, H5I_type_t obj_type,
                                   const char* token_str, H5O_token_t* token)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  log_msg("TOKEN From string\n");
+  log_msg("TOKEN From string");
   return H5VLtoken_from_str(o->under_object, obj_type, o->under_vol_id,
                             token_str, token);
 }

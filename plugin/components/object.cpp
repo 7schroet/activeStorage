@@ -28,7 +28,7 @@ void* H5VL_as_rpc_object_open(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* new_obj = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("OBJECT Open\n");
+  log_msg("OBJECT Open");
 
   void* under = H5VLobject_open(o->under_object, loc_params, o->under_vol_id,
                                 opened_type, dxpl_id, req);
@@ -53,7 +53,7 @@ herr_t H5VL_as_rpc_object_copy(void* src_obj,
   auto o_src = static_cast<H5VL_as_rpc_t*>(src_obj);
   auto o_dst = static_cast<H5VL_as_rpc_t*>(dst_obj);
 
-  log_msg("OBJECT Copy\n");
+  log_msg("OBJECT Copy");
 
   herr_t ret_value =
       H5VLobject_copy(o_src->under_object, src_loc_params, src_name,
@@ -72,7 +72,7 @@ herr_t H5VL_as_rpc_object_get(void* obj, const H5VL_loc_params_t* loc_params,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("OBJECT Get\n");
+  log_msg("OBJECT Get");
 
   herr_t ret_value = H5VLobject_get(o->under_object, loc_params,
                                     o->under_vol_id, args, dxpl_id, req);
@@ -90,7 +90,7 @@ herr_t H5VL_as_rpc_object_specific(void* obj,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("OBJECT Specific\n");
+  log_msg("OBJECT Specific");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
@@ -112,7 +112,7 @@ herr_t H5VL_as_rpc_object_optional(void* obj,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("OBJECT Optional\n");
+  log_msg("OBJECT Optional");
 
   herr_t ret_value = H5VLobject_optional(o->under_object, loc_params,
                                          o->under_vol_id, args, dxpl_id, req);

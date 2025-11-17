@@ -30,7 +30,7 @@ void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
   H5VL_as_rpc_t* file = nullptr;
   hid_t under_fapl_id;
 
-  log_msg("FILE Create\n");
+  log_msg("FILE Create");
 
   /* Get copy of our VOL info from FAPL */
   H5Pget_vol_info(fapl_id, &info);
@@ -69,7 +69,7 @@ void* H5VL_as_rpc_file_open(const char* name, unsigned flags, hid_t fapl_id,
   H5VL_as_rpc_t* file = nullptr;
   hid_t under_fapl_id;
 
-  log_msg("FILE Open\n");
+  log_msg("FILE Open");
 
   H5Pget_vol_info(fapl_id, &info);
 
@@ -103,7 +103,7 @@ herr_t H5VL_as_rpc_file_get(void* obj, H5VL_file_get_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("FILE Get\n");
+  log_msg("FILE Get");
 
   herr_t ret_value =
       H5VLfile_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -124,7 +124,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   H5VL_as_rpc_info_t* info;
   hid_t under_vol_id = -1;
 
-  log_msg("FILE Specific\n");
+  log_msg("FILE Specific");
 
   if (args->op_type == H5VL_FILE_IS_ACCESSIBLE)
   {
@@ -205,7 +205,7 @@ herr_t H5VL_as_rpc_file_optional(void* obj, H5VL_optional_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("File Optional\n");
+  log_msg("File Optional");
 
   herr_t ret_value =
       H5VLfile_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -220,7 +220,7 @@ herr_t H5VL_as_rpc_file_close(void* obj, hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("FILE Close\n");
+  log_msg("FILE Close");
 
   herr_t ret_value =
       H5VLfile_close(o->under_object, o->under_vol_id, dxpl_id, req);

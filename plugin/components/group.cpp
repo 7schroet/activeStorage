@@ -29,7 +29,7 @@ void* H5VL_as_rpc_group_create(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* group = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("GROUP Create\n");
+  log_msg("GROUP Create");
 
   void* under = H5VLgroup_create(o->under_object, loc_params, o->under_vol_id,
                                  name, lcpl_id, gcpl_id, gapl_id, dxpl_id, req);
@@ -51,7 +51,7 @@ void* H5VL_as_rpc_group_open(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* group = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("GROUP Open\n");
+  log_msg("GROUP Open");
 
   void* under = H5VLgroup_open(o->under_object, loc_params, o->under_vol_id,
                                name, gapl_id, dxpl_id, req);
@@ -71,7 +71,7 @@ herr_t H5VL_as_rpc_group_get(void* obj, H5VL_group_get_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("GROUP Get\n");
+  log_msg("GROUP Get");
 
   herr_t ret_value =
       H5VLgroup_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -90,7 +90,7 @@ herr_t H5VL_as_rpc_group_specific(void* obj, H5VL_group_specific_args_t* args,
   H5VL_group_specific_args_t* new_args;
   herr_t ret_value;
 
-  log_msg("GROUP Specific\n");
+  log_msg("GROUP Specific");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
@@ -124,7 +124,7 @@ herr_t H5VL_as_rpc_group_optional(void* obj, H5VL_optional_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("GROUP Optional\n");
+  log_msg("GROUP Optional");
 
   herr_t ret_value =
       H5VLgroup_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -139,7 +139,7 @@ herr_t H5VL_as_rpc_group_close(void* obj, hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("GROUP Close\n");
+  log_msg("GROUP Close");
 
   herr_t ret_value =
       H5VLgroup_close(o->under_object, o->under_vol_id, dxpl_id, req);

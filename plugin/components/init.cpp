@@ -22,14 +22,14 @@
 
 herr_t H5VL_as_rpc_init([[maybe_unused]] hid_t vipl_id)
 {
-  log_msg("INIT\n");
+  log_msg("INIT");
 
   return 0;
 }
 
 herr_t H5VL_as_rpc_term()
 {
-  log_msg("TERM\n");
+  log_msg("TERM");
 
   return 0;
 }

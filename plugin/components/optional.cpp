@@ -26,7 +26,7 @@ herr_t H5VL_as_rpc_optional(void* obj, H5VL_optional_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("generic Optional\n");
+  log_msg("generic Optional");
 
   return H5VLoptional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 }

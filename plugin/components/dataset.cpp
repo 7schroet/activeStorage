@@ -30,7 +30,7 @@ void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* dset = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATASET Create\n");
+  log_msg("DATASET Create");
 
   void* under = H5VLdataset_create(o->under_object, loc_params, o->under_vol_id,
                                    name, lcpl_id, type_id, space_id, dcpl_id,
@@ -53,7 +53,7 @@ void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* dset = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATASET Open\n");
+  log_msg("DATASET Open");
 
   void* under = H5VLdataset_open(o->under_object, loc_params, o->under_vol_id,
                                  name, dapl_id, dxpl_id, req);
@@ -75,7 +75,7 @@ herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
   // Array of under objects
   std::vector<void*> o_arr(count);
 
-  log_msg("DATASET Read\n");
+  log_msg("DATASET Read");
 
   // VOL ID for all objects
   hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
@@ -99,7 +99,7 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
 {
   std::vector<void*> o_arr(count);
 
-  log_msg("DATASET Write\n");
+  log_msg("DATASET Write");
 
   hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
@@ -120,7 +120,7 @@ herr_t H5VL_as_rpc_dataset_get(void* obj, H5VL_dataset_get_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATASET Get\n");
+  log_msg("DATASET Get");
 
   herr_t ret_value =
       H5VLdataset_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -137,7 +137,7 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("H5Dspecific\n");
+  log_msg("H5Dspecific");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
@@ -157,7 +157,7 @@ herr_t H5VL_as_rpc_dataset_optional(void* obj, H5VL_optional_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATASET Optional\n");
+  log_msg("DATASET Optional");
 
   herr_t ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id,
                                           args, dxpl_id, req);
@@ -172,7 +172,7 @@ herr_t H5VL_as_rpc_dataset_close(void* obj, hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATASET Close\n");
+  log_msg("DATASET Close");
 
   herr_t ret_value =
       H5VLdataset_close(o->under_object, o->under_vol_id, dxpl_id, req);

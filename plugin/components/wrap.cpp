@@ -24,7 +24,7 @@
 void* H5VL_as_rpc_get_object(const void* obj)
 {
   auto o = static_cast<const H5VL_as_rpc_t*>(obj);
-  log_msg("Get object\n");
+  log_msg("Get object");
   return H5VLget_object(o->under_object, o->under_vol_id);
 }
 
@@ -33,7 +33,7 @@ herr_t H5VL_as_rpc_get_wrap_ctx(const void* obj, void** wrap_ctx)
   auto o = static_cast<const H5VL_as_rpc_t*>(obj);
   auto new_wrap_ctx = new H5VL_as_rpc_wrap_ctx_t();
 
-  log_msg("WRAP CTX Get\n");
+  log_msg("WRAP CTX Get");
 
   new_wrap_ctx->under_vol_id = o->under_vol_id;
   H5Iinc_ref(new_wrap_ctx->under_vol_id);
@@ -50,7 +50,7 @@ void* H5VL_as_rpc_wrap_object(void* obj, H5I_type_t obj_type, void* wrap_ctx)
   auto wrap_ctx_cast = static_cast<H5VL_as_rpc_wrap_ctx_t*>(wrap_ctx);
   H5VL_as_rpc_t* new_obj = nullptr;
 
-  log_msg("WRAP Object\n");
+  log_msg("WRAP Object");
 
   void* under = H5VLwrap_object(obj, obj_type, wrap_ctx_cast->under_vol_id,
                                 wrap_ctx_cast->under_wrap_ctx);
@@ -64,7 +64,7 @@ void* H5VL_as_rpc_unwrap_object(void* obj)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("UNWRAP Object\n");
+  log_msg("UNWRAP Object");
 
   void* under = H5VLunwrap_object(o->under_object, o->under_vol_id);
 
@@ -78,7 +78,7 @@ herr_t H5VL_as_rpc_free_wrap_ctx(void* wrap_ctx)
 {
   auto wrap_ctx_cast = static_cast<H5VL_as_rpc_wrap_ctx_t*>(wrap_ctx);
 
-  log_msg("WRAP CTX Free\n");
+  log_msg("WRAP CTX Free");
 
   hid_t err_id = H5Eget_current_stack();
 

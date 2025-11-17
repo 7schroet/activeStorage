@@ -32,7 +32,7 @@ herr_t H5VL_as_rpc_link_create(H5VL_link_create_args_t* args, void* obj,
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
   hid_t under_vol_id = -1;
 
-  log_msg("LINK Create\n");
+  log_msg("LINK Create");
 
   // Try to retrieve the "under" VOL id
   if (o)
@@ -84,7 +84,7 @@ H5VL_as_rpc_link_copy(void* src_obj, const H5VL_loc_params_t* loc_params1,
   auto o_dst = static_cast<H5VL_as_rpc_t*>(dst_obj);
   hid_t under_vol_id = -1;
 
-  log_msg("LINK Copy\n");
+  log_msg("LINK Copy");
 
   if (o_src)
     under_vol_id = o_src->under_vol_id;
@@ -111,7 +111,7 @@ H5VL_as_rpc_link_move(void* src_obj, const H5VL_loc_params_t* loc_params1,
   auto o_dst = static_cast<H5VL_as_rpc_t*>(dst_obj);
   hid_t under_vol_id = -1;
 
-  log_msg("LINK Move\n");
+  log_msg("LINK Move");
 
   // Retrieve the "under" VOL id
   if (o_src)
@@ -136,7 +136,7 @@ herr_t H5VL_as_rpc_link_get(void* obj, const H5VL_loc_params_t* loc_params,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("LINK Get\n");
+  log_msg("LINK Get");
 
   herr_t ret_value = H5VLlink_get(o->under_object, loc_params, o->under_vol_id,
                                   args, dxpl_id, req);
@@ -153,7 +153,7 @@ herr_t H5VL_as_rpc_link_specific(void* obj, const H5VL_loc_params_t* loc_params,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("LINK Specific\n");
+  log_msg("LINK Specific");
 
   herr_t ret_value = H5VLlink_specific(o->under_object, loc_params,
                                        o->under_vol_id, args, dxpl_id, req);
@@ -170,7 +170,7 @@ herr_t H5VL_as_rpc_link_optional(void* obj, const H5VL_loc_params_t* loc_params,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("LINK Optional\n");
+  log_msg("LINK Optional");
 
   herr_t ret_value = H5VLlink_optional(o->under_object, loc_params,
                                        o->under_vol_id, args, dxpl_id, req);

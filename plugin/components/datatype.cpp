@@ -30,7 +30,7 @@ void* H5VL_as_rpc_datatype_commit(void* obj,
   H5VL_as_rpc_t* dt = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Commit\n");
+  log_msg("DATATYPE Commit");
 
   void* under =
       H5VLdatatype_commit(o->under_object, loc_params, o->under_vol_id, name,
@@ -53,7 +53,7 @@ void* H5VL_as_rpc_datatype_open(void* obj, const H5VL_loc_params_t* loc_params,
   H5VL_as_rpc_t* dt = nullptr;
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Open\n");
+  log_msg("DATATYPE Open");
 
   void* under = H5VLdatatype_open(o->under_object, loc_params, o->under_vol_id,
                                   name, tapl_id, dxpl_id, req);
@@ -73,7 +73,7 @@ herr_t H5VL_as_rpc_datatype_get(void* obj, H5VL_datatype_get_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Get\n");
+  log_msg("DATATYPE Get");
 
   herr_t ret_value =
       H5VLdatatype_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
@@ -90,7 +90,7 @@ herr_t H5VL_as_rpc_datatype_specific(void* obj,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Specific\n");
+  log_msg("DATATYPE Specific");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
@@ -110,7 +110,7 @@ herr_t H5VL_as_rpc_datatype_optional(void* obj, H5VL_optional_args_t* args,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Optional\n");
+  log_msg("DATATYPE Optional");
 
   herr_t ret_value = H5VLdatatype_optional(o->under_object, o->under_vol_id,
                                            args, dxpl_id, req);
@@ -125,7 +125,7 @@ herr_t H5VL_as_rpc_datatype_close(void* obj, hid_t dxpl_id, void** req)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("DATATYPE Close\n");
+  log_msg("DATATYPE Close");
 
   herr_t ret_value =
       H5VLdatatype_close(o->under_object, o->under_vol_id, dxpl_id, req);

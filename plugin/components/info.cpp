@@ -26,7 +26,7 @@ void* H5VL_as_rpc_info_copy(const void* info)
 {
   auto info_cast = static_cast<const H5VL_as_rpc_info_t*>(info);
 
-  log_msg("INFO Copy\n");
+  log_msg("INFO Copy");
 
   auto new_info = new H5VL_as_rpc_info_t();
 
@@ -45,7 +45,7 @@ herr_t H5VL_as_rpc_info_cmp(int* cmp_value, const void* info1,
   auto info1_cast = static_cast<const H5VL_as_rpc_info_t*>(info1);
   auto info2_cast = static_cast<const H5VL_as_rpc_info_t*>(info2);
 
-  log_msg("INFO Compare\n");
+  log_msg("INFO Compare");
 
   *cmp_value = 0;
 
@@ -69,7 +69,7 @@ herr_t H5VL_as_rpc_info_free(void* info)
 {
   auto info_cast = static_cast<H5VL_as_rpc_info_t*>(info);
 
-  log_msg("INFO Free\n");
+  log_msg("INFO Free");
 
   hid_t err_id = H5Eget_current_stack();
 
@@ -91,7 +91,7 @@ herr_t H5VL_as_rpc_info_to_str(const void* info, char** str)
   char* under_vol_string = nullptr;
   size_t under_vol_str_len = 0;
 
-  log_msg("INFO To String\n");
+  log_msg("INFO To String");
 
   H5VLget_value(info_cast->under_vol_id, &under_value);
   H5VLconnector_info_to_str(info_cast->under_vol_info, info_cast->under_vol_id,
@@ -120,7 +120,7 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
   hid_t under_vol_id;
   void* under_vol_info = nullptr;
 
-  log_msg("INFO String To Info\n");
+  log_msg("INFO String To Info");
 
   // Retrieve the underlying VOL connector value and info
   sscanf(str, "under_vol=%u;", &under_vol_value);

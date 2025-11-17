@@ -25,6 +25,6 @@
 void log_msg([[maybe_unused]] const char* msg)
 {
 #ifdef ENABLE_PLUGIN_LOGGING
-  std::cerr << msg;
+  std::cerr << "-- PLUGIN LOG: " << msg << " --\n";
 #endif
 }
