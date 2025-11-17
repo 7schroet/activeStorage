@@ -8,6 +8,7 @@ target_sources(as-rpc-hdf5
     components/group.cpp
     components/info.cpp
     components/link.cpp
+    components/object.cpp
     components/utils.cpp
     components/wrap.cpp
     H5VLpassthru_ext.cpp
