@@ -21,6 +21,7 @@
 #include "dataset.hpp"
 #include "datatype.hpp"
 #include "file.hpp"
+#include "group.hpp"
 #include "info.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
@@ -42,25 +43,6 @@
 /* "Management" callbacks */
 static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
 static herr_t H5VL_pass_through_ext_term(void);
-
-/* Group callbacks */
-static void* H5VL_pass_through_ext_group_create(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id, void** req);
-static void*
-H5VL_pass_through_ext_group_open(void* obj, const H5VL_loc_params_t* loc_params,
-                                 const char* name, hid_t gapl_id, hid_t dxpl_id,
-                                 void** req);
-static herr_t H5VL_pass_through_ext_group_get(void* obj,
-                                              H5VL_group_get_args_t* args,
-                                              hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_specific(
-    void* obj, H5VL_group_specific_args_t* args, hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_optional(void* obj,
-                                                   H5VL_optional_args_t* args,
-                                                   hid_t dxpl_id, void** req);
-static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
-                                                void** req);
 
 /* Link callbacks */
 static herr_t
@@ -227,13 +209,12 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_as_rpc_file_close     /* close */
     },
     {
-        /* group_cls */
-        H5VL_pass_through_ext_group_create,   /* create */
-        H5VL_pass_through_ext_group_open,     /* open */
-        H5VL_pass_through_ext_group_get,      /* get */
-        H5VL_pass_through_ext_group_specific, /* specific */
-        H5VL_pass_through_ext_group_optional, /* optional */
-        H5VL_pass_through_ext_group_close     /* close */
+        H5VL_as_rpc_group_create,   /* create */
+        H5VL_as_rpc_group_open,     /* open */
+        H5VL_as_rpc_group_get,      /* get */
+        H5VL_as_rpc_group_specific, /* specific */
+        H5VL_as_rpc_group_optional, /* optional */
+        H5VL_as_rpc_group_close     /* close */
     },
     {
         /* link_cls */
@@ -368,232 +349,6 @@ static herr_t H5VL_pass_through_ext_term(void)
 
   return 0;
 } /* end H5VL_pass_through_ext_term() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_create
- *
- * Purpose:     Creates a group inside a container
- *
- * Return:      Success:    Pointer to a group object
- *              Failure:    NULL
- *
- *-------------------------------------------------------------------------
- */
-static void* H5VL_pass_through_ext_group_create(
-    void* obj, const H5VL_loc_params_t* loc_params, const char* name,
-    hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id, void** req)
-{
-  H5VL_as_rpc_t* group;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Create\n");
-#endif
-
-  under = H5VLgroup_create(o->under_object, loc_params, o->under_vol_id, name,
-                           lcpl_id, gcpl_id, gapl_id, dxpl_id, req);
-  if (under)
-  {
-    group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
-
-    /* Check for async request */
-    if (req && *req)
-      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
-  } /* end if */
-  else
-    group = NULL;
-
-  return (void*)group;
-} /* end H5VL_pass_through_ext_group_create() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_open
- *
- * Purpose:     Opens a group inside a container
- *
- * Return:      Success:    Pointer to a group object
- *              Failure:    NULL
- *
- *-------------------------------------------------------------------------
- */
-static void*
-H5VL_pass_through_ext_group_open(void* obj, const H5VL_loc_params_t* loc_params,
-                                 const char* name, hid_t gapl_id, hid_t dxpl_id,
-                                 void** req)
-{
-  H5VL_as_rpc_t* group;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Open\n");
-#endif
-
-  under = H5VLgroup_open(o->under_object, loc_params, o->under_vol_id, name,
-                         gapl_id, dxpl_id, req);
-  if (under)
-  {
-    group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
-
-    /* Check for async request */
-    if (req && *req)
-      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
-  } /* end if */
-  else
-    group = NULL;
-
-  return (void*)group;
-} /* end H5VL_pass_through_ext_group_open() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_get
- *
- * Purpose:     Get info about a group
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_group_get(void* obj,
-                                              H5VL_group_get_args_t* args,
-                                              hid_t dxpl_id, void** req)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Get\n");
-#endif
-
-  ret_value =
-      H5VLgroup_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
-
-  /* Check for async request */
-  if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_group_get() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_specific
- *
- * Purpose:     Specific operation on a group
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_group_specific(
-    void* obj, H5VL_group_specific_args_t* args, hid_t dxpl_id, void** req)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  H5VL_group_specific_args_t my_args;
-  H5VL_group_specific_args_t* new_args;
-  hid_t under_vol_id;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Specific\n");
-#endif
-
-  // Save copy of underlying VOL connector ID and prov helper, in case of
-  // refresh destroying the current object
-  under_vol_id = o->under_vol_id;
-
-  /* Unpack arguments to get at the child file pointer when mounting a file */
-  if (args->op_type == H5VL_GROUP_MOUNT)
-  {
-
-    /* Make a (shallow) copy of the arguments */
-    memcpy(&my_args, args, sizeof(my_args));
-
-    /* Set the object for the child file */
-    my_args.args.mount.child_file =
-        ((H5VL_as_rpc_t*)args->args.mount.child_file)->under_object;
-
-    /* Point to modified arguments */
-    new_args = &my_args;
-  } /* end if */
-  else
-    new_args = args;
-
-  ret_value =
-      H5VLgroup_specific(o->under_object, under_vol_id, new_args, dxpl_id, req);
-
-  /* Check for async request */
-  if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_group_specific() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_optional
- *
- * Purpose:     Perform a connector-specific operation on a group
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_group_optional(void* obj,
-                                                   H5VL_optional_args_t* args,
-                                                   hid_t dxpl_id, void** req)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Optional\n");
-#endif
-
-  ret_value =
-      H5VLgroup_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
-
-  /* Check for async request */
-  if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_group_optional() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_group_close
- *
- * Purpose:     Closes a group.
- *
- * Return:      Success:    0
- *              Failure:    -1, group not closed.
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
-                                                void** req)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)grp;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Close\n");
-#endif
-
-  ret_value = H5VLgroup_close(o->under_object, o->under_vol_id, dxpl_id, req);
-
-  /* Check for async request */
-  if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
-
-  /* Release our wrapper, if underlying file was closed */
-  if (ret_value >= 0)
-    H5VL_as_rpc_t_free_obj(o);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_group_close() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_link_create

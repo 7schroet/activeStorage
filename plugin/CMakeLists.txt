@@ -5,6 +5,7 @@ target_sources(as-rpc-hdf5
     components/dataset.cpp
     components/datatype.cpp
     components/file.cpp
+    components/group.cpp
     components/info.cpp
     components/utils.cpp
     components/wrap.cpp
