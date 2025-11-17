@@ -2,6 +2,7 @@ add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
     components/attribute.cpp
+    components/blob.cpp
     components/dataset.cpp
     components/datatype.cpp
     components/file.cpp

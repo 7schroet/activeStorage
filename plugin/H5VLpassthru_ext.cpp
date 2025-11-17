@@ -18,6 +18,7 @@
  */
 
 #include "attribute.hpp"
+#include "blob.hpp"
 #include "dataset.hpp"
 #include "datatype.hpp"
 #include "file.hpp"
@@ -57,18 +58,6 @@ static herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
                                                          H5VL_subclass_t cls,
                                                          int op_type,
                                                          uint64_t* flags);
-
-/* Blob callbacks */
-static herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf,
-                                             size_t size, void* blob_id,
-                                             void* ctx);
-static herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id,
-                                             void* buf, size_t size, void* ctx);
-static herr_t
-H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
-                                    H5VL_blob_specific_args_t* args);
-static herr_t H5VL_pass_through_ext_blob_optional(void* obj, void* blob_id,
-                                                  H5VL_optional_args_t* args);
 
 /* Token callbacks */
 static herr_t H5VL_pass_through_ext_token_cmp(void* obj,
@@ -189,11 +178,10 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_as_rpc_request_free      /* free */
     },
     {
-        /* blob_cls */
-        H5VL_pass_through_ext_blob_put,      /* put */
-        H5VL_pass_through_ext_blob_get,      /* get */
-        H5VL_pass_through_ext_blob_specific, /* specific */
-        H5VL_pass_through_ext_blob_optional  /* optional */
+        H5VL_as_rpc_blob_put,      /* put */
+        H5VL_as_rpc_blob_get,      /* get */
+        H5VL_as_rpc_blob_specific, /* specific */
+        H5VL_as_rpc_blob_optional  /* optional */
     },
     {
         /* token_cls */
@@ -378,106 +366,6 @@ herr_t H5VL_pass_through_ext_introspect_opt_query(void* obj,
 
   return ret_value;
 } /* end H5VL_pass_through_ext_introspect_opt_query() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_blob_put
- *
- * Purpose:     Handles the blob 'put' callback
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_blob_put(void* obj, const void* buf, size_t size,
-                                      void* blob_id, void* ctx)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Put\n");
-#endif
-
-  ret_value =
-      H5VLblob_put(o->under_object, o->under_vol_id, buf, size, blob_id, ctx);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_blob_put() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_blob_get
- *
- * Purpose:     Handles the blob 'get' callback
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_blob_get(void* obj, const void* blob_id, void* buf,
-                                      size_t size, void* ctx)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Get\n");
-#endif
-
-  ret_value =
-      H5VLblob_get(o->under_object, o->under_vol_id, blob_id, buf, size, ctx);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_blob_get() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_blob_specific
- *
- * Purpose:     Handles the blob 'specific' callback
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_blob_specific(void* obj, void* blob_id,
-                                           H5VL_blob_specific_args_t* args)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Specific\n");
-#endif
-
-  ret_value =
-      H5VLblob_specific(o->under_object, o->under_vol_id, blob_id, args);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_blob_specific() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_blob_optional
- *
- * Purpose:     Handles the blob 'optional' callback
- *
- * Return:      SUCCEED / FAIL
- *
- *-------------------------------------------------------------------------
- */
-herr_t H5VL_pass_through_ext_blob_optional(void* obj, void* blob_id,
-                                           H5VL_optional_args_t* args)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL BLOB Optional\n");
-#endif
-
-  ret_value =
-      H5VLblob_optional(o->under_object, o->under_vol_id, blob_id, args);
-
-  return ret_value;
-} /* end H5VL_pass_through_ext_blob_optional() */
 
 /*---------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_token_cmp
