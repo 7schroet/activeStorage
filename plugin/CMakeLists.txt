@@ -17,7 +17,7 @@ target_sources(as-rpc-hdf5
     components/token.cpp
     components/utils.cpp
     components/wrap.cpp
-    H5VLpassthru_ext.cpp
+    as_rpc_hdf5.cpp
 
   PRIVATE
   FILE_SET HEADERS
