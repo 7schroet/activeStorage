@@ -1,6 +1,7 @@
 add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
+    components/attribute.cpp
     components/info.cpp
     components/utils.cpp
     components/wrap.cpp
