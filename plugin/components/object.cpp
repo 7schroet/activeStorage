@@ -18,22 +18,20 @@
  */
 
 #include "object.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 
 void* H5VL_as_rpc_object_open(void* obj, const H5VL_loc_params_t* loc_params,
                               H5I_type_t* opened_type, hid_t dxpl_id,
                               void** req)
 {
-  H5VL_as_rpc_t* new_obj;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
+  H5VL_as_rpc_t* new_obj = nullptr;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL OBJECT Open\n");
-#endif
+  log_msg("OBJECT Open\n");
 
-  under = H5VLobject_open(o->under_object, loc_params, o->under_vol_id,
-                          opened_type, dxpl_id, req);
+  void* under = H5VLobject_open(o->under_object, loc_params, o->under_vol_id,
+                                opened_type, dxpl_id, req);
   if (under)
   {
     new_obj = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
@@ -41,10 +39,8 @@ void* H5VL_as_rpc_object_open(void* obj, const H5VL_loc_params_t* loc_params,
     if (req && *req)
       *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   }
-  else
-    new_obj = NULL;
 
-  return (void*)new_obj;
+  return new_obj;
 }
 
 herr_t H5VL_as_rpc_object_copy(void* src_obj,
@@ -54,15 +50,12 @@ herr_t H5VL_as_rpc_object_copy(void* src_obj,
                                const char* dst_name, hid_t ocpypl_id,
                                hid_t lcpl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o_src = (H5VL_as_rpc_t*)src_obj;
-  H5VL_as_rpc_t* o_dst = (H5VL_as_rpc_t*)dst_obj;
-  herr_t ret_value;
+  auto o_src = static_cast<H5VL_as_rpc_t*>(src_obj);
+  auto o_dst = static_cast<H5VL_as_rpc_t*>(dst_obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL OBJECT Copy\n");
-#endif
+  log_msg("OBJECT Copy\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLobject_copy(o_src->under_object, src_loc_params, src_name,
                       o_dst->under_object, dst_loc_params, dst_name,
                       o_src->under_vol_id, ocpypl_id, lcpl_id, dxpl_id, req);
@@ -77,15 +70,12 @@ herr_t H5VL_as_rpc_object_get(void* obj, const H5VL_loc_params_t* loc_params,
                               H5VL_object_get_args_t* args, hid_t dxpl_id,
                               void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL OBJECT Get\n");
-#endif
+  log_msg("OBJECT Get\n");
 
-  ret_value = H5VLobject_get(o->under_object, loc_params, o->under_vol_id, args,
-                             dxpl_id, req);
+  herr_t ret_value = H5VLobject_get(o->under_object, loc_params,
+                                    o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -98,20 +88,16 @@ herr_t H5VL_as_rpc_object_specific(void* obj,
                                    H5VL_object_specific_args_t* args,
                                    hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  hid_t under_vol_id;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL OBJECT Specific\n");
-#endif
+  log_msg("OBJECT Specific\n");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  under_vol_id = o->under_vol_id;
+  hid_t under_vol_id = o->under_vol_id;
 
-  ret_value = H5VLobject_specific(o->under_object, loc_params, o->under_vol_id,
-                                  args, dxpl_id, req);
+  herr_t ret_value = H5VLobject_specific(o->under_object, loc_params,
+                                         o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -124,15 +110,12 @@ herr_t H5VL_as_rpc_object_optional(void* obj,
                                    H5VL_optional_args_t* args, hid_t dxpl_id,
                                    void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL OBJECT Optional\n");
-#endif
+  log_msg("OBJECT Optional\n");
 
-  ret_value = H5VLobject_optional(o->under_object, loc_params, o->under_vol_id,
-                                  args, dxpl_id, req);
+  herr_t ret_value = H5VLobject_optional(o->under_object, loc_params,
+                                         o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
