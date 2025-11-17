@@ -18,6 +18,7 @@
  */
 
 #include "info.hpp"
+#include "utils.hpp"
 #include <assert.h>
 #include <hdf5.h>
 #include <stdarg.h>
@@ -33,13 +34,6 @@
 /* Typedefs */
 /************/
 
-/* The pass through VOL connector's object */
-typedef struct H5VL_as_rpc_t
-{
-  hid_t under_vol_id; /* ID for underlying VOL connector */
-  void* under_object; /* Underlying VOL connector's object */
-} H5VL_as_rpc_t;
-
 /* The pass through VOL wrapper context */
 typedef struct H5VL_as_rpc_wrap_ctx_t
 {
@@ -51,10 +45,6 @@ typedef struct H5VL_as_rpc_wrap_ctx_t
 /* Function prototypes */
 /********************* */
 
-/* Helper routines */
-static H5VL_as_rpc_t* H5VL_pass_through_ext_new_obj(void* under_obj,
-                                                    hid_t under_vol_id);
-static herr_t H5VL_pass_through_ext_free_obj(H5VL_as_rpc_t* obj);
 
 /* "Management" callbacks */
 static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
@@ -417,88 +407,30 @@ extern "C"
 {
   H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
   const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
+  /*-------------------------------------------------------------------------
+   * Function:    H5VL_pass_through_ext_register
+   *
+   * Purpose:     Register the pass-through VOL connector and retrieve an ID
+   *              for it.
+   *
+   * Return:      Success:    The ID for the pass-through VOL connector
+   *              Failure:    -1
+   *
+   * Programmer:  Quincey Koziol
+   *              Wednesday, November 28, 2018
+   *
+   *-------------------------------------------------------------------------
+   */
+  hid_t H5VL_pass_through_ext_register(void)
+  {
+    /* Singleton register the pass-through VOL connector ID */
+    if (H5VL_PASSTHRU_EXT_g < 0)
+      H5VL_PASSTHRU_EXT_g =
+          H5VLregister_connector(&H5VL_pass_through_ext_g, H5P_DEFAULT);
+
+    return H5VL_PASSTHRU_EXT_g;
+  } /* end H5VL_pass_through_ext_register() */
 }
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL__pass_through_new_obj
- *
- * Purpose:     Create a new pass through object for an underlying object
- *
- * Return:      Success:    Pointer to the new pass through object
- *              Failure:    NULL
- *
- * Programmer:  Quincey Koziol
- *              Monday, December 3, 2018
- *
- *-------------------------------------------------------------------------
- */
-static H5VL_as_rpc_t* H5VL_pass_through_ext_new_obj(void* under_obj,
-                                                    hid_t under_vol_id)
-{
-  H5VL_as_rpc_t* new_obj;
-
-  new_obj = (H5VL_as_rpc_t*)calloc(1, sizeof(H5VL_as_rpc_t));
-  new_obj->under_object = under_obj;
-  new_obj->under_vol_id = under_vol_id;
-  H5Iinc_ref(new_obj->under_vol_id);
-
-  return new_obj;
-} /* end H5VL__pass_through_new_obj() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL__pass_through_free_obj
- *
- * Purpose:     Release a pass through object
- *
- * Note:	Take care to preserve the current HDF5 error stack
- *		when calling HDF5 API calls.
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- * Programmer:  Quincey Koziol
- *              Monday, December 3, 2018
- *
- *-------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_free_obj(H5VL_as_rpc_t* obj)
-{
-  hid_t err_id;
-
-  err_id = H5Eget_current_stack();
-
-  H5Idec_ref(obj->under_vol_id);
-
-  H5Eset_current_stack(err_id);
-
-  free(obj);
-
-  return 0;
-} /* end H5VL__pass_through_free_obj() */
-
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_register
- *
- * Purpose:     Register the pass-through VOL connector and retrieve an ID
- *              for it.
- *
- * Return:      Success:    The ID for the pass-through VOL connector
- *              Failure:    -1
- *
- * Programmer:  Quincey Koziol
- *              Wednesday, November 28, 2018
- *
- *-------------------------------------------------------------------------
- */
-extern "C" hid_t H5VL_pass_through_ext_register(void)
-{
-  /* Singleton register the pass-through VOL connector ID */
-  if (H5VL_PASSTHRU_EXT_g < 0)
-    H5VL_PASSTHRU_EXT_g =
-        H5VLregister_connector(&H5VL_pass_through_ext_g, H5P_DEFAULT);
-
-  return H5VL_PASSTHRU_EXT_g;
-} /* end H5VL_pass_through_ext_register() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_init
@@ -731,11 +663,11 @@ static void* H5VL_pass_through_ext_attr_create(
                           type_id, space_id, acpl_id, aapl_id, dxpl_id, req);
   if (under)
   {
-    attr = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    attr = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     attr = NULL;
@@ -770,11 +702,11 @@ H5VL_pass_through_ext_attr_open(void* obj, const H5VL_loc_params_t* loc_params,
                         aapl_id, dxpl_id, req);
   if (under)
   {
-    attr = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    attr = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     attr = NULL;
@@ -808,7 +740,7 @@ static herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_read() */
@@ -839,7 +771,7 @@ static herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_write() */
@@ -870,7 +802,7 @@ static herr_t H5VL_pass_through_ext_attr_get(void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_get() */
@@ -901,7 +833,7 @@ static herr_t H5VL_pass_through_ext_attr_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_specific() */
@@ -932,7 +864,7 @@ static herr_t H5VL_pass_through_ext_attr_optional(void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_optional() */
@@ -961,11 +893,11 @@ static herr_t H5VL_pass_through_ext_attr_close(void* attr, hid_t dxpl_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   /* Release our wrapper, if underlying attribute was closed */
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_attr_close() */
@@ -998,11 +930,11 @@ static void* H5VL_pass_through_ext_dataset_create(
                              dxpl_id, req);
   if (under)
   {
-    dset = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    dset = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     dset = NULL;
@@ -1036,11 +968,11 @@ static void* H5VL_pass_through_ext_dataset_open(
                            dapl_id, dxpl_id, req);
   if (under)
   {
-    dset = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    dset = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     dset = NULL;
@@ -1083,7 +1015,7 @@ static herr_t H5VL_pass_through_ext_dataset_read(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_read() */
@@ -1124,7 +1056,7 @@ static herr_t H5VL_pass_through_ext_dataset_write(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_write() */
@@ -1155,7 +1087,7 @@ static herr_t H5VL_pass_through_ext_dataset_get(void* dset,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_get() */
@@ -1190,7 +1122,7 @@ static herr_t H5VL_pass_through_ext_dataset_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_specific() */
@@ -1221,7 +1153,7 @@ static herr_t H5VL_pass_through_ext_dataset_optional(void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_optional() */
@@ -1250,11 +1182,11 @@ static herr_t H5VL_pass_through_ext_dataset_close(void* dset, hid_t dxpl_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   /* Release our wrapper, if underlying dataset was closed */
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_dataset_close() */
@@ -1287,11 +1219,11 @@ static void* H5VL_pass_through_ext_datatype_commit(
                           type_id, lcpl_id, tcpl_id, tapl_id, dxpl_id, req);
   if (under)
   {
-    dt = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    dt = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     dt = NULL;
@@ -1325,11 +1257,11 @@ static void* H5VL_pass_through_ext_datatype_open(
                             tapl_id, dxpl_id, req);
   if (under)
   {
-    dt = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    dt = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     dt = NULL;
@@ -1363,7 +1295,7 @@ static herr_t H5VL_pass_through_ext_datatype_get(void* dt,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_datatype_get() */
@@ -1398,7 +1330,7 @@ static herr_t H5VL_pass_through_ext_datatype_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_datatype_specific() */
@@ -1429,7 +1361,7 @@ H5VL_pass_through_ext_datatype_optional(void* obj, H5VL_optional_args_t* args,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_datatype_optional() */
@@ -1461,11 +1393,11 @@ static herr_t H5VL_pass_through_ext_datatype_close(void* dt, hid_t dxpl_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   /* Release our wrapper, if underlying datatype was closed */
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_datatype_close() */
@@ -1510,11 +1442,11 @@ static void* H5VL_pass_through_ext_file_create(const char* name, unsigned flags,
   under = H5VLfile_create(name, flags, fcpl_id, under_fapl_id, dxpl_id, req);
   if (under)
   {
-    file = H5VL_pass_through_ext_new_obj(under, info->under_vol_id);
+    file = H5VL_as_rpc_t_new_obj(under, info->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, info->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, info->under_vol_id);
   } /* end if */
   else
     file = NULL;
@@ -1568,11 +1500,11 @@ static void* H5VL_pass_through_ext_file_open(const char* name, unsigned flags,
   under = H5VLfile_open(name, flags, under_fapl_id, dxpl_id, req);
   if (under)
   {
-    file = H5VL_pass_through_ext_new_obj(under, info->under_vol_id);
+    file = H5VL_as_rpc_t_new_obj(under, info->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, info->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, info->under_vol_id);
   } /* end if */
   else
     file = NULL;
@@ -1612,7 +1544,7 @@ static herr_t H5VL_pass_through_ext_file_get(void* file,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_file_get() */
@@ -1722,7 +1654,7 @@ H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   /* Check for 'is accessible' operation */
   if (args->op_type == H5VL_FILE_IS_ACCESSIBLE)
@@ -1746,7 +1678,7 @@ H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
   {
     /* Wrap reopened file struct pointer, if we reopened one */
     if (ret_value >= 0 && args->args.reopen.file)
-      *args->args.reopen.file = H5VL_pass_through_ext_new_obj(
+      *args->args.reopen.file = H5VL_as_rpc_t_new_obj(
           *args->args.reopen.file, o->under_vol_id);
   } /* end else */
 
@@ -1779,7 +1711,7 @@ static herr_t H5VL_pass_through_ext_file_optional(void* file,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_file_optional() */
@@ -1808,11 +1740,11 @@ static herr_t H5VL_pass_through_ext_file_close(void* file, hid_t dxpl_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   /* Release our wrapper, if underlying file was closed */
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_file_close() */
@@ -1843,11 +1775,11 @@ static void* H5VL_pass_through_ext_group_create(
                            lcpl_id, gcpl_id, gapl_id, dxpl_id, req);
   if (under)
   {
-    group = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     group = NULL;
@@ -1882,11 +1814,11 @@ H5VL_pass_through_ext_group_open(void* obj, const H5VL_loc_params_t* loc_params,
                          gapl_id, dxpl_id, req);
   if (under)
   {
-    group = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     group = NULL;
@@ -1920,7 +1852,7 @@ static herr_t H5VL_pass_through_ext_group_get(void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_group_get() */
@@ -1974,7 +1906,7 @@ static herr_t H5VL_pass_through_ext_group_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_group_specific() */
@@ -2005,7 +1937,7 @@ static herr_t H5VL_pass_through_ext_group_optional(void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_group_optional() */
@@ -2034,11 +1966,11 @@ static herr_t H5VL_pass_through_ext_group_close(void* grp, hid_t dxpl_id,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   /* Release our wrapper, if underlying file was closed */
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_group_close() */
@@ -2107,7 +2039,7 @@ H5VL_pass_through_ext_link_create(H5VL_link_create_args_t* args, void* obj,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_create() */
@@ -2153,7 +2085,7 @@ static herr_t H5VL_pass_through_ext_link_copy(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_copy() */
@@ -2200,7 +2132,7 @@ static herr_t H5VL_pass_through_ext_link_move(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_move() */
@@ -2232,7 +2164,7 @@ H5VL_pass_through_ext_link_get(void* obj, const H5VL_loc_params_t* loc_params,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_get() */
@@ -2263,7 +2195,7 @@ static herr_t H5VL_pass_through_ext_link_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_specific() */
@@ -2294,7 +2226,7 @@ static herr_t H5VL_pass_through_ext_link_optional(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_link_optional() */
@@ -2325,11 +2257,11 @@ static void* H5VL_pass_through_ext_object_open(
                           opened_type, dxpl_id, req);
   if (under)
   {
-    new_obj = H5VL_pass_through_ext_new_obj(under, o->under_vol_id);
+    new_obj = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
 
     /* Check for async request */
     if (req && *req)
-      *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+      *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   } /* end if */
   else
     new_obj = NULL;
@@ -2368,7 +2300,7 @@ static herr_t H5VL_pass_through_ext_object_copy(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o_src->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o_src->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_object_copy() */
@@ -2400,7 +2332,7 @@ H5VL_pass_through_ext_object_get(void* obj, const H5VL_loc_params_t* loc_params,
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_object_get() */
@@ -2436,7 +2368,7 @@ static herr_t H5VL_pass_through_ext_object_specific(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_object_specific() */
@@ -2467,7 +2399,7 @@ static herr_t H5VL_pass_through_ext_object_optional(
 
   /* Check for async request */
   if (req && *req)
-    *req = H5VL_pass_through_ext_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_object_optional() */
@@ -2720,7 +2652,7 @@ static herr_t H5VL_pass_through_ext_request_free(void* obj)
   ret_value = H5VLrequest_free(o->under_object, o->under_vol_id);
 
   if (ret_value >= 0)
-    H5VL_pass_through_ext_free_obj(o);
+    H5VL_as_rpc_t_free_obj(o);
 
   return ret_value;
 } /* end H5VL_pass_through_ext_request_free() */
