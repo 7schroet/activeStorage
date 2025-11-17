@@ -3,6 +3,7 @@ target_sources(as-rpc-hdf5
   PRIVATE
     components/attribute.cpp
     components/dataset.cpp
+    components/datatype.cpp
     components/info.cpp
     components/utils.cpp
     components/wrap.cpp
