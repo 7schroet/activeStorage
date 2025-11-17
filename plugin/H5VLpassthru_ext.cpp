@@ -212,7 +212,6 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
     H5VL_pass_through_ext_init, /* initialize   */
     H5VL_pass_through_ext_term, /* terminate    */
     {
-        /* info_cls */
         sizeof(H5VL_as_rpc_info_t), /* size    */
         H5VL_as_rpc_info_copy,      /* copy    */
         H5VL_as_rpc_info_cmp,       /* compare */
@@ -221,7 +220,6 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_as_rpc_str_to_info     /* from_str */
     },
     {
-        /* wrap_cls */
         H5VL_as_rpc_get_object,    /* get_object   */
         H5VL_as_rpc_get_wrap_ctx,  /* get_wrap_ctx */
         H5VL_as_rpc_wrap_object,   /* wrap_object  */
@@ -229,15 +227,14 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
         H5VL_as_rpc_free_wrap_ctx  /* free_wrap_ctx */
     },
     {
-        /* attribute_cls */
-        H5VL_pass_through_ext_attr_create,   /* create */
-        H5VL_pass_through_ext_attr_open,     /* open */
-        H5VL_pass_through_ext_attr_read,     /* read */
-        H5VL_pass_through_ext_attr_write,    /* write */
-        H5VL_pass_through_ext_attr_get,      /* get */
-        H5VL_pass_through_ext_attr_specific, /* specific */
-        H5VL_pass_through_ext_attr_optional, /* optional */
-        H5VL_pass_through_ext_attr_close     /* close */
+        H5VL_as_rpc_attr_create,   /* create */
+        H5VL_as_rpc_attr_open,     /* open */
+        H5VL_as_rpc_attr_read,     /* read */
+        H5VL_as_rpc_attr_write,    /* write */
+        H5VL_as_rpc_attr_get,      /* get */
+        H5VL_as_rpc_attr_specific, /* specific */
+        H5VL_as_rpc_attr_optional, /* optional */
+        H5VL_as_rpc_attr_close     /* close */
     },
     {
         H5VL_as_rpc_dataset_create,   /* create */

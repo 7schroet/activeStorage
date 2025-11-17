@@ -21,12 +21,10 @@
 #include "utils.hpp"
 #include <cstdlib>
 
-void* H5VL_pass_through_ext_attr_create(void* obj,
-                                        const H5VL_loc_params_t* loc_params,
-                                        const char* name, hid_t type_id,
-                                        hid_t space_id, hid_t acpl_id,
-                                        hid_t aapl_id, hid_t dxpl_id,
-                                        void** req)
+void* H5VL_as_rpc_attr_create(void* obj, const H5VL_loc_params_t* loc_params,
+                              const char* name, hid_t type_id, hid_t space_id,
+                              hid_t acpl_id, hid_t aapl_id, hid_t dxpl_id,
+                              void** req)
 {
   H5VL_as_rpc_t* attr;
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
@@ -51,10 +49,9 @@ void* H5VL_pass_through_ext_attr_create(void* obj,
   return (void*)attr;
 }
 
-void* H5VL_pass_through_ext_attr_open(void* obj,
-                                      const H5VL_loc_params_t* loc_params,
-                                      const char* name, hid_t aapl_id,
-                                      hid_t dxpl_id, void** req)
+void* H5VL_as_rpc_attr_open(void* obj, const H5VL_loc_params_t* loc_params,
+                            const char* name, hid_t aapl_id, hid_t dxpl_id,
+                            void** req)
 {
   H5VL_as_rpc_t* attr;
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
@@ -79,8 +76,8 @@ void* H5VL_pass_through_ext_attr_open(void* obj,
   return (void*)attr;
 }
 
-herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id, void* buf,
-                                       hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_attr_read(void* attr, hid_t mem_type_id, void* buf,
+                             hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
@@ -98,9 +95,8 @@ herr_t H5VL_pass_through_ext_attr_read(void* attr, hid_t mem_type_id, void* buf,
   return ret_value;
 }
 
-herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
-                                        const void* buf, hid_t dxpl_id,
-                                        void** req)
+herr_t H5VL_as_rpc_attr_write(void* attr, hid_t mem_type_id, const void* buf,
+                              hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
@@ -118,8 +114,8 @@ herr_t H5VL_pass_through_ext_attr_write(void* attr, hid_t mem_type_id,
   return ret_value;
 }
 
-herr_t H5VL_pass_through_ext_attr_get(void* obj, H5VL_attr_get_args_t* args,
-                                      hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_attr_get(void* obj, H5VL_attr_get_args_t* args,
+                            hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
@@ -137,10 +133,9 @@ herr_t H5VL_pass_through_ext_attr_get(void* obj, H5VL_attr_get_args_t* args,
   return ret_value;
 }
 
-herr_t H5VL_pass_through_ext_attr_specific(void* obj,
-                                           const H5VL_loc_params_t* loc_params,
-                                           H5VL_attr_specific_args_t* args,
-                                           hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_attr_specific(void* obj, const H5VL_loc_params_t* loc_params,
+                                 H5VL_attr_specific_args_t* args, hid_t dxpl_id,
+                                 void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
@@ -158,9 +153,8 @@ herr_t H5VL_pass_through_ext_attr_specific(void* obj,
   return ret_value;
 }
 
-herr_t H5VL_pass_through_ext_attr_optional(void* obj,
-                                           H5VL_optional_args_t* args,
-                                           hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_attr_optional(void* obj, H5VL_optional_args_t* args,
+                                 hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
   herr_t ret_value;
@@ -178,7 +172,7 @@ herr_t H5VL_pass_through_ext_attr_optional(void* obj,
   return ret_value;
 }
 
-herr_t H5VL_pass_through_ext_attr_close(void* attr, hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_attr_close(void* attr, hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)attr;
   herr_t ret_value;
