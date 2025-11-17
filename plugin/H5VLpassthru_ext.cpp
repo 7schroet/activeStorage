@@ -19,6 +19,7 @@
 
 #include "info.hpp"
 #include "utils.hpp"
+#include "wrap.hpp"
 #include <assert.h>
 #include <hdf5.h>
 #include <stdarg.h>
@@ -30,34 +31,13 @@
 
 #define ENABLE_EXT_PASSTHRU_LOGGING
 
-/************/
-/* Typedefs */
-/************/
-
-/* The pass through VOL wrapper context */
-typedef struct H5VL_as_rpc_wrap_ctx_t
-{
-  hid_t under_vol_id;   /* VOL ID for under VOL */
-  void* under_wrap_ctx; /* Object wrapping context for under VOL */
-} H5VL_as_rpc_wrap_ctx_t;
-
 /********************* */
 /* Function prototypes */
 /********************* */
 
-
 /* "Management" callbacks */
 static herr_t H5VL_pass_through_ext_init(hid_t vipl_id);
 static herr_t H5VL_pass_through_ext_term(void);
-
-/* VOL object wrap / retrieval callbacks */
-static void* H5VL_pass_through_ext_get_object(const void* obj);
-static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
-                                                 void** wrap_ctx);
-static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
-                                               void* wrap_ctx);
-static void* H5VL_pass_through_ext_unwrap_object(void* obj);
-static herr_t H5VL_pass_through_ext_free_wrap_ctx(void* obj);
 
 /* Attribute callbacks */
 static void* H5VL_pass_through_ext_attr_create(
@@ -292,11 +272,11 @@ static const H5VL_class_t H5VL_pass_through_ext_g = {
     },
     {
         /* wrap_cls */
-        H5VL_pass_through_ext_get_object,    /* get_object   */
-        H5VL_pass_through_ext_get_wrap_ctx,  /* get_wrap_ctx */
-        H5VL_pass_through_ext_wrap_object,   /* wrap_object  */
-        H5VL_pass_through_ext_unwrap_object, /* unwrap_object */
-        H5VL_pass_through_ext_free_wrap_ctx  /* free_wrap_ctx */
+        H5VL_as_rpc_get_object,    /* get_object   */
+        H5VL_as_rpc_get_wrap_ctx,  /* get_wrap_ctx */
+        H5VL_as_rpc_wrap_object,   /* wrap_object  */
+        H5VL_as_rpc_unwrap_object, /* unwrap_object */
+        H5VL_as_rpc_free_wrap_ctx  /* free_wrap_ctx */
     },
     {
         /* attribute_cls */
@@ -480,161 +460,6 @@ static herr_t H5VL_pass_through_ext_term(void)
 
   return 0;
 } /* end H5VL_pass_through_ext_term() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_get_object
- *
- * Purpose:     Retrieve the 'data' for a VOL object.
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *---------------------------------------------------------------------------
- */
-static void* H5VL_pass_through_ext_get_object(const void* obj)
-{
-  const H5VL_as_rpc_t* o = (const H5VL_as_rpc_t*)obj;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL Get object\n");
-#endif
-
-  return H5VLget_object(o->under_object, o->under_vol_id);
-} /* end H5VL_pass_through_ext_get_object() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_get_wrap_ctx
- *
- * Purpose:     Retrieve a "wrapper context" for an object
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *---------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_get_wrap_ctx(const void* obj,
-                                                 void** wrap_ctx)
-{
-  const H5VL_as_rpc_t* o = (const H5VL_as_rpc_t*)obj;
-  H5VL_as_rpc_wrap_ctx_t* new_wrap_ctx;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL WRAP CTX Get\n");
-#endif
-
-  /* Allocate new VOL object wrapping context for the pass through connector */
-  new_wrap_ctx =
-      (H5VL_as_rpc_wrap_ctx_t*)calloc(1, sizeof(H5VL_as_rpc_wrap_ctx_t));
-
-  /* Increment reference count on underlying VOL ID, and copy the VOL info */
-  new_wrap_ctx->under_vol_id = o->under_vol_id;
-  H5Iinc_ref(new_wrap_ctx->under_vol_id);
-  H5VLget_wrap_ctx(o->under_object, o->under_vol_id,
-                   &new_wrap_ctx->under_wrap_ctx);
-
-  /* Set wrap context to return */
-  *wrap_ctx = new_wrap_ctx;
-
-  return 0;
-} /* end H5VL_pass_through_ext_get_wrap_ctx() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_wrap_object
- *
- * Purpose:     Use a "wrapper context" to wrap a data object
- *
- * Return:      Success:    Pointer to wrapped object
- *              Failure:    NULL
- *
- *---------------------------------------------------------------------------
- */
-static void* H5VL_pass_through_ext_wrap_object(void* obj, H5I_type_t obj_type,
-                                               void* _wrap_ctx)
-{
-  H5VL_as_rpc_wrap_ctx_t* wrap_ctx = (H5VL_as_rpc_wrap_ctx_t*)_wrap_ctx;
-  H5VL_as_rpc_t* new_obj;
-  void* under;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL WRAP Object\n");
-#endif
-
-  /* Wrap the object with the underlying VOL */
-  under = H5VLwrap_object(obj, obj_type, wrap_ctx->under_vol_id,
-                          wrap_ctx->under_wrap_ctx);
-  if (under)
-    new_obj = H5VL_pass_through_ext_new_obj(under, wrap_ctx->under_vol_id);
-  else
-    new_obj = NULL;
-
-  return new_obj;
-} /* end H5VL_pass_through_ext_wrap_object() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_unwrap_object
- *
- * Purpose:     Unwrap a wrapped object, discarding the wrapper, but returning
- *		underlying object.
- *
- * Return:      Success:    Pointer to unwrapped object
- *              Failure:    NULL
- *
- *---------------------------------------------------------------------------
- */
-static void* H5VL_pass_through_ext_unwrap_object(void* obj)
-{
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL UNWRAP Object\n");
-#endif
-
-  /* Unrap the object with the underlying VOL */
-  under = H5VLunwrap_object(o->under_object, o->under_vol_id);
-
-  if (under)
-    H5VL_pass_through_ext_free_obj(o);
-
-  return under;
-} /* end H5VL_pass_through_ext_unwrap_object() */
-
-/*---------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_free_wrap_ctx
- *
- * Purpose:     Release a "wrapper context" for an object
- *
- * Note:	Take care to preserve the current HDF5 error stack
- *		when calling HDF5 API calls.
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *---------------------------------------------------------------------------
- */
-static herr_t H5VL_pass_through_ext_free_wrap_ctx(void* _wrap_ctx)
-{
-  H5VL_as_rpc_wrap_ctx_t* wrap_ctx = (H5VL_as_rpc_wrap_ctx_t*)_wrap_ctx;
-  hid_t err_id;
-
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL WRAP CTX Free\n");
-#endif
-
-  err_id = H5Eget_current_stack();
-
-  /* Release underlying VOL ID and wrap context */
-  if (wrap_ctx->under_wrap_ctx)
-    H5VLfree_wrap_ctx(wrap_ctx->under_wrap_ctx, wrap_ctx->under_vol_id);
-  H5Idec_ref(wrap_ctx->under_vol_id);
-
-  H5Eset_current_stack(err_id);
-
-  /* Free pass through wrap context object itself */
-  free(wrap_ctx);
-
-  return 0;
-} /* end H5VL_pass_through_ext_free_wrap_ctx() */
 
 /*-------------------------------------------------------------------------
  * Function:    H5VL_pass_through_ext_attr_create
@@ -1678,8 +1503,8 @@ H5VL_pass_through_ext_file_specific(void* file, H5VL_file_specific_args_t* args,
   {
     /* Wrap reopened file struct pointer, if we reopened one */
     if (ret_value >= 0 && args->args.reopen.file)
-      *args->args.reopen.file = H5VL_as_rpc_t_new_obj(
-          *args->args.reopen.file, o->under_vol_id);
+      *args->args.reopen.file =
+          H5VL_as_rpc_t_new_obj(*args->args.reopen.file, o->under_vol_id);
   } /* end else */
 
   return ret_value;

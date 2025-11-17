@@ -3,6 +3,7 @@ target_sources(as-rpc-hdf5
   PRIVATE
     components/info.cpp
     components/utils.cpp
+    components/wrap.cpp
     H5VLpassthru_ext.cpp
 
   PRIVATE
