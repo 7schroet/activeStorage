@@ -18,6 +18,7 @@
  */
 
 #include "group.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 #include <cstring>
 
@@ -25,16 +26,13 @@ void* H5VL_as_rpc_group_create(void* obj, const H5VL_loc_params_t* loc_params,
                                const char* name, hid_t lcpl_id, hid_t gcpl_id,
                                hid_t gapl_id, hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* group;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
+  H5VL_as_rpc_t* group = nullptr;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Create\n");
-#endif
+  log_msg("GROUP Create\n");
 
-  under = H5VLgroup_create(o->under_object, loc_params, o->under_vol_id, name,
-                           lcpl_id, gcpl_id, gapl_id, dxpl_id, req);
+  void* under = H5VLgroup_create(o->under_object, loc_params, o->under_vol_id,
+                                 name, lcpl_id, gcpl_id, gapl_id, dxpl_id, req);
   if (under)
   {
     group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
@@ -42,26 +40,21 @@ void* H5VL_as_rpc_group_create(void* obj, const H5VL_loc_params_t* loc_params,
     if (req && *req)
       *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   }
-  else
-    group = NULL;
 
-  return (void*)group;
+  return group;
 }
 
 void* H5VL_as_rpc_group_open(void* obj, const H5VL_loc_params_t* loc_params,
                              const char* name, hid_t gapl_id, hid_t dxpl_id,
                              void** req)
 {
-  H5VL_as_rpc_t* group;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
+  H5VL_as_rpc_t* group = nullptr;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Open\n");
-#endif
+  log_msg("GROUP Open\n");
 
-  under = H5VLgroup_open(o->under_object, loc_params, o->under_vol_id, name,
-                         gapl_id, dxpl_id, req);
+  void* under = H5VLgroup_open(o->under_object, loc_params, o->under_vol_id,
+                               name, gapl_id, dxpl_id, req);
   if (under)
   {
     group = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
@@ -69,23 +62,18 @@ void* H5VL_as_rpc_group_open(void* obj, const H5VL_loc_params_t* loc_params,
     if (req && *req)
       *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   }
-  else
-    group = NULL;
 
-  return (void*)group;
+  return group;
 }
 
 herr_t H5VL_as_rpc_group_get(void* obj, H5VL_group_get_args_t* args,
                              hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Get\n");
-#endif
+  log_msg("GROUP Get\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLgroup_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -97,26 +85,23 @@ herr_t H5VL_as_rpc_group_get(void* obj, H5VL_group_get_args_t* args,
 herr_t H5VL_as_rpc_group_specific(void* obj, H5VL_group_specific_args_t* args,
                                   hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
   H5VL_group_specific_args_t my_args;
   H5VL_group_specific_args_t* new_args;
-  hid_t under_vol_id;
   herr_t ret_value;
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Specific\n");
-#endif
+  log_msg("GROUP Specific\n");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  under_vol_id = o->under_vol_id;
+  hid_t under_vol_id = o->under_vol_id;
 
-  /* Unpack arguments to get at the child file pointer when mounting a file */
+  // Unpack arguments to get at the child file pointer when mounting a file
   if (args->op_type == H5VL_GROUP_MOUNT)
   {
     memcpy(&my_args, args, sizeof(my_args));
 
-    /* Set the object for the child file */
+    // Set the object for the child file
     my_args.args.mount.child_file =
         ((H5VL_as_rpc_t*)args->args.mount.child_file)->under_object;
 
@@ -137,14 +122,11 @@ herr_t H5VL_as_rpc_group_specific(void* obj, H5VL_group_specific_args_t* args,
 herr_t H5VL_as_rpc_group_optional(void* obj, H5VL_optional_args_t* args,
                                   hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Optional\n");
-#endif
+  log_msg("GROUP Optional\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLgroup_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -153,16 +135,14 @@ herr_t H5VL_as_rpc_group_optional(void* obj, H5VL_optional_args_t* args,
   return ret_value;
 }
 
-herr_t H5VL_as_rpc_group_close(void* grp, hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_group_close(void* obj, hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)grp;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL GROUP Close\n");
-#endif
+  log_msg("GROUP Close\n");
 
-  ret_value = H5VLgroup_close(o->under_object, o->under_vol_id, dxpl_id, req);
+  herr_t ret_value =
+      H5VLgroup_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
