@@ -26,23 +26,30 @@ void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
                                  const char* name, hid_t lcpl_id, hid_t type_id,
                                  hid_t space_id, hid_t dcpl_id, hid_t dapl_id,
                                  hid_t dxpl_id, void** req);
+
 void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
                                const char* name, hid_t dapl_id, hid_t dxpl_id,
                                void** req);
+
 herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
                                 hid_t mem_space_id[], hid_t file_space_id[],
                                 hid_t plist_id, void* buf[], void** req);
+
 herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
                                  hid_t mem_type_id[], hid_t mem_space_id[],
                                  hid_t file_space_id[], hid_t plist_id,
                                  const void* buf[], void** req);
-herr_t H5VL_as_rpc_dataset_get(void* dset, H5VL_dataset_get_args_t* args,
+
+herr_t H5VL_as_rpc_dataset_get(void* obj, H5VL_dataset_get_args_t* args,
                                hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_dataset_specific(void* obj,
                                     H5VL_dataset_specific_args_t* args,
                                     hid_t dxpl_id, void** req);
+
 herr_t H5VL_as_rpc_dataset_optional(void* obj, H5VL_optional_args_t* args,
                                     hid_t dxpl_id, void** req);
-herr_t H5VL_as_rpc_dataset_close(void* dset, hid_t dxpl_id, void** req);
+
+herr_t H5VL_as_rpc_dataset_close(void* obj, hid_t dxpl_id, void** req);
 
 #endif

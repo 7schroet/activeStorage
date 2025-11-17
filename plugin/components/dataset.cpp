@@ -18,25 +18,23 @@
  */
 
 #include "dataset.hpp"
+#include "log.hpp"
 #include "utils.hpp"
-#include <cassert>
+#include <vector>
 
 void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
                                  const char* name, hid_t lcpl_id, hid_t type_id,
                                  hid_t space_id, hid_t dcpl_id, hid_t dapl_id,
                                  hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* dset;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
+  H5VL_as_rpc_t* dset = nullptr;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Create\n");
-#endif
+  log_msg("DATASET Create\n");
 
-  under = H5VLdataset_create(o->under_object, loc_params, o->under_vol_id, name,
-                             lcpl_id, type_id, space_id, dcpl_id, dapl_id,
-                             dxpl_id, req);
+  void* under = H5VLdataset_create(o->under_object, loc_params, o->under_vol_id,
+                                   name, lcpl_id, type_id, space_id, dcpl_id,
+                                   dapl_id, dxpl_id, req);
   if (under)
   {
     dset = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
@@ -44,26 +42,21 @@ void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
     if (req && *req)
       *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   }
-  else
-    dset = NULL;
 
-  return (void*)dset;
+  return dset;
 }
 
 void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
                                const char* name, hid_t dapl_id, hid_t dxpl_id,
                                void** req)
 {
-  H5VL_as_rpc_t* dset;
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  void* under;
+  H5VL_as_rpc_t* dset = nullptr;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Open\n");
-#endif
+  log_msg("DATASET Open\n");
 
-  under = H5VLdataset_open(o->under_object, loc_params, o->under_vol_id, name,
-                           dapl_id, dxpl_id, req);
+  void* under = H5VLdataset_open(o->under_object, loc_params, o->under_vol_id,
+                                 name, dapl_id, dxpl_id, req);
   if (under)
   {
     dset = H5VL_as_rpc_t_new_obj(under, o->under_vol_id);
@@ -71,43 +64,27 @@ void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
     if (req && *req)
       *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
   }
-  else
-    dset = NULL;
 
-  return (void*)dset;
+  return dset;
 }
 
-/*-------------------------------------------------------------------------
- * Function:    H5VL_pass_through_ext_dataset_read
- *
- * Purpose:     Reads data elements from a dataset into a buffer.
- *
- * Return:      Success:    0
- *              Failure:    -1
- *
- *-------------------------------------------------------------------------
- */
 herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
                                 hid_t mem_space_id[], hid_t file_space_id[],
                                 hid_t plist_id, void* buf[], void** req)
 {
-  void* o_arr[count]; /* Array of under objects */
-  hid_t under_vol_id; /* VOL ID for all objects */
-  herr_t ret_value;
+  // Array of under objects
+  std::vector<void*> o_arr(count);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Read\n");
-#endif
+  log_msg("DATASET Read\n");
 
-  under_vol_id = ((H5VL_as_rpc_t*)(dset[0]))->under_vol_id;
+  // VOL ID for all objects
+  hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
-  {
-    o_arr[u] = ((H5VL_as_rpc_t*)(dset[u]))->under_object;
-    assert(under_vol_id == ((H5VL_as_rpc_t*)(dset[u]))->under_vol_id);
-  }
+    o_arr[u] = (static_cast<H5VL_as_rpc_t*>(dset[u]))->under_object;
 
-  ret_value = H5VLdataset_read(count, o_arr, under_vol_id, mem_type_id,
-                               mem_space_id, file_space_id, plist_id, buf, req);
+  herr_t ret_value =
+      H5VLdataset_read(count, o_arr.data(), under_vol_id, mem_type_id,
+                       mem_space_id, file_space_id, plist_id, buf, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -120,24 +97,17 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
                                  hid_t file_space_id[], hid_t plist_id,
                                  const void* buf[], void** req)
 {
-  void* o_arr[count];
-  hid_t under_vol_id;
-  herr_t ret_value;
+  std::vector<void*> o_arr(count);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Write\n");
-#endif
+  log_msg("DATASET Write\n");
 
-  under_vol_id = ((H5VL_as_rpc_t*)(dset[0]))->under_vol_id;
+  hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
-  {
-    o_arr[u] = ((H5VL_as_rpc_t*)(dset[u]))->under_object;
-    assert(under_vol_id == ((H5VL_as_rpc_t*)(dset[u]))->under_vol_id);
-  }
+    o_arr[u] = (static_cast<H5VL_as_rpc_t*>(dset[u]))->under_object;
 
-  ret_value =
-      H5VLdataset_write(count, o_arr, under_vol_id, mem_type_id, mem_space_id,
-                        file_space_id, plist_id, buf, req);
+  herr_t ret_value =
+      H5VLdataset_write(count, o_arr.data(), under_vol_id, mem_type_id,
+                        mem_space_id, file_space_id, plist_id, buf, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -145,17 +115,14 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
   return ret_value;
 }
 
-herr_t H5VL_as_rpc_dataset_get(void* dset, H5VL_dataset_get_args_t* args,
+herr_t H5VL_as_rpc_dataset_get(void* obj, H5VL_dataset_get_args_t* args,
                                hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dset;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Get\n");
-#endif
+  log_msg("DATASET Get\n");
 
-  ret_value =
+  herr_t ret_value =
       H5VLdataset_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -168,20 +135,16 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
                                     H5VL_dataset_specific_args_t* args,
                                     hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  hid_t under_vol_id;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL H5Dspecific\n");
-#endif
+  log_msg("H5Dspecific\n");
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  under_vol_id = o->under_vol_id;
+  hid_t under_vol_id = o->under_vol_id;
 
-  ret_value = H5VLdataset_specific(o->under_object, o->under_vol_id, args,
-                                   dxpl_id, req);
+  herr_t ret_value = H5VLdataset_specific(o->under_object, o->under_vol_id,
+                                          args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -192,15 +155,12 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
 herr_t H5VL_as_rpc_dataset_optional(void* obj, H5VL_optional_args_t* args,
                                     hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)obj;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Optional\n");
-#endif
+  log_msg("DATASET Optional\n");
 
-  ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id, args,
-                                   dxpl_id, req);
+  herr_t ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id,
+                                          args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -208,16 +168,14 @@ herr_t H5VL_as_rpc_dataset_optional(void* obj, H5VL_optional_args_t* args,
   return ret_value;
 }
 
-herr_t H5VL_as_rpc_dataset_close(void* dset, hid_t dxpl_id, void** req)
+herr_t H5VL_as_rpc_dataset_close(void* obj, hid_t dxpl_id, void** req)
 {
-  H5VL_as_rpc_t* o = (H5VL_as_rpc_t*)dset;
-  herr_t ret_value;
+  auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-#ifdef ENABLE_EXT_PASSTHRU_LOGGING
-  printf("------- EXT PASS THROUGH VOL DATASET Close\n");
-#endif
+  log_msg("DATASET Close\n");
 
-  ret_value = H5VLdataset_close(o->under_object, o->under_vol_id, dxpl_id, req);
+  herr_t ret_value =
+      H5VLdataset_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
