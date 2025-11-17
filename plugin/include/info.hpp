@@ -28,20 +28,11 @@ struct H5VL_as_rpc_info_t
   void* under_vol_info; /* VOL info for under VOL */
 };
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-  void* H5VL_as_rpc_info_copy(const void* info);
-  herr_t H5VL_as_rpc_info_cmp(int* cmp_value, const void* info1,
-                              const void* info2);
-  herr_t H5VL_as_rpc_info_free(void* info);
-  herr_t H5VL_as_rpc_info_to_str(const void* info, char** str);
-  herr_t H5VL_as_rpc_str_to_info(const char* str, void** info);
-
-#ifdef __cplusplus
-}
-#endif
+void* H5VL_as_rpc_info_copy(const void* info);
+herr_t H5VL_as_rpc_info_cmp(int* cmp_value, const void* info1,
+                            const void* info2);
+herr_t H5VL_as_rpc_info_free(void* info);
+herr_t H5VL_as_rpc_info_to_str(const void* info, char** str);
+herr_t H5VL_as_rpc_str_to_info(const char* str, void** info);
 
 #endif
