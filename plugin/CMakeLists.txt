@@ -1,3 +1,5 @@
+option(ENABLE_PLUGIN_LOGGING "Enable log messages for the HDF5 plugin" OFF)
+
 add_library(as-rpc-hdf5 SHARED)
 target_sources(as-rpc-hdf5
   PRIVATE
@@ -24,6 +26,9 @@ target_sources(as-rpc-hdf5
   BASE_DIRS include
 )
 target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5)
+if(ENABLE_PLUGIN_LOGGING)
+  target_compile_definitions(as-rpc-hdf5 PRIVATE ENABLE_PLUGIN_LOGGING)
+endif()
 install(TARGETS as-rpc-hdf5)
 
 add_executable(hdf5Writer hdf5Writer.c)
