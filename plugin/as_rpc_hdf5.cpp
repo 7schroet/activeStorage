@@ -40,9 +40,6 @@
 
 namespace
 {
-/* The connector identification number, initialized at runtime */
-hid_t H5VL_PASSTHRU_EXT_g = H5I_INVALID_HID;
-
 /* Defined separately due to dependency on connector struct */
 herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
                                            const H5VL_class_t** conn_cls);
@@ -52,7 +49,7 @@ herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
                                         int op_type, uint64_t* flags);
 
 /* Pass through VOL connector class struct */
-const H5VL_class_t H5VL_pass_through_ext_g = {
+const H5VL_class_t H5VL_as_rpc_g = {
     .version = H5VL_VERSION,
     .value = 1234,
     .name = "as-rpc-hdf5",
@@ -140,20 +137,8 @@ const H5VL_class_t H5VL_pass_through_ext_g = {
  * for a shared library that contains a VOL connector to be detected
  * and loaded at runtime.
  */
-extern "C"
-{
-  H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
-  const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
-  hid_t H5VL_pass_through_ext_register(void)
-  {
-    // Singleton register the pass-through VOL connector ID
-    if (H5VL_PASSTHRU_EXT_g < 0)
-      H5VL_PASSTHRU_EXT_g =
-          H5VLregister_connector(&H5VL_pass_through_ext_g, H5P_DEFAULT);
-
-    return H5VL_PASSTHRU_EXT_g;
-  }
-}
+H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_VOL; }
+const void* H5PLget_plugin_info(void) { return &H5VL_as_rpc_g; }
 
 // Introspection implementation
 namespace
@@ -169,7 +154,7 @@ herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
   // Check for querying this connector's class
   if (H5VL_GET_CONN_LVL_CURR == lvl)
   {
-    *conn_cls = &H5VL_pass_through_ext_g;
+    *conn_cls = &H5VL_as_rpc_g;
     ret_value = 0;
   }
   else
@@ -192,7 +177,7 @@ herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* info,
 
   // Bitwise OR our capability flags in
   if (ret_value >= 0)
-    *cap_flags |= H5VL_pass_through_ext_g.cap_flags;
+    *cap_flags |= H5VL_as_rpc_g.cap_flags;
 
   return ret_value;
 }

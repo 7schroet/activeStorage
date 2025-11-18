@@ -114,7 +114,6 @@ herr_t H5VL_as_rpc_info_to_str(const void* info, char** str)
 
 herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
 {
-  H5VL_as_rpc_info_t* info_cast;
   unsigned under_vol_value;
   const char *under_vol_info_start, *under_vol_info_end;
   hid_t under_vol_id;
@@ -145,11 +144,11 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
     free(under_vol_info_str);
   }
 
-  info_cast = new H5VL_as_rpc_info_t();
-  info_cast->under_vol_id = under_vol_id;
-  info_cast->under_vol_info = under_vol_info;
+  auto new_info = new H5VL_as_rpc_info_t();
+  new_info->under_vol_id = under_vol_id;
+  new_info->under_vol_info = under_vol_info;
 
-  *info = info_cast;
+  *info = new_info;
 
   return 0;
 }
