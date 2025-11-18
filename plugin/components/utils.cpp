@@ -31,7 +31,7 @@ H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id)
 
 herr_t H5VL_as_rpc_t_free_obj(H5VL_as_rpc_t* obj)
 {
-  hid_t err_id = H5Eget_current_stack();
+  const hid_t err_id = H5Eget_current_stack();
   H5Idec_ref(obj->under_vol_id);
   H5Eset_current_stack(err_id);
   delete obj;

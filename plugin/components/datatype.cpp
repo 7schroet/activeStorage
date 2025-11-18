@@ -75,7 +75,7 @@ herr_t H5VL_as_rpc_datatype_get(void* obj, H5VL_datatype_get_args_t* args,
 
   log_msg("DATATYPE Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdatatype_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -94,10 +94,10 @@ herr_t H5VL_as_rpc_datatype_specific(void* obj,
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  hid_t under_vol_id = o->under_vol_id;
+  const hid_t under_vol_id = o->under_vol_id;
 
-  herr_t ret_value = H5VLdatatype_specific(o->under_object, o->under_vol_id,
-                                           args, dxpl_id, req);
+  const herr_t ret_value = H5VLdatatype_specific(
+      o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -112,8 +112,8 @@ herr_t H5VL_as_rpc_datatype_optional(void* obj, H5VL_optional_args_t* args,
 
   log_msg("DATATYPE Optional");
 
-  herr_t ret_value = H5VLdatatype_optional(o->under_object, o->under_vol_id,
-                                           args, dxpl_id, req);
+  const herr_t ret_value = H5VLdatatype_optional(
+      o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -127,7 +127,7 @@ herr_t H5VL_as_rpc_datatype_close(void* obj, hid_t dxpl_id, void** req)
 
   log_msg("DATATYPE Close");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdatatype_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)

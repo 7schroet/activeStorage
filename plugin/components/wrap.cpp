@@ -80,7 +80,7 @@ herr_t H5VL_as_rpc_free_wrap_ctx(void* wrap_ctx)
 
   log_msg("WRAP CTX Free");
 
-  hid_t err_id = H5Eget_current_stack();
+  const hid_t err_id = H5Eget_current_stack();
 
   if (wrap_ctx_cast->under_wrap_ctx)
     H5VLfree_wrap_ctx(wrap_ctx_cast->under_wrap_ctx,

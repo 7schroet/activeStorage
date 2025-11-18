@@ -73,7 +73,7 @@ herr_t H5VL_as_rpc_group_get(void* obj, H5VL_group_get_args_t* args,
 
   log_msg("GROUP Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLgroup_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -94,7 +94,7 @@ herr_t H5VL_as_rpc_group_specific(void* obj, H5VL_group_specific_args_t* args,
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  hid_t under_vol_id = o->under_vol_id;
+  const hid_t under_vol_id = o->under_vol_id;
 
   // Unpack arguments to get at the child file pointer when mounting a file
   if (args->op_type == H5VL_GROUP_MOUNT)
@@ -126,7 +126,7 @@ herr_t H5VL_as_rpc_group_optional(void* obj, H5VL_optional_args_t* args,
 
   log_msg("GROUP Optional");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLgroup_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -141,7 +141,7 @@ herr_t H5VL_as_rpc_group_close(void* obj, hid_t dxpl_id, void** req)
 
   log_msg("GROUP Close");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLgroup_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)

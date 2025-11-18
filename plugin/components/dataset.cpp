@@ -78,11 +78,12 @@ herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
   log_msg("DATASET Read");
 
   // VOL ID for all objects
-  hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
+  const hid_t under_vol_id =
+      (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
     o_arr[u] = (static_cast<H5VL_as_rpc_t*>(dset[u]))->under_object;
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdataset_read(count, o_arr.data(), under_vol_id, mem_type_id,
                        mem_space_id, file_space_id, plist_id, buf, req);
 
@@ -101,11 +102,12 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
 
   log_msg("DATASET Write");
 
-  hid_t under_vol_id = (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
+  const hid_t under_vol_id =
+      (static_cast<H5VL_as_rpc_t*>(dset[0]))->under_vol_id;
   for (size_t u = 0; u < count; u++)
     o_arr[u] = (static_cast<H5VL_as_rpc_t*>(dset[u]))->under_object;
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdataset_write(count, o_arr.data(), under_vol_id, mem_type_id,
                         mem_space_id, file_space_id, plist_id, buf, req);
 
@@ -122,7 +124,7 @@ herr_t H5VL_as_rpc_dataset_get(void* obj, H5VL_dataset_get_args_t* args,
 
   log_msg("DATASET Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdataset_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -141,10 +143,10 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
 
   // Save copy of underlying VOL connector ID and prov helper, in case of
   // refresh destroying the current object
-  hid_t under_vol_id = o->under_vol_id;
+  const hid_t under_vol_id = o->under_vol_id;
 
-  herr_t ret_value = H5VLdataset_specific(o->under_object, o->under_vol_id,
-                                          args, dxpl_id, req);
+  const herr_t ret_value = H5VLdataset_specific(
+      o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
@@ -159,8 +161,8 @@ herr_t H5VL_as_rpc_dataset_optional(void* obj, H5VL_optional_args_t* args,
 
   log_msg("DATASET Optional");
 
-  herr_t ret_value = H5VLdataset_optional(o->under_object, o->under_vol_id,
-                                          args, dxpl_id, req);
+  const herr_t ret_value = H5VLdataset_optional(
+      o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -174,7 +176,7 @@ herr_t H5VL_as_rpc_dataset_close(void* obj, hid_t dxpl_id, void** req)
 
   log_msg("DATASET Close");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLdataset_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)

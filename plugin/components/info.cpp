@@ -71,7 +71,7 @@ herr_t H5VL_as_rpc_info_free(void* info)
 
   log_msg("INFO Free");
 
-  hid_t err_id = H5Eget_current_stack();
+  const hid_t err_id = H5Eget_current_stack();
 
   if (info_cast->under_vol_info)
     H5VLfree_connector_info(info_cast->under_vol_id, info_cast->under_vol_info);
@@ -130,7 +130,7 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
   under_vol_info_end = strrchr(str, '}');
   if (under_vol_info_end != (under_vol_info_start + 1))
   {
-    unsigned info_str_len = under_vol_info_end - under_vol_info_start;
+    const unsigned info_str_len = under_vol_info_end - under_vol_info_start;
     char* under_vol_info_str = static_cast<char*>(malloc(info_str_len));
     memcpy(under_vol_info_str, under_vol_info_start + 1, info_str_len - 1);
     *(under_vol_info_str + info_str_len) = '\0';

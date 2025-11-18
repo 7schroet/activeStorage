@@ -146,7 +146,7 @@ extern "C"
   const void* H5PLget_plugin_info(void) { return &H5VL_pass_through_ext_g; }
   hid_t H5VL_pass_through_ext_register(void)
   {
-    /* Singleton register the pass-through VOL connector ID */
+    // Singleton register the pass-through VOL connector ID
     if (H5VL_PASSTHRU_EXT_g < 0)
       H5VL_PASSTHRU_EXT_g =
           H5VLregister_connector(&H5VL_pass_through_ext_g, H5P_DEFAULT);
@@ -155,7 +155,7 @@ extern "C"
   }
 }
 
-/* Introspection implementation */
+// Introspection implementation
 namespace
 {
 herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
@@ -166,7 +166,7 @@ herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
 
   log_msg("INTROSPECT GetConnCls\n");
 
-  /* Check for querying this connector's class */
+  // Check for querying this connector's class
   if (H5VL_GET_CONN_LVL_CURR == lvl)
   {
     *conn_cls = &H5VL_pass_through_ext_g;
@@ -186,11 +186,11 @@ herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* info,
 
   log_msg("INTROSPECT GetCapFlags\n");
 
-  /* Invoke the query on the underlying VOL connector */
-  herr_t ret_value = H5VLintrospect_get_cap_flags(
+  // Invoke the query on the underlying VOL connector
+  const herr_t ret_value = H5VLintrospect_get_cap_flags(
       info_cast->under_vol_info, info_cast->under_vol_id, cap_flags);
 
-  /* Bitwise OR our capability flags in */
+  // Bitwise OR our capability flags in
   if (ret_value >= 0)
     *cap_flags |= H5VL_pass_through_ext_g.cap_flags;
 
@@ -204,8 +204,8 @@ herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
 
   log_msg("INTROSPECT OptQuery\n");
 
-  herr_t ret_value = H5VLintrospect_opt_query(o->under_object, o->under_vol_id,
-                                              cls, op_type, flags);
+  const herr_t ret_value = H5VLintrospect_opt_query(
+      o->under_object, o->under_vol_id, cls, op_type, flags);
 
   return ret_value;
 }

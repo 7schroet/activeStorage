@@ -65,7 +65,7 @@ herr_t H5VL_as_rpc_link_create(H5VL_link_create_args_t* args, void* obj,
     new_args = args;
 
   // Re-issue 'link create' call, possibly using the unwrapped pieces
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLlink_create(new_args, (o ? o->under_object : nullptr), loc_params,
                       under_vol_id, lcpl_id, lapl_id, dxpl_id, req);
 
@@ -91,7 +91,7 @@ H5VL_as_rpc_link_copy(void* src_obj, const H5VL_loc_params_t* loc_params1,
   else if (o_dst)
     under_vol_id = o_dst->under_vol_id;
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLlink_copy((o_src ? o_src->under_object : nullptr), loc_params1,
                     (o_dst ? o_dst->under_object : nullptr), loc_params2,
                     under_vol_id, lcpl_id, lapl_id, dxpl_id, req);
@@ -119,7 +119,7 @@ H5VL_as_rpc_link_move(void* src_obj, const H5VL_loc_params_t* loc_params1,
   else if (o_dst)
     under_vol_id = o_dst->under_vol_id;
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLlink_move((o_src ? o_src->under_object : nullptr), loc_params1,
                     (o_dst ? o_dst->under_object : nullptr), loc_params2,
                     under_vol_id, lcpl_id, lapl_id, dxpl_id, req);
@@ -138,8 +138,8 @@ herr_t H5VL_as_rpc_link_get(void* obj, const H5VL_loc_params_t* loc_params,
 
   log_msg("LINK Get");
 
-  herr_t ret_value = H5VLlink_get(o->under_object, loc_params, o->under_vol_id,
-                                  args, dxpl_id, req);
+  const herr_t ret_value = H5VLlink_get(o->under_object, loc_params,
+                                        o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -155,8 +155,8 @@ herr_t H5VL_as_rpc_link_specific(void* obj, const H5VL_loc_params_t* loc_params,
 
   log_msg("LINK Specific");
 
-  herr_t ret_value = H5VLlink_specific(o->under_object, loc_params,
-                                       o->under_vol_id, args, dxpl_id, req);
+  const herr_t ret_value = H5VLlink_specific(
+      o->under_object, loc_params, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -172,8 +172,8 @@ herr_t H5VL_as_rpc_link_optional(void* obj, const H5VL_loc_params_t* loc_params,
 
   log_msg("LINK Optional");
 
-  herr_t ret_value = H5VLlink_optional(o->under_object, loc_params,
-                                       o->under_vol_id, args, dxpl_id, req);
+  const herr_t ret_value = H5VLlink_optional(
+      o->under_object, loc_params, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);

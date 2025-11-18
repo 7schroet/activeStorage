@@ -74,8 +74,8 @@ herr_t H5VL_as_rpc_attr_read(void* obj, hid_t mem_type_id, void* buf,
 
   log_msg("ATTRIBUTE Read");
 
-  herr_t ret_value = H5VLattr_read(o->under_object, o->under_vol_id,
-                                   mem_type_id, buf, dxpl_id, req);
+  const herr_t ret_value = H5VLattr_read(o->under_object, o->under_vol_id,
+                                         mem_type_id, buf, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -90,8 +90,8 @@ herr_t H5VL_as_rpc_attr_write(void* obj, hid_t mem_type_id, const void* buf,
 
   log_msg("ATTRIBUTE Write");
 
-  herr_t ret_value = H5VLattr_write(o->under_object, o->under_vol_id,
-                                    mem_type_id, buf, dxpl_id, req);
+  const herr_t ret_value = H5VLattr_write(o->under_object, o->under_vol_id,
+                                          mem_type_id, buf, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -106,7 +106,7 @@ herr_t H5VL_as_rpc_attr_get(void* obj, H5VL_attr_get_args_t* args,
 
   log_msg("ATTRIBUTE Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLattr_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -123,8 +123,8 @@ herr_t H5VL_as_rpc_attr_specific(void* obj, const H5VL_loc_params_t* loc_params,
 
   log_msg("ATTRIBUTE Specific");
 
-  herr_t ret_value = H5VLattr_specific(o->under_object, loc_params,
-                                       o->under_vol_id, args, dxpl_id, req);
+  const herr_t ret_value = H5VLattr_specific(
+      o->under_object, loc_params, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
@@ -139,7 +139,7 @@ herr_t H5VL_as_rpc_attr_optional(void* obj, H5VL_optional_args_t* args,
 
   log_msg("ATTRIBUTE Optional");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLattr_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -154,7 +154,7 @@ herr_t H5VL_as_rpc_attr_close(void* obj, hid_t dxpl_id, void** req)
 
   log_msg("ATTRIBUTE Close");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLattr_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)

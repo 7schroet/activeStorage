@@ -63,7 +63,7 @@ herr_t H5VL_as_rpc_request_free(void* obj)
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
   log_msg("REQUEST Free");
-  herr_t ret_value = H5VLrequest_free(o->under_object, o->under_vol_id);
+  const herr_t ret_value = H5VLrequest_free(o->under_object, o->under_vol_id);
 
   if (ret_value >= 0)
     H5VL_as_rpc_t_free_obj(o);

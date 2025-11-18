@@ -28,7 +28,7 @@ herr_t H5VL_as_rpc_blob_put(void* obj, const void* buf, size_t size,
 
   log_msg("BLOB Put");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLblob_put(o->under_object, o->under_vol_id, buf, size, blob_id, ctx);
 
   return ret_value;
@@ -41,7 +41,7 @@ herr_t H5VL_as_rpc_blob_get(void* obj, const void* blob_id, void* buf,
 
   log_msg("BLOB Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLblob_get(o->under_object, o->under_vol_id, blob_id, buf, size, ctx);
 
   return ret_value;
@@ -54,7 +54,7 @@ herr_t H5VL_as_rpc_blob_specific(void* obj, void* blob_id,
 
   log_msg("BLOB Specific");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLblob_specific(o->under_object, o->under_vol_id, blob_id, args);
 
   return ret_value;
@@ -67,7 +67,7 @@ herr_t H5VL_as_rpc_blob_optional(void* obj, void* blob_id,
 
   log_msg("BLOB Optional");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLblob_optional(o->under_object, o->under_vol_id, blob_id, args);
 
   return ret_value;

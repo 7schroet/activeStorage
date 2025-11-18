@@ -105,7 +105,7 @@ herr_t H5VL_as_rpc_file_get(void* obj, H5VL_file_get_args_t* args,
 
   log_msg("FILE Get");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLfile_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -173,7 +173,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
     new_o = (H5VL_as_rpc_t*)o->under_object;
   }
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLfile_specific(new_o, under_vol_id, new_args, dxpl_id, req);
 
   if (req && *req)
@@ -207,7 +207,7 @@ herr_t H5VL_as_rpc_file_optional(void* obj, H5VL_optional_args_t* args,
 
   log_msg("File Optional");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLfile_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
@@ -222,7 +222,7 @@ herr_t H5VL_as_rpc_file_close(void* obj, hid_t dxpl_id, void** req)
 
   log_msg("FILE Close");
 
-  herr_t ret_value =
+  const herr_t ret_value =
       H5VLfile_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)
