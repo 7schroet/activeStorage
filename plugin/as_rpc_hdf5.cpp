@@ -164,7 +164,7 @@ herr_t H5VL_as_rpc_introspect_get_conn_cls(void* obj, H5VL_get_conn_lvl_t lvl,
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
   herr_t ret_value;
 
-  log_msg("INTROSPECT GetConnCls\n");
+  log_msg("INTROSPECT GetConnCls");
 
   // Check for querying this connector's class
   if (H5VL_GET_CONN_LVL_CURR == lvl)
@@ -184,7 +184,7 @@ herr_t H5VL_as_rpc_introspect_get_cap_flags(const void* info,
 {
   auto info_cast = static_cast<const H5VL_as_rpc_info_t*>(info);
 
-  log_msg("INTROSPECT GetCapFlags\n");
+  log_msg("INTROSPECT GetCapFlags");
 
   // Invoke the query on the underlying VOL connector
   const herr_t ret_value = H5VLintrospect_get_cap_flags(
@@ -202,7 +202,7 @@ herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
 {
   auto o = static_cast<H5VL_as_rpc_t*>(obj);
 
-  log_msg("INTROSPECT OptQuery\n");
+  log_msg("INTROSPECT OptQuery");
 
   const herr_t ret_value = H5VLintrospect_opt_query(
       o->under_object, o->under_vol_id, cls, op_type, flags);
