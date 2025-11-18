@@ -126,7 +126,11 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
 
   log_msg("FILE Specific");
 
-  if (args->op_type == H5VL_FILE_IS_ACCESSIBLE)
+  // Explicitly extracted into a const to let the compiler / clang-tidy
+  // reason about the two if-else chains more easily.
+  const auto op_type = args->op_type;
+
+  if (op_type == H5VL_FILE_IS_ACCESSIBLE)
   {
     memcpy(&my_args, args, sizeof(my_args));
 
@@ -148,7 +152,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
 
     new_args = &my_args;
   }
-  else if (args->op_type == H5VL_FILE_DELETE)
+  else if (op_type == H5VL_FILE_DELETE)
   {
     memcpy(&my_args, args, sizeof(my_args));
 
@@ -179,17 +183,17 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   if (req && *req)
     *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
 
-  if (args->op_type == H5VL_FILE_IS_ACCESSIBLE)
+  if (op_type == H5VL_FILE_IS_ACCESSIBLE)
   {
     H5Pclose(my_args.args.is_accessible.fapl_id);
     H5VL_as_rpc_info_free(info);
   }
-  else if (args->op_type == H5VL_FILE_DELETE)
+  else if (op_type == H5VL_FILE_DELETE)
   {
     H5Pclose(my_args.args.del.fapl_id);
     H5VL_as_rpc_info_free(info);
   }
-  else if (args->op_type == H5VL_FILE_REOPEN)
+  else if (op_type == H5VL_FILE_REOPEN)
   {
     // Wrap reopened file struct pointer, if we reopened one
     if (ret_value >= 0 && args->args.reopen.file)
