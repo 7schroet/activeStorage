@@ -33,7 +33,7 @@ As such, you only need to set two environment variables whenever you want to use
 After building the plugin, set:
 ```sh
 export HDF5_PLUGIN_PATH=<path/to/dir/with/plugin>
-export HDF5_VOL_CONNECTOR="as-rpc-hdf5"
+export HDF5_VOL_CONNECTOR="as-rpc-hdf5 under_vol=0;under_info={};"
 ```
 Now all HDF5 calls will go through this connector. The plugin is currently built as a pass-through connector. This means that all
 your HDF5 calls will behave as they normally do (i.e., write calls will still write the data), but some functions also invoke
