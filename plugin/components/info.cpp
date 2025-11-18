@@ -132,6 +132,10 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
   {
     const unsigned info_str_len = under_vol_info_end - under_vol_info_start;
     char* under_vol_info_str = static_cast<char*>(malloc(info_str_len));
+    if (under_vol_info_str == nullptr)
+    {
+      exit(1);
+    }
     memcpy(under_vol_info_str, under_vol_info_start + 1, info_str_len - 1);
     *(under_vol_info_str + info_str_len) = '\0';
 

@@ -32,7 +32,7 @@ void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
 
   log_msg("FILE Create");
 
-  /* Get copy of our VOL info from FAPL */
+  // Get copy of our VOL info from FAPL
   H5Pget_vol_info(fapl_id, &info);
 
   if (!info)
@@ -41,10 +41,10 @@ void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
   auto info_cast = static_cast<H5VL_as_rpc_info_t*>(info);
   under_fapl_id = H5Pcopy(fapl_id);
 
-  /* Set the VOL ID and info for the underlying FAPL */
+  // Set the VOL ID and info for the underlying FAPL
   H5Pset_vol(under_fapl_id, info_cast->under_vol_id, info_cast->under_vol_info);
 
-  /* Open the file with the underlying VOL connector */
+  // Open the file with the underlying VOL connector
   void* under =
       H5VLfile_create(name, flags, fcpl_id, under_fapl_id, dxpl_id, req);
   if (under)
@@ -135,7 +135,8 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
     memcpy(&my_args, args, sizeof(my_args));
 
     // Set up the new FAPL for the updated arguments
-    H5Pget_vol_info(args->args.is_accessible.fapl_id, (void**)&info);
+    H5Pget_vol_info(args->args.is_accessible.fapl_id,
+                    reinterpret_cast<void**>(&info));
 
     if (!info)
       return (-1);
@@ -156,7 +157,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   {
     memcpy(&my_args, args, sizeof(my_args));
 
-    H5Pget_vol_info(args->args.del.fapl_id, (void**)&info);
+    H5Pget_vol_info(args->args.del.fapl_id, reinterpret_cast<void**>(&info));
 
     if (!info)
       return (-1);
@@ -174,7 +175,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   {
     under_vol_id = o->under_vol_id;
     new_args = args;
-    new_o = (H5VL_as_rpc_t*)o->under_object;
+    new_o = static_cast<H5VL_as_rpc_t*>(o->under_object);
   }
 
   const herr_t ret_value =

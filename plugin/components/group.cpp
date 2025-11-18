@@ -103,7 +103,7 @@ herr_t H5VL_as_rpc_group_specific(void* obj, H5VL_group_specific_args_t* args,
 
     // Set the object for the child file
     my_args.args.mount.child_file =
-        ((H5VL_as_rpc_t*)args->args.mount.child_file)->under_object;
+        static_cast<H5VL_as_rpc_t*>(args->args.mount.child_file)->under_object;
 
     new_args = &my_args;
   }
