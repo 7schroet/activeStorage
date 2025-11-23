@@ -52,8 +52,8 @@ void hello([[maybe_unused]] const thallium::request& req)
 }
 
 void mean([[maybe_unused]] const thallium::request& req,
-          const std::string& filename, const std::string& dataset, int timestep,
-          const std::vector<char>& reduce_along_dim)
+          const std::string& filename, const std::string& dataset,
+          unsigned timestep, const std::vector<char>& reduce_along_dim)
 {
   H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
   auto dset = file.openDataSet(dataset);

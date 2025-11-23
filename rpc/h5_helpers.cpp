@@ -56,7 +56,7 @@ const H5::PredType& determine_datatype(const H5::DataSet& dset)
 
 template <typename T>
 std::pair<std::vector<T>, std::vector<hsize_t>>
-read_data(const H5::DataSet& dset, int timestep)
+read_data(const H5::DataSet& dset, unsigned timestep)
 {
   auto dspace = dset.getSpace();
   auto rank = dspace.getSimpleExtentNdims();
@@ -105,16 +105,16 @@ read_data(const H5::DataSet& dset, int timestep)
 }
 
 template std::pair<std::vector<double>, std::vector<hsize_t>>
-read_data<double>(const H5::DataSet& dset, int timestep);
+read_data<double>(const H5::DataSet& dset, unsigned timestep);
 
 template std::pair<std::vector<float>, std::vector<hsize_t>>
-read_data<float>(const H5::DataSet& dset, int timestep);
+read_data<float>(const H5::DataSet& dset, unsigned timestep);
 
 template std::pair<std::vector<int>, std::vector<hsize_t>>
-read_data<int>(const H5::DataSet& dset, int timestep);
+read_data<int>(const H5::DataSet& dset, unsigned timestep);
 
 void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, int timestep,
+                const std::vector<hsize_t>& dims, unsigned timestep,
                 const std::string& filename, const std::string& dset_name)
 {
   H5::H5File file;
@@ -157,7 +157,7 @@ void write_data(const std::vector<double>& data,
 
   std::vector<hsize_t> current_dset_dims(dspace.getSimpleExtentNdims());
   dspace.getSimpleExtentDims(current_dset_dims.data());
-  if (static_cast<int>(current_dset_dims[0]) == timestep + 1)
+  if (current_dset_dims[0] == timestep + 1)
   {
     std::vector<hsize_t> new_dims{current_dset_dims};
     new_dims[0] += chunk_size_first_dim;

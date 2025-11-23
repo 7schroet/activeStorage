@@ -25,9 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace as_rpc
-{
-namespace h5
+namespace as_rpc::h5
 {
 const H5::PredType& determine_datatype(const H5::DataSet& dset);
 
@@ -35,27 +33,26 @@ const H5::PredType& determine_datatype(const H5::DataSet& dset);
 // of the data and its dims.
 template <typename T>
 std::pair<std::vector<T>, std::vector<hsize_t>>
-read_data(const H5::DataSet& dset, int timestep);
+read_data(const H5::DataSet& dset, unsigned timestep);
 
 // Specializations for read
 extern template std::pair<std::vector<double>, std::vector<hsize_t>>
-read_data<double>(const H5::DataSet& dset, int timestep);
+read_data<double>(const H5::DataSet& dset, unsigned timestep);
 
 extern template std::pair<std::vector<float>, std::vector<hsize_t>>
-read_data<float>(const H5::DataSet& dset, int timestep);
+read_data<float>(const H5::DataSet& dset, unsigned timestep);
 
 extern template std::pair<std::vector<int>, std::vector<hsize_t>>
-read_data<int>(const H5::DataSet& dset, int timestep);
+read_data<int>(const H5::DataSet& dset, unsigned timestep);
 
 // As of 09/2025, mdspan is not yet supported by the gcc libstdc++, so
 // we pass the dims of the data separately.
 // For any given filename, it is required to always call this with the
 // same dims, otherwise the write might fail/lead to unexpected results.
 void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, int timestep,
+                const std::vector<hsize_t>& dims, unsigned timestep,
                 const std::string& filename,
                 const std::string& dset_name = "/result");
 
-} // namespace h5
-} // namespace as_rpc
+} // namespace as_rpc::h5
 #endif

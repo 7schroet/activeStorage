@@ -29,7 +29,7 @@ namespace as_rpc::kernel_impl
 {
 void hello(const thallium::request& req);
 void mean(const thallium::request& req, const std::string& filename,
-          const std::string& dataset, int timestep,
+          const std::string& dataset, unsigned timestep,
           const std::vector<char>& reduce_along_dim);
 } // namespace as_rpc::kernel_impl
 
