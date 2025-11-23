@@ -41,6 +41,27 @@ std::string generate_result_filename(const std::string& filename,
   return "asrpc_results_" + basename.stem().string() + "_" + stripped_dataset +
          "_" + op + ".h5";
 }
+
+std::pair<std::vector<double>, std::vector<hsize_t>>
+apply_mean(const H5::PredType& dtype, const H5::DataSet& dset,
+           unsigned timestep, const std::vector<char>& reduction_dims)
+{
+  if (dtype == H5::PredType::NATIVE_DOUBLE)
+  {
+    const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
+    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+  }
+  else if (dtype == H5::PredType::NATIVE_FLOAT)
+  {
+    const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
+    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+  }
+  else
+  {
+    const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
+    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+  }
+}
 } // namespace
 
 namespace as_rpc::kernel_impl
@@ -64,24 +85,8 @@ void mean([[maybe_unused]] const thallium::request& req,
   const std::vector<char> reduction_dims_without_time{
       reduce_along_dim.begin() + 1, reduce_along_dim.end()};
 
-  if (dtype == H5::PredType::NATIVE_DOUBLE)
-  {
-    const auto [data, dims] = h5::read_data<double>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, reduction_dims_without_time);
-  }
-  else if (dtype == H5::PredType::NATIVE_FLOAT)
-  {
-    const auto [data, dims] = h5::read_data<float>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, reduction_dims_without_time);
-  }
-  else
-  {
-    const auto [data, dims] = h5::read_data<int>(dset, timestep);
-    std::tie(avg, avg_dims) =
-        mean_reduction(data, dims, reduction_dims_without_time);
-  }
+  std::tie(avg, avg_dims) =
+      apply_mean(dtype, dset, timestep, reduction_dims_without_time);
 
   const std::string result_filename =
       generate_result_filename(filename, dataset, "mean");
