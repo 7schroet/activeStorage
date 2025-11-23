@@ -20,6 +20,9 @@
 #include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
 #include "as_rpc_utils.hpp"
+#include <algorithm>
+#include <cassert>
+#include <cctype>
 #include <cstdlib>
 #include <format>
 #include <fstream>
@@ -31,6 +34,8 @@ namespace as_rpc
 
 std::string construct_address(Protocol protocol, std::string_view port)
 {
+  assert(!port.empty() && std::ranges::all_of(port, [](unsigned char c)
+                                              { return std::isdigit(c); }));
   std::string protocol_string = protocol_to_string(protocol);
   return std::format("{}://:{}", protocol_string, port);
 }
