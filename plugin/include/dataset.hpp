@@ -21,6 +21,24 @@
 #define DATASET_HPP
 
 #include <hdf5.h>
+#include <string>
+
+/**
+ * Datasets get a special struct that also logs the name of
+ * the file and the corresponding dataset.
+ */
+struct H5VL_as_rpc_dset_t
+{
+  hid_t under_vol_id;
+  void* under_object;
+  std::string filename;
+  std::string dsetname;
+};
+H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
+                                               hid_t under_vol_id,
+                                               const std::string& filename,
+                                               const std::string& dsetname);
+herr_t H5VL_as_rpc_dset_t_free_obj(H5VL_as_rpc_dset_t* obj);
 
 void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
                                  const char* name, hid_t lcpl_id, hid_t type_id,
