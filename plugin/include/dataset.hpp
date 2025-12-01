@@ -20,6 +20,7 @@
 #ifndef DATASET_HPP
 #define DATASET_HPP
 
+#include <filesystem>
 #include <hdf5.h>
 #include <string>
 
@@ -31,13 +32,13 @@ struct H5VL_as_rpc_dset_t
 {
   hid_t under_vol_id;
   void* under_object;
-  std::string filename;
+  std::filesystem::path filename;
   std::string dsetname;
 };
-H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
-                                               hid_t under_vol_id,
-                                               const std::string& filename,
-                                               const std::string& dsetname);
+H5VL_as_rpc_dset_t*
+H5VL_as_rpc_dset_t_new_obj(void* under_obj, hid_t under_vol_id,
+                           const std::filesystem::path& filename,
+                           const std::string& dsetname);
 herr_t H5VL_as_rpc_dset_t_free_obj(H5VL_as_rpc_dset_t* obj);
 
 void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,

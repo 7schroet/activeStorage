@@ -18,14 +18,15 @@
  */
 
 #include "dataset.hpp"
+#include "file.hpp"
 #include "log.hpp"
 
-H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
-                                               hid_t under_vol_id,
-                                               const std::string& filename,
-                                               const std::string& dsetname)
+H5VL_as_rpc_dset_t*
+H5VL_as_rpc_dset_t_new_obj(void* under_obj, hid_t under_vol_id,
+                           const std::filesystem::path& filename,
+                           const std::string& dsetname)
 {
-  log_msg("STRUCT creation");
+  log_msg("DSET STRUCT creation");
   auto new_obj = new H5VL_as_rpc_dset_t();
   new_obj->under_object = under_obj;
   new_obj->under_vol_id = under_vol_id;
@@ -37,7 +38,7 @@ H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
 
 herr_t H5VL_as_rpc_dset_t_free_obj(H5VL_as_rpc_dset_t* obj)
 {
-  log_msg("STRUCT delete");
+  log_msg("DSET STRUCT delete");
   const hid_t err_id = H5Eget_current_stack();
   H5Idec_ref(obj->under_vol_id);
   H5Eset_current_stack(err_id);
@@ -51,8 +52,7 @@ void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
                                  hid_t dxpl_id, void** req)
 {
   H5VL_as_rpc_dset_t* dset = nullptr;
-  auto o = static_cast<H5VL_as_rpc_dset_t*>(obj);
-
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
   log_msg("DATASET Create");
 
   void* under = H5VLdataset_create(o->under_object, loc_params, o->under_vol_id,
@@ -60,11 +60,12 @@ void* H5VL_as_rpc_dataset_create(void* obj, const H5VL_loc_params_t* loc_params,
                                    dapl_id, dxpl_id, req);
   if (under)
   {
-    dset = H5VL_as_rpc_dset_t_new_obj(under, o->under_vol_id, "filename", name);
+    dset = H5VL_as_rpc_dset_t_new_obj(
+        under, o->under_vol_id, std::filesystem::absolute(o->filename), name);
 
     if (req && *req)
-      *req =
-          H5VL_as_rpc_dset_t_new_obj(*req, o->under_vol_id, "filename", name);
+      *req = H5VL_as_rpc_dset_t_new_obj(
+          *req, o->under_vol_id, std::filesystem::absolute(o->filename), name);
   }
 
   return dset;
@@ -75,7 +76,7 @@ void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
                                void** req)
 {
   H5VL_as_rpc_dset_t* dset = nullptr;
-  auto o = static_cast<H5VL_as_rpc_dset_t*>(obj);
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
 
   log_msg("DATASET Open");
 
@@ -83,11 +84,12 @@ void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
                                  name, dapl_id, dxpl_id, req);
   if (under)
   {
-    dset = H5VL_as_rpc_dset_t_new_obj(under, o->under_vol_id, "filename", name);
+    dset = H5VL_as_rpc_dset_t_new_obj(
+        under, o->under_vol_id, std::filesystem::absolute(o->filename), name);
 
     if (req && *req)
-      *req =
-          H5VL_as_rpc_dset_t_new_obj(*req, o->under_vol_id, "filename", name);
+      *req = H5VL_as_rpc_dset_t_new_obj(
+          *req, o->under_vol_id, std::filesystem::absolute(o->filename), name);
   }
 
   return dset;
