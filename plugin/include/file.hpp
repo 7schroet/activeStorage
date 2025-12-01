@@ -20,7 +20,22 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
+#include <filesystem>
 #include <hdf5.h>
+
+/**
+ * Files get a special struct that also logs the name.
+ */
+struct H5VL_as_rpc_file_t
+{
+  hid_t under_vol_id;
+  void* under_object;
+  std::filesystem::path filename;
+};
+H5VL_as_rpc_file_t*
+H5VL_as_rpc_file_t_new_obj(void* under_obj, hid_t under_vol_id,
+                           const std::filesystem::path& filename);
+herr_t H5VL_as_rpc_file_t_free_obj(H5VL_as_rpc_file_t* obj);
 
 void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
                               hid_t fapl_id, hid_t dxpl_id, void** req);

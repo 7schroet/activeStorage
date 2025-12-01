@@ -20,14 +20,36 @@
 #include "file.hpp"
 #include "info.hpp"
 #include "log.hpp"
-#include "utils.hpp"
 #include <cstring>
+
+H5VL_as_rpc_file_t*
+H5VL_as_rpc_file_t_new_obj(void* under_obj, hid_t under_vol_id,
+                           const std::filesystem::path& filename)
+{
+  log_msg("FILE STRUCT creation");
+  auto new_obj = new H5VL_as_rpc_file_t();
+  new_obj->under_object = under_obj;
+  new_obj->under_vol_id = under_vol_id;
+  new_obj->filename = filename;
+  H5Iinc_ref(new_obj->under_vol_id);
+  return new_obj;
+}
+
+herr_t H5VL_as_rpc_file_t_free_obj(H5VL_as_rpc_file_t* obj)
+{
+  log_msg("FILE STRUCT delete");
+  const hid_t err_id = H5Eget_current_stack();
+  H5Idec_ref(obj->under_vol_id);
+  H5Eset_current_stack(err_id);
+  delete obj;
+  return 0;
+}
 
 void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
                               hid_t fapl_id, hid_t dxpl_id, void** req)
 {
   void* info = nullptr;
-  H5VL_as_rpc_t* file = nullptr;
+  H5VL_as_rpc_file_t* file = nullptr;
   hid_t under_fapl_id;
 
   log_msg("FILE Create");
@@ -49,10 +71,10 @@ void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
       H5VLfile_create(name, flags, fcpl_id, under_fapl_id, dxpl_id, req);
   if (under)
   {
-    file = H5VL_as_rpc_t_new_obj(under, info_cast->under_vol_id);
+    file = H5VL_as_rpc_file_t_new_obj(under, info_cast->under_vol_id, name);
 
     if (req && *req)
-      *req = H5VL_as_rpc_t_new_obj(*req, info_cast->under_vol_id);
+      *req = H5VL_as_rpc_file_t_new_obj(*req, info_cast->under_vol_id, name);
   }
 
   H5Pclose(under_fapl_id);
@@ -66,7 +88,7 @@ void* H5VL_as_rpc_file_open(const char* name, unsigned flags, hid_t fapl_id,
                             hid_t dxpl_id, void** req)
 {
   void* info = nullptr;
-  H5VL_as_rpc_t* file = nullptr;
+  H5VL_as_rpc_file_t* file = nullptr;
   hid_t under_fapl_id;
 
   log_msg("FILE Open");
@@ -85,10 +107,10 @@ void* H5VL_as_rpc_file_open(const char* name, unsigned flags, hid_t fapl_id,
   void* under = H5VLfile_open(name, flags, under_fapl_id, dxpl_id, req);
   if (under)
   {
-    file = H5VL_as_rpc_t_new_obj(under, info_cast->under_vol_id);
+    file = H5VL_as_rpc_file_t_new_obj(under, info_cast->under_vol_id, name);
 
     if (req && *req)
-      *req = H5VL_as_rpc_t_new_obj(*req, info_cast->under_vol_id);
+      *req = H5VL_as_rpc_file_t_new_obj(*req, info_cast->under_vol_id, name);
   }
 
   H5Pclose(under_fapl_id);
@@ -101,7 +123,7 @@ void* H5VL_as_rpc_file_open(const char* name, unsigned flags, hid_t fapl_id,
 herr_t H5VL_as_rpc_file_get(void* obj, H5VL_file_get_args_t* args,
                             hid_t dxpl_id, void** req)
 {
-  auto o = static_cast<H5VL_as_rpc_t*>(obj);
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
 
   log_msg("FILE Get");
 
@@ -109,7 +131,7 @@ herr_t H5VL_as_rpc_file_get(void* obj, H5VL_file_get_args_t* args,
       H5VLfile_get(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_file_t_new_obj(*req, o->under_vol_id, o->filename);
 
   return ret_value;
 }
@@ -117,8 +139,8 @@ herr_t H5VL_as_rpc_file_get(void* obj, H5VL_file_get_args_t* args,
 herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
                                  hid_t dxpl_id, void** req)
 {
-  auto o = static_cast<H5VL_as_rpc_t*>(obj);
-  H5VL_as_rpc_t* new_o = nullptr;
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
+  H5VL_as_rpc_file_t* new_o = nullptr;
   H5VL_file_specific_args_t my_args;
   H5VL_file_specific_args_t* new_args;
   H5VL_as_rpc_info_t* info;
@@ -175,14 +197,14 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   {
     under_vol_id = o->under_vol_id;
     new_args = args;
-    new_o = static_cast<H5VL_as_rpc_t*>(o->under_object);
+    new_o = static_cast<H5VL_as_rpc_file_t*>(o->under_object);
   }
 
   const herr_t ret_value =
       H5VLfile_specific(new_o, under_vol_id, new_args, dxpl_id, req);
 
   if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, under_vol_id);
+    *req = H5VL_as_rpc_file_t_new_obj(*req, under_vol_id, o->filename);
 
   if (op_type == H5VL_FILE_IS_ACCESSIBLE)
   {
@@ -198,8 +220,8 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   {
     // Wrap reopened file struct pointer, if we reopened one
     if (ret_value >= 0 && args->args.reopen.file)
-      *args->args.reopen.file =
-          H5VL_as_rpc_t_new_obj(*args->args.reopen.file, o->under_vol_id);
+      *args->args.reopen.file = H5VL_as_rpc_file_t_new_obj(
+          *args->args.reopen.file, o->under_vol_id, o->filename);
   }
 
   return ret_value;
@@ -208,7 +230,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
 herr_t H5VL_as_rpc_file_optional(void* obj, H5VL_optional_args_t* args,
                                  hid_t dxpl_id, void** req)
 {
-  auto o = static_cast<H5VL_as_rpc_t*>(obj);
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
 
   log_msg("File Optional");
 
@@ -216,14 +238,14 @@ herr_t H5VL_as_rpc_file_optional(void* obj, H5VL_optional_args_t* args,
       H5VLfile_optional(o->under_object, o->under_vol_id, args, dxpl_id, req);
 
   if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_file_t_new_obj(*req, o->under_vol_id, o->filename);
 
   return ret_value;
 }
 
 herr_t H5VL_as_rpc_file_close(void* obj, hid_t dxpl_id, void** req)
 {
-  auto o = static_cast<H5VL_as_rpc_t*>(obj);
+  auto o = static_cast<H5VL_as_rpc_file_t*>(obj);
 
   log_msg("FILE Close");
 
@@ -231,10 +253,10 @@ herr_t H5VL_as_rpc_file_close(void* obj, hid_t dxpl_id, void** req)
       H5VLfile_close(o->under_object, o->under_vol_id, dxpl_id, req);
 
   if (req && *req)
-    *req = H5VL_as_rpc_t_new_obj(*req, o->under_vol_id);
+    *req = H5VL_as_rpc_file_t_new_obj(*req, o->under_vol_id, o->filename);
 
   if (ret_value >= 0)
-    H5VL_as_rpc_t_free_obj(o);
+    H5VL_as_rpc_file_t_free_obj(o);
 
   return ret_value;
 }
