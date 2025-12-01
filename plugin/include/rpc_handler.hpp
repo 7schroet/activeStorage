@@ -17,21 +17,15 @@
  * limitations under the License.
  */
 
-#include "init.hpp"
-#include "log.hpp"
-#include "rpc_handler.hpp"
+#ifndef AS_RPC_HANDLER_HPP
+#define AS_RPC_HANDLER_HPP
 
-herr_t H5VL_as_rpc_init([[maybe_unused]] hid_t vipl_id)
-{
-  log_msg("INIT");
+#include "as_rpc.hpp"
+#include <string>
+#include <vector>
 
-  register_rpc_client();
-  return 0;
-}
+void register_rpc_client();
+void rpc_mean(const std::string& filename, const std::string& dset_name,
+              unsigned timestep, const std::vector<char>& reduce_along_dim);
 
-herr_t H5VL_as_rpc_term()
-{
-  log_msg("TERM");
-
-  return 0;
-}
+#endif

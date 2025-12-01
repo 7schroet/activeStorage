@@ -16,6 +16,7 @@ target_sources(as-rpc-hdf5
     components/object.cpp
     components/optional.cpp
     components/request.cpp
+    components/rpc_handler.cpp
     components/token.cpp
     components/utils.cpp
     components/wrap.cpp
@@ -25,7 +26,7 @@ target_sources(as-rpc-hdf5
   FILE_SET HEADERS
   BASE_DIRS include
 )
-target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5)
+target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5 as-rpc)
 if(ENABLE_PLUGIN_LOGGING)
   target_compile_definitions(as-rpc-hdf5 PRIVATE ENABLE_PLUGIN_LOGGING)
 endif()
