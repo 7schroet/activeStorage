@@ -20,6 +20,7 @@
 #include "file.hpp"
 #include "info.hpp"
 #include "log.hpp"
+#include "rpc_handler.hpp"
 #include <cstring>
 
 H5VL_as_rpc_file_t*
@@ -223,6 +224,9 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
       *args->args.reopen.file = H5VL_as_rpc_file_t_new_obj(
           *args->args.reopen.file, o->under_vol_id, o->filename);
   }
+
+  if (op_type == H5VL_FILE_FLUSH)
+    dispatch_operation(o->filename);
 
   return ret_value;
 }

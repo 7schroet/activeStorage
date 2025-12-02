@@ -150,7 +150,7 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
     H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                              nullptr);
 
-    std::vector<char> reduction{1, 1, 1};
+    const std::vector<char> reduction{1, 1, 1};
     register_operation(as_rpc::Kernel::mean, o->filename, o->dsetname, start[0],
                        reduction);
 
