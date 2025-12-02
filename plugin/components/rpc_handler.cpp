@@ -34,8 +34,8 @@ public:
         reduce_along_dim_{std::move(reduce_along_dim)},
         filename_{std::move(filename)}, dset_name_{std::move(dset_name)} {};
 
-  [[nodiscard]] std::string filename() const { return filename_; };
-  [[nodiscard]] std::string dset_name() const { return dset_name_; };
+  [[nodiscard]] const std::string& filename() const { return filename_; };
+  [[nodiscard]] const std::string& dset_name() const { return dset_name_; };
 
   void dispatch(const as_rpc::ServerEndpoint& server,
                 const as_rpc::RemoteProcedures& rpc_kernels) const
