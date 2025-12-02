@@ -21,11 +21,17 @@
 #define AS_RPC_HANDLER_HPP
 
 #include "as_rpc.hpp"
+#include <filesystem>
 #include <string>
 #include <vector>
 
 void register_rpc_client();
-void rpc_mean(const std::string& filename, const std::string& dset_name,
-              unsigned timestep, const std::vector<char>& reduce_along_dim);
+void register_operation(const as_rpc::Kernel op,
+                        const std::filesystem::path& filename,
+                        const std::string& dset_name, unsigned timestep,
+                        const std::vector<char>& reduce_along_dim);
+void dispatch_operation(const std::filesystem::path& filename,
+                        const std::string& dset_name);
+void dispatch_operation(const std::filesystem::path& filename);
 
 #endif

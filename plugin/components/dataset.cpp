@@ -20,6 +20,7 @@
 #include "dataset.hpp"
 #include "file.hpp"
 #include "log.hpp"
+#include "rpc_handler.hpp"
 #include <vector>
 
 H5VL_as_rpc_dset_t*
@@ -150,9 +151,8 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
     H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                              nullptr);
     std::cerr << "------------------- ACCESS TO INFO:\n";
-    std::cerr << "Filename: " << o->filename.c_str() << "\n";
-    std::cerr << "Dset: " << o->dsetname << "\n";
-    std::cerr << "Timestep: " << start[0] << "\n";
+    register_operation(as_rpc::Kernel::mean, o->filename, o->dsetname, start[0],
+                       {1, 1, 1});
     std::cerr << "-----------------------------------\n";
 
     if (req && *req)

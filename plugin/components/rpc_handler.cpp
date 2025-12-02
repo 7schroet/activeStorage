@@ -22,9 +22,54 @@
 
 namespace
 {
+
+class Operation
+{
+
+public:
+  explicit Operation(as_rpc::Kernel op_, unsigned timestep_,
+                     std::vector<char> reduce_along_dim_, std::string filename_,
+                     std::string dset_name_)
+      : op{op_}, timestep{timestep_},
+        reduce_along_dim{std::move(reduce_along_dim_)},
+        filename{std::move(filename_)}, dset_name{std::move(dset_name_)} {};
+
+  void print() const
+  {
+    std::println("File {} for timestep {}", filename, timestep);
+  }
+
+  void dispatch(const as_rpc::ServerEndpoint& server,
+                const as_rpc::RemoteProcedures& rpc_kernels) const
+  {
+    auto search = rpc_kernels.find(op);
+    if (search == rpc_kernels.end())
+      return;
+
+    switch (op)
+    {
+    case as_rpc::Kernel::mean:
+      search->second.on(server)(filename, dset_name, timestep,
+                                reduce_along_dim);
+      break;
+    case as_rpc::Kernel::hello:
+      search->second.on(server)();
+      break;
+    }
+  }
+
+private:
+  as_rpc::Kernel op;
+  unsigned timestep;
+  std::vector<char> reduce_along_dim;
+  std::string filename;
+  std::string dset_name;
+};
+
 as_rpc::Engine engine;
 as_rpc::ServerEndpoint server;
 as_rpc::RemoteProcedures rpc_kernels;
+std::vector<Operation> operations{};
 
 as_rpc::ServerEndpoint find_server()
 {
@@ -51,14 +96,20 @@ void register_rpc_client()
   }
 }
 
-void rpc_mean(const std::string& filename, const std::string& dset_name,
-              unsigned timestep, const std::vector<char>& reduce_along_dim)
+void register_operation(const as_rpc::Kernel op,
+                        const std::filesystem::path& filename,
+                        const std::string& dset_name, unsigned timestep,
+                        const std::vector<char>& reduce_along_dim)
 {
-  auto search = rpc_kernels.find(as_rpc::Kernel::mean);
-  if (search == rpc_kernels.end())
-  {
-    std::println(stderr, "Couldn't find mean RPC!");
-    exit(1);
-  }
-  search->second.on(server)(filename, dset_name, timestep, reduce_along_dim);
+  operations.emplace_back(op, timestep, reduce_along_dim, filename, dset_name);
+  for (auto const& o : operations)
+    o.print();
 }
+
+void dispatch_operation(const std::filesystem::path& filename,
+                        const std::string& dset_name)
+{
+  return;
+}
+
+void dispatch_operation(const std::filesystem::path& filename) { return; }
