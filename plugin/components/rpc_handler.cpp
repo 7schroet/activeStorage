@@ -27,30 +27,39 @@ class Operation
 {
 
 public:
-  explicit Operation(as_rpc::Kernel op_, unsigned timestep_,
-                     std::vector<char> reduce_along_dim_, std::string filename_,
-                     std::string dset_name_)
-      : op{op_}, timestep{timestep_},
-        reduce_along_dim{std::move(reduce_along_dim_)},
-        filename{std::move(filename_)}, dset_name{std::move(dset_name_)} {};
+  explicit Operation(as_rpc::Kernel op, unsigned timestep,
+                     std::vector<char> reduce_along_dim, std::string filename,
+                     std::string dset_name)
+      : op_{op}, timestep_{timestep},
+        reduce_along_dim_{std::move(reduce_along_dim)},
+        filename_{std::move(filename)}, dset_name_{std::move(dset_name)} {};
 
-  void print() const
-  {
-    std::println("File {} for timestep {}", filename, timestep);
-  }
+  [[nodiscard]] std::string filename() const { return filename_; };
+  [[nodiscard]] std::string dset_name() const { return dset_name_; };
 
   void dispatch(const as_rpc::ServerEndpoint& server,
                 const as_rpc::RemoteProcedures& rpc_kernels) const
   {
-    auto search = rpc_kernels.find(op);
+    std::println("---------------------");
+    std::println("Dispatching:");
+    std::println("File: {}", filename_);
+    std::println("Dset: {}", dset_name_);
+    std::println("Time: {}", timestep_);
+    std::println("Op: {}", static_cast<int>(op_));
+    std::print("Reduction: ");
+    for (auto const& el : reduce_along_dim_)
+      std::print("{}, ", static_cast<int>(el));
+    std::println();
+    std::println("---------------------");
+    auto search = rpc_kernels.find(op_);
     if (search == rpc_kernels.end())
       return;
 
-    switch (op)
+    switch (op_)
     {
     case as_rpc::Kernel::mean:
-      search->second.on(server)(filename, dset_name, timestep,
-                                reduce_along_dim);
+      search->second.on(server)(filename_, dset_name_, timestep_,
+                                reduce_along_dim_);
       break;
     case as_rpc::Kernel::hello:
       search->second.on(server)();
@@ -59,11 +68,11 @@ public:
   }
 
 private:
-  as_rpc::Kernel op;
-  unsigned timestep;
-  std::vector<char> reduce_along_dim;
-  std::string filename;
-  std::string dset_name;
+  as_rpc::Kernel op_;
+  unsigned timestep_;
+  std::vector<char> reduce_along_dim_;
+  std::string filename_;
+  std::string dset_name_;
 };
 
 as_rpc::Engine engine;
@@ -102,14 +111,37 @@ void register_operation(const as_rpc::Kernel op,
                         const std::vector<char>& reduce_along_dim)
 {
   operations.emplace_back(op, timestep, reduce_along_dim, filename, dset_name);
-  for (auto const& o : operations)
-    o.print();
 }
 
 void dispatch_operation(const std::filesystem::path& filename,
                         const std::string& dset_name)
 {
-  return;
+  for (auto it = operations.begin(); it != operations.end();)
+  {
+    if (it->dset_name() == dset_name && it->filename() == std::string(filename))
+    {
+      it->dispatch(server, rpc_kernels);
+      it = operations.erase(it);
+    }
+    else
+    {
+      it++;
+    }
+  }
 }
 
-void dispatch_operation(const std::filesystem::path& filename) { return; }
+void dispatch_operation(const std::filesystem::path& filename)
+{
+  for (auto it = operations.begin(); it != operations.end();)
+  {
+    if (it->filename() == std::string(filename))
+    {
+      it->dispatch(server, rpc_kernels);
+      it = operations.erase(it);
+    }
+    else
+    {
+      it++;
+    }
+  }
+}

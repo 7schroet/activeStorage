@@ -124,7 +124,6 @@ herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
   return 0;
 }
 
-#include <iostream>
 herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
                                  hid_t mem_type_id[], hid_t mem_space_id[],
                                  hid_t file_space_id[], hid_t plist_id,
@@ -150,10 +149,10 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
     std::vector<hsize_t> start(rank);
     H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                              nullptr);
-    std::cerr << "------------------- ACCESS TO INFO:\n";
+
+    std::vector<char> reduction{1, 1, 1};
     register_operation(as_rpc::Kernel::mean, o->filename, o->dsetname, start[0],
-                       {1, 1, 1});
-    std::cerr << "-----------------------------------\n";
+                       reduction);
 
     if (req && *req)
       *req = H5VL_as_rpc_dset_t_new_obj(*req, under_vol_id, o->filename,
@@ -198,6 +197,9 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
   if (req && *req)
     *req = H5VL_as_rpc_dset_t_new_obj(*req, under_vol_id, o->filename,
                                       o->dsetname);
+
+  if (args->op_type == H5VL_DATASET_FLUSH)
+    dispatch_operation(o->filename, o->dsetname);
 
   return ret_value;
 }
