@@ -28,37 +28,49 @@
       }
     },
     {
-      "name": "gcc-debug",
-      "inherits": "debug",
+      "name": "gcc",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++"
       }
+    },
+    {
+      "name": "clang",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": [
+        "gcc",
+        "debug"
+      ]
     },
     {
       "name": "gcc-release",
-      "inherits": "release",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++"
-      }
+      "inherits": [
+        "gcc",
+        "release"
+      ]
     },
     {
       "name": "clang-debug",
-      "inherits": "debug",
+      "inherits": [
+        "clang",
+        "debug"
+      ],
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
         "ENABLE_COVERAGE": "OFF"
       }
     },
     {
       "name": "clang-release",
-      "inherits": "release",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++"
-      }
+      "inherits": [
+        "clang",
+        "release"
+      ]
     }
   ]
 }
