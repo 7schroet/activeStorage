@@ -29,12 +29,13 @@ set(CMAKE_C_EXTENSIONS OFF)
 find_package(thallium REQUIRED)
 find_package(HDF5 COMPONENTS C;CXX REQUIRED)
 
-add_compile_options("$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>")
-add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>")
+add_library(as-rpc-flags INTERFACE)
+target_compile_options(as-rpc-flags INTERFACE "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>")
+target_compile_options(as-rpc-flags INTERFACE "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>")
 
 if(ENABLE_SANITIZER)
-  add_compile_options("-fsanitize=address,leak,undefined")
-  add_link_options("-fsanitize=address,leak,undefined")
+  target_compile_options(as-rpc-flags INTERFACE "-fsanitize=address,leak,undefined")
+  target_link_options(as-rpc-flags INTERFACE "-fsanitize=address,leak,undefined")
 endif()
 
 if(ENABLE_TESTS)

@@ -13,8 +13,8 @@ endif()
 message(STATUS "Overriding build type to Debug for coverage calculation")
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 
-add_compile_options("--coverage")
-add_link_options("--coverage")
+target_compile_options(as-rpc-flags INTERFACE "--coverage")
+target_link_options(as-rpc-flags INTERFACE "--coverage")
 
 set(exclude_patterns
   "c++"

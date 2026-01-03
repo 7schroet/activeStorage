@@ -26,6 +26,7 @@ target_sources(as-rpc-hdf5
   FILE_SET HEADERS
   BASE_DIRS include
 )
+target_link_libraries(as-rpc-hdf5 PRIVATE as-rpc-flags)
 target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5 as-rpc)
 if(ENABLE_PLUGIN_LOGGING)
   target_compile_definitions(as-rpc-hdf5 PRIVATE ENABLE_PLUGIN_LOGGING)
@@ -33,5 +34,6 @@ endif()
 install(TARGETS as-rpc-hdf5)
 
 add_executable(hdf5Writer hdf5Writer.c)
+target_link_libraries(hdf5Writer PRIVATE as-rpc-flags)
 target_link_libraries(hdf5Writer PRIVATE HDF5::HDF5)
 install(TARGETS hdf5Writer)
