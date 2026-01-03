@@ -4,7 +4,7 @@ file(MAKE_DIRECTORY ${cppcheck_dir})
 add_custom_target(cppcheck
   COMMAND ${CPPCHECK_EXE}
     --project=${CMAKE_BINARY_DIR}/compile_commands.json
-    -itest
+    -itest -iexternals
     --disable=missingInclude
     --enable=warning,style,unusedFunction,information
     --check-level=exhaustive
