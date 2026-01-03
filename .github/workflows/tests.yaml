@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          submodules: "true"
       - name: Run tests
         run: |
           . /spack/share/spack/setup-env.sh
@@ -29,6 +31,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          submodules: "true"
       - name: Run analysis
         run: |
           . /spack/share/spack/setup-env.sh
@@ -43,6 +47,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          submodules: "true"
       - name: Run coverage
         run: |
           . /spack/share/spack/setup-env.sh
