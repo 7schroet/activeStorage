@@ -22,5 +22,7 @@ ExcludeHeaderFilterRegex: ''
 FormatStyle:     none
 SystemHeaders:   false
 UseColor: true
+CheckOptions:
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: 'true'
 ...
 
