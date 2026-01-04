@@ -17,12 +17,76 @@
  * limitations under the License.
  */
 
-#include <iostream>
+#include <algorithm>
+#include <cstdlib>
+#include <fstream>
+#include <istream>
+#include <print>
 #include <toml.hpp>
+#include <vector>
 
-int main()
+namespace
 {
-  const toml::value in = toml::parse("input.toml");
-  std::cout << in.at("key") << '\n';
-  return 0;
+struct as_rpc_operation
+{
+  std::string type;
+  std::string infile;
+  std::string outfile;
+  std::string dset;
+  std::vector<char> dims;
+
+  explicit as_rpc_operation(const toml::value& v)
+      : type{toml::find<std::string>(v, "type")},
+        infile{toml::find<std::string>(v, "infile")},
+        outfile{toml::find<std::string>(v, "outfile")},
+        dset{toml::find<std::string>(v, "dset")},
+        dims{toml::find<std::vector<char>>(v, "dims")}
+  {
+  }
+};
+
+using Operations = std::vector<as_rpc_operation>;
+
+Operations parse_toml(std::istream& input)
+{
+  constexpr char ARRAY_NAME[] = "operations";
+  const toml::value toml_in = toml::parse(input);
+  Operations operations{};
+
+  auto toml_operations = toml_in.at(ARRAY_NAME);
+  if (!toml_operations.is_array_of_tables())
+  {
+    std::println(stderr, "'{}' must be an array of tables!", ARRAY_NAME);
+    exit(EXIT_FAILURE);
+  }
+
+  std::ranges::transform(
+      toml_operations.as_array(), std::back_inserter(operations),
+      [](const toml::value& v) { return as_rpc_operation(v); });
+
+  return operations;
+}
+} // namespace
+
+int main(int argc, char* argv[])
+{
+  if (argc != 2)
+  {
+    std::println(stderr, "Path to toml file required!");
+    return EXIT_FAILURE;
+  }
+
+  std::ifstream input{argv[1]};
+  auto ops = parse_toml(input);
+  for (const auto& op : ops)
+  {
+    std::println("{}", op.type);
+    std::println("{}", op.infile);
+    std::println("{}", op.outfile);
+    std::println("{}", op.dset);
+    for (const auto& el : op.dims)
+      std::print("{}", static_cast<int>(el));
+    std::println();
+  }
+  return EXIT_SUCCESS;
 }

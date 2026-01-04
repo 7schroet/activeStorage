@@ -1,0 +1,14 @@
+[[operations]]
+type = "mean"
+dims = [1,1,1]
+infile = "a.h5"
+dset = "dings"
+outfile = "outmean.h5"
+
+[[operations]]
+type = "max"
+dims = [0,1,1]
+infile = "b.h5"
+dset = "dings2"
+outfile = "outmax.h5"
+
