@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 
-#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <istream>
@@ -60,9 +59,8 @@ Operations parse_toml(std::istream& input)
     exit(EXIT_FAILURE);
   }
 
-  std::ranges::transform(
-      toml_operations.as_array(), std::back_inserter(operations),
-      [](const toml::value& v) { return as_rpc_operation(v); });
+  for (const auto& table : toml_operations.as_array())
+    operations.emplace_back(table);
 
   return operations;
 }
