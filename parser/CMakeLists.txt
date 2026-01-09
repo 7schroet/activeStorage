@@ -33,3 +33,7 @@ install(TARGETS as-rpc-config-parse FILE_SET HEADERS)
 add_executable(parse-test main.cpp)
 target_link_libraries(parse-test PRIVATE as-rpc-flags)
 target_link_libraries(parse-test PRIVATE as-rpc-config-parse)
+
+if(ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
