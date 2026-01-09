@@ -34,6 +34,7 @@ Operations parse_toml(std::istream& input)
   if (!toml_operations.is_array_of_tables())
   {
     std::println(stderr, "'{}' must be an array of tables!", ARRAY_NAME);
+    std::println(stderr, "Declare as such:\n[[{}]]\ntype = ...", ARRAY_NAME);
     exit(EXIT_FAILURE);
   }
 
