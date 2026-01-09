@@ -17,17 +17,24 @@
  * limitations under the License.
  */
 
-#ifndef AS_RPC_HPP
-#define AS_RPC_HPP
+#ifndef AS_RPC_KERNEL_REGISTRATION_HPP
+#define AS_RPC_KERNEL_REGISTRATION_HPP
 
-#include "as_rpc_engine.hpp"
-#include "as_rpc_kernel_registration.hpp"
-#include "as_rpc_kernels.hpp"
-#include "as_rpc_macros.hpp"
-#include "as_rpc_protocols.hpp"
 #include "as_rpc_types.hpp"
-#include "as_rpc_utils.hpp"
 
-#include <thallium/serialization/stl/string.hpp>
-#include <thallium/serialization/stl/vector.hpp>
+namespace as_rpc
+{
+/**
+ * Servers need to call this at some point
+ * before starting the main loop.
+ */
+void register_kernels_at_server(Engine& engine);
+
+/**
+ * Clients must call this function instead to
+ * get access to the RPCs on the server.
+ */
+const RemoteProcedures register_kernels_at_client(Engine& engine);
+} // namespace as_rpc
+
 #endif

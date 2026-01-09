@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,27 +20,12 @@
 #ifndef AS_RPC_TYPES_HPP
 #define AS_RPC_TYPES_HPP
 
-#include "as_rpc_macros.hpp"
+#include "as_rpc_kernels.hpp"
 #include <thallium.hpp>
 #include <unordered_map>
 
-/**
- * This macro is supposed to be the single "point of truth"
- * for existing kernels. Whenever you want to add a kernel,
- * add the implementation somewhere and then add the name
- * of the new kernel to this macro.
- */
-#define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
-  KERNEL(hello)                                                                \
-  KERNEL(mean)
-
 namespace as_rpc
 {
-
-enum class Kernel
-{
-  ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_ENUM)
-};
 // In case a switch to a different lib is necessary,
 // encase this in a #define and add the new option.
 using Engine = thallium::engine;

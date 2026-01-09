@@ -4,6 +4,7 @@ set(public_headers
     as_rpc.hpp
     as_rpc_engine.hpp
     as_rpc_kernels.hpp
+    as_rpc_kernel_registration.hpp
     as_rpc_macros.hpp
     as_rpc_protocols.hpp
     as_rpc_types.hpp

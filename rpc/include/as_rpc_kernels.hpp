@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,21 +20,25 @@
 #ifndef AS_RPC_KERNELS_HPP
 #define AS_RPC_KERNELS_HPP
 
-#include "as_rpc_types.hpp"
+#include "as_rpc_macros.hpp"
+
+/**
+ * This macro is supposed to be the single "point of truth"
+ * for existing kernels. Whenever you want to add a kernel,
+ * add the implementation somewhere and then add the name
+ * of the new kernel to this macro.
+ */
+#define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
+  KERNEL(hello)                                                                \
+  KERNEL(mean)
 
 namespace as_rpc
 {
-/**
- * Servers need to call this at some point
- * before starting the main loop.
- */
-void register_kernels_at_server(Engine& engine);
 
-/**
- * Clients must call this function instead to
- * get access to the RPCs on the server.
- */
-const RemoteProcedures register_kernels_at_client(Engine& engine);
-} // namespace as_rpc
+enum class Kernel
+{
+  ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_ENUM)
+};
 
+}
 #endif

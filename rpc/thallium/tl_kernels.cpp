@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+#include "as_rpc_kernel_registration.hpp"
 #include "as_rpc_kernels.hpp"
 #include "as_rpc_types.hpp"
 #include "tl_kernel_impl.hpp"
