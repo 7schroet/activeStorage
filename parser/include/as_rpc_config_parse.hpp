@@ -38,7 +38,7 @@ struct Operation
 
 using Operations = std::vector<Operation>;
 
-Operations parse_toml(std::istream& input);
+[[nodiscard]] Operations parse_toml(std::istream& input);
 } // namespace as_rpc_config
 
 #endif

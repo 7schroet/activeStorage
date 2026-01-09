@@ -68,7 +68,7 @@ outfile = "../outmean.h5"
   )";
 
   std::stringstream input{ops_not_table};
-  EXPECT_EXIT(as_rpc_config::parse_toml(input),
+  EXPECT_EXIT(auto _ = as_rpc_config::parse_toml(input),
               testing::ExitedWithCode(EXIT_FAILURE), "");
 }
 
