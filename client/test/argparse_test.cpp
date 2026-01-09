@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -47,8 +47,7 @@ protected:
   std::streambuf* old_out;
 };
 
-static void assert_config_eq(const ClientConfig& expected,
-                             const ClientConfig& actual)
+void assert_config_eq(const ClientConfig& expected, const ClientConfig& actual)
 {
   EXPECT_EQ(expected.server_address_file, actual.server_address_file);
   EXPECT_EQ(expected.protocol, actual.protocol);
