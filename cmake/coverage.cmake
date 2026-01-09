@@ -25,6 +25,7 @@ set(exclude_patterns
   "mercury"
   "mochi"
   "/test"
+  "externals/toml11"
 )
 list(TRANSFORM exclude_patterns PREPEND "--exclude;" OUTPUT_VARIABLE exclude_patterns)
 
