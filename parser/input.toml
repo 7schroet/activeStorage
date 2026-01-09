@@ -6,9 +6,9 @@ dset = "dings"
 outfile = "outmean.h5"
 
 [[operations]]
-type = "max"
+type = "mean"
 dims = [0,1,1]
 infile = "b.h5"
 dset = "dings2"
-outfile = "outmax.h5"
+outfile = "outmean2.h5"
 

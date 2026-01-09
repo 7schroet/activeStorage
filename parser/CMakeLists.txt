@@ -1,4 +1,5 @@
 add_executable(parse-test main.cpp)
+target_include_directories(parse-test PRIVATE ${CMAKE_SOURCE_DIR}/rpc/include)
 
 set(ext_toml11_dir ${CMAKE_SOURCE_DIR}/externals/toml11)
 set(ext_toml11_patch ${CMAKE_SOURCE_DIR}/externals/toml11.patch)

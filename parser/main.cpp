@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+#include "as_rpc_kernels.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <istream>
@@ -28,18 +29,18 @@ namespace
 {
 struct as_rpc_operation
 {
-  std::string type;
   std::string infile;
   std::string outfile;
   std::string dset;
   std::vector<char> dims;
+  as_rpc::Kernel kernel;
 
   explicit as_rpc_operation(const toml::value& v)
-      : type{toml::find<std::string>(v, "type")},
-        infile{toml::find<std::string>(v, "infile")},
+      : infile{toml::find<std::string>(v, "infile")},
         outfile{toml::find<std::string>(v, "outfile")},
         dset{toml::find<std::string>(v, "dset")},
-        dims{toml::find<std::vector<char>>(v, "dims")}
+        dims{toml::find<std::vector<char>>(v, "dims")},
+        kernel{as_rpc::string_to_kernel(toml::find<std::string>(v, "type"))}
   {
   }
 };
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
   auto ops = parse_toml(input);
   for (const auto& op : ops)
   {
-    std::println("{}", op.type);
+    std::println("{}", as_rpc::kernel_to_string(op.kernel));
     std::println("{}", op.infile);
     std::println("{}", op.outfile);
     std::println("{}", op.dset);
