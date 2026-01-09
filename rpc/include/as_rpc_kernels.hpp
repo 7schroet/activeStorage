@@ -21,6 +21,11 @@
 #define AS_RPC_KERNELS_HPP
 
 #include "as_rpc_macros.hpp"
+#include <cstdint>
+#include <format>
+#include <stdexcept>
+#include <string_view>
+#include <utility>
 
 /**
  * This macro is supposed to be the single "point of truth"
@@ -35,10 +40,34 @@
 namespace as_rpc
 {
 
-enum class Kernel
+enum class Kernel : std::uint8_t
 {
   ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_ENUM)
 };
 
+inline constexpr std::string_view kernel_to_string(Kernel kernel)
+{
+  static const std::string kernel_strings[] = {
+      ASRPC_FOREACH_KERNEL(ASRPC_GENERATE_STRING)};
+  return kernel_strings[std::to_underlying(kernel)];
 }
+
+inline constexpr Kernel string_to_kernel(std::string_view kernel_string)
+{
+  if (kernel_string == "hello")
+  {
+    return Kernel::hello;
+  }
+  else if (kernel_string == "mean")
+  {
+    return Kernel::mean;
+  }
+  else
+  {
+    throw std::runtime_error(
+        std::format("Unknown kernel '{}'\n", kernel_string));
+  }
+}
+
+} // namespace as_rpc
 #endif
