@@ -181,7 +181,7 @@ outfile = "/path/to/outmean.h5"
 type = "hello"
 dset = "alsoDataset"
 outfile = "outmean2.h5"
-dims = [0,1,1]
+dims = [0,1,1,]
 infile = "b.h5"
       )";
 

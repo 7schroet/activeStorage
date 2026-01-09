@@ -30,9 +30,9 @@ target_link_libraries(as-rpc-config-parse PRIVATE as-rpc-flags)
 target_link_libraries(as-rpc-config-parse PRIVATE toml11::toml11)
 install(TARGETS as-rpc-config-parse FILE_SET HEADERS)
 
-add_executable(parse-test main.cpp)
-target_link_libraries(parse-test PRIVATE as-rpc-flags)
-target_link_libraries(parse-test PRIVATE as-rpc-config-parse)
+add_executable(as-rpc-config-validate as_rpc_config_validate.cpp)
+target_link_libraries(as-rpc-config-validate PRIVATE as-rpc-flags)
+target_link_libraries(as-rpc-config-validate PRIVATE as-rpc-config-parse)
 
 if(ENABLE_TESTS)
   add_subdirectory(test)

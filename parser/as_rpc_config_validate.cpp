@@ -19,6 +19,7 @@
 
 #include "as_rpc_config_parse.hpp"
 #include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <print>
 
@@ -31,16 +32,28 @@ int main(int argc, char* argv[])
   }
 
   std::ifstream input{argv[1]};
-  auto ops = as_rpc_config::parse_toml(input);
-  for (const auto& op : ops)
+  try
   {
-    std::println("{}", as_rpc::kernel_to_string(op.kernel));
-    std::println("{}", op.infile);
-    std::println("{}", op.outfile);
-    std::println("{}", op.dset);
-    for (const auto& el : op.dims)
-      std::print("{}", static_cast<int>(el));
-    std::println();
+    auto ops = as_rpc_config::parse_toml(input);
+    std::println("Input validated! Echoing the config:");
+    for (const auto& op : ops)
+    {
+      std::println("[[operations]]");
+      std::println("type = \"{}\"", as_rpc::kernel_to_string(op.kernel));
+      std::println("infile = \"{}\"", op.infile);
+      std::println("outfile = \"{}\"", op.outfile);
+      std::println("dset = \"{}\"", op.dset);
+      std::print("dims = [");
+      for (const auto& el : op.dims)
+        std::print("{},", static_cast<int>(el));
+      std::println("]\n");
+    }
+  }
+  catch (const std::exception& e)
+  {
+    std::println(stderr, "Input was not valid, error message was:");
+    std::println(stderr, "{}", e.what());
+    return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
