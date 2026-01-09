@@ -6,4 +6,4 @@ unusedFunction:plugin/as_rpc_hdf5.cpp
 
 # Suggests to replace a loop calling emplace_back with stl copy.
 # Using stl transform results in too many moves.
-useStlAlgorithm:parser/main.cpp
+useStlAlgorithm:parser/as_rpc_config_parse.cpp

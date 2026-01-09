@@ -17,30 +17,28 @@
  * limitations under the License.
  */
 
-#include "as_rpc_config_parse.hpp"
-#include <cstdlib>
-#include <fstream>
-#include <print>
+#ifndef AS_RPC_CONFIG_PARSE_HPP
+#define AS_RPC_CONFIG_PARSE_HPP
 
-int main(int argc, char* argv[])
+#include "as_rpc_kernels.hpp"
+#include <istream>
+#include <string>
+#include <vector>
+
+namespace as_rpc_config
 {
-  if (argc != 2)
-  {
-    std::println(stderr, "Path to toml file required!");
-    return EXIT_FAILURE;
-  }
+struct Operation
+{
+  std::string infile;
+  std::string outfile;
+  std::string dset;
+  std::vector<char> dims;
+  as_rpc::Kernel kernel;
+};
 
-  std::ifstream input{argv[1]};
-  auto ops = as_rpc_config::parse_toml(input);
-  for (const auto& op : ops)
-  {
-    std::println("{}", as_rpc::kernel_to_string(op.kernel));
-    std::println("{}", op.infile);
-    std::println("{}", op.outfile);
-    std::println("{}", op.dset);
-    for (const auto& el : op.dims)
-      std::print("{}", static_cast<int>(el));
-    std::println();
-  }
-  return EXIT_SUCCESS;
-}
+using Operations = std::vector<Operation>;
+
+Operations parse_toml(std::istream& input);
+} // namespace as_rpc_config
+
+#endif

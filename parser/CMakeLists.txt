@@ -1,6 +1,3 @@
-add_executable(parse-test main.cpp)
-target_include_directories(parse-test PRIVATE ${CMAKE_SOURCE_DIR}/rpc/include)
-
 set(ext_toml11_dir ${CMAKE_SOURCE_DIR}/externals/toml11)
 set(ext_toml11_patch ${CMAKE_SOURCE_DIR}/externals/toml11.patch)
 
@@ -14,5 +11,25 @@ execute_process(
 
 set(TOML11_PRECOMPILE ON)
 add_subdirectory("${ext_toml11_dir}" ${CMAKE_BINARY_DIR}/externals/toml11)
+
+add_library(as-rpc-config-parse STATIC)
+target_sources(as-rpc-config-parse
+  PRIVATE
+    as_rpc_config_parse.cpp
+
+  PUBLIC
+  FILE_SET HEADERS
+  BASE_DIRS
+    include
+    ${CMAKE_SOURCE_DIR}/rpc/include
+  FILES
+    include/as_rpc_config_parse.hpp
+    ${CMAKE_SOURCE_DIR}/rpc/include/as_rpc_kernels.hpp
+)
+target_link_libraries(as-rpc-config-parse PRIVATE as-rpc-flags)
+target_link_libraries(as-rpc-config-parse PRIVATE toml11::toml11)
+install(TARGETS as-rpc-config-parse FILE_SET HEADERS)
+
+add_executable(parse-test main.cpp)
 target_link_libraries(parse-test PRIVATE as-rpc-flags)
-target_link_libraries(parse-test PUBLIC toml11::toml11)
+target_link_libraries(parse-test PRIVATE as-rpc-config-parse)
