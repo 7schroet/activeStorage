@@ -33,6 +33,7 @@ install(TARGETS as-rpc-config-parse FILE_SET HEADERS)
 add_executable(as-rpc-config-validate as_rpc_config_validate.cpp)
 target_link_libraries(as-rpc-config-validate PRIVATE as-rpc-flags)
 target_link_libraries(as-rpc-config-validate PRIVATE as-rpc-config-parse)
+install(TARGETS as-rpc-config-validate)
 
 if(ENABLE_TESTS)
   add_subdirectory(test)
