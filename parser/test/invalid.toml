@@ -1,9 +1,5 @@
-# Comments are completely ignored, and so are extra keys
-
-extra = "key"
-
 [[operations]]
-type = "mean"
+# type = "mean"
 dims = [1,1,1]
 infile = "a.h5"
 dset = "dings"
