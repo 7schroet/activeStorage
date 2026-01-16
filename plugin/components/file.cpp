@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -23,9 +23,9 @@
 #include "rpc_handler.hpp"
 #include <cstring>
 
-H5VL_as_rpc_file_t*
-H5VL_as_rpc_file_t_new_obj(void* under_obj, hid_t under_vol_id,
-                           const std::filesystem::path& filename)
+H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
+                                               hid_t under_vol_id,
+                                               const std::string& filename)
 {
   log_msg("FILE STRUCT creation");
   auto new_obj = new H5VL_as_rpc_file_t();
@@ -226,7 +226,7 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
   }
 
   if (op_type == H5VL_FILE_FLUSH)
-    dispatch_operation(o->filename);
+    dispatch_operations(o->filename);
 
   return ret_value;
 }

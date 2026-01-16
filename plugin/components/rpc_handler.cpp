@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -18,21 +18,23 @@
  */
 
 #include "rpc_handler.hpp"
+#include "as_rpc.hpp"
+#include "as_rpc_config_parse.hpp"
+#include <fstream>
 #include <print>
 
 namespace
 {
 
-class Operation
+class SingleOperation
 {
 
 public:
-  explicit Operation(as_rpc::Kernel op, unsigned timestep,
-                     std::vector<char> reduce_along_dim, std::string filename,
-                     std::string dset_name)
-      : op_{op}, timestep_{timestep},
-        reduce_along_dim_{std::move(reduce_along_dim)},
-        filename_{std::move(filename)}, dset_name_{std::move(dset_name)} {};
+  explicit SingleOperation(const as_rpc_config::Operation& config_op,
+                           unsigned timestep)
+      : op_{config_op.kernel}, timestep_{timestep},
+        reduce_along_dim_{config_op.dims}, filename_{config_op.infile},
+        dset_name_{config_op.dset} {};
 
   [[nodiscard]] const std::string& filename() const { return filename_; };
   [[nodiscard]] const std::string& dset_name() const { return dset_name_; };
@@ -78,7 +80,8 @@ private:
 as_rpc::Engine engine;
 as_rpc::ServerEndpoint server;
 as_rpc::RemoteProcedures rpc_kernels;
-std::vector<Operation> operations{};
+std::vector<SingleOperation> single_ops{};
+as_rpc_config::Operations configured_ops{};
 
 as_rpc::ServerEndpoint find_server()
 {
@@ -88,6 +91,12 @@ as_rpc::ServerEndpoint find_server()
   return as_rpc::connect_to_server(engine, server_address);
 }
 } // namespace
+
+void parse_as_rpc_config(const std::filesystem::path& path)
+{
+  std::ifstream in{path};
+  configured_ops = as_rpc_config::parse_toml(in);
+}
 
 void register_rpc_client()
 {
@@ -105,23 +114,24 @@ void register_rpc_client()
   }
 }
 
-void register_operation(const as_rpc::Kernel op,
-                        const std::filesystem::path& filename,
-                        const std::string& dset_name, unsigned timestep,
-                        const std::vector<char>& reduce_along_dim)
+void register_single_operation(std::string_view filename,
+                               std::string_view dset_name, unsigned timestep)
 {
-  operations.emplace_back(op, timestep, reduce_along_dim, filename, dset_name);
+  for (const auto& op : configured_ops)
+  {
+    if (filename == op.infile && dset_name == op.dset)
+      single_ops.emplace_back(op, timestep);
+  }
 }
 
-void dispatch_operation(const std::filesystem::path& filename,
-                        const std::string& dset_name)
+void dispatch_operations(std::string_view filename, std::string_view dset_name)
 {
-  for (auto it = operations.begin(); it != operations.end();)
+  for (auto it = single_ops.begin(); it != single_ops.end();)
   {
-    if (it->dset_name() == dset_name && it->filename() == std::string(filename))
+    if (it->dset_name() == dset_name && it->filename() == filename)
     {
       it->dispatch(server, rpc_kernels);
-      it = operations.erase(it);
+      it = single_ops.erase(it);
     }
     else
     {
@@ -130,14 +140,14 @@ void dispatch_operation(const std::filesystem::path& filename,
   }
 }
 
-void dispatch_operation(const std::filesystem::path& filename)
+void dispatch_operations(std::string_view filename)
 {
-  for (auto it = operations.begin(); it != operations.end();)
+  for (auto it = single_ops.begin(); it != single_ops.end();)
   {
-    if (it->filename() == std::string(filename))
+    if (it->filename() == filename)
     {
       it->dispatch(server, rpc_kernels);
-      it = operations.erase(it);
+      it = single_ops.erase(it);
     }
     else
     {

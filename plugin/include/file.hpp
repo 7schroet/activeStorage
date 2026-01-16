@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,8 +20,8 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
-#include <filesystem>
 #include <hdf5.h>
+#include <string>
 
 /**
  * Files get a special struct that also logs the name.
@@ -30,11 +30,11 @@ struct H5VL_as_rpc_file_t
 {
   hid_t under_vol_id;
   void* under_object;
-  std::filesystem::path filename;
+  std::string filename;
 };
-H5VL_as_rpc_file_t*
-H5VL_as_rpc_file_t_new_obj(void* under_obj, hid_t under_vol_id,
-                           const std::filesystem::path& filename);
+H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
+                                               hid_t under_vol_id,
+                                               const std::string& filename);
 herr_t H5VL_as_rpc_file_t_free_obj(H5VL_as_rpc_file_t* obj);
 
 void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,

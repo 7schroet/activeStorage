@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,18 +20,14 @@
 #ifndef AS_RPC_HANDLER_HPP
 #define AS_RPC_HANDLER_HPP
 
-#include "as_rpc.hpp"
 #include <filesystem>
-#include <string>
-#include <vector>
+#include <string_view>
 
 void register_rpc_client();
-void register_operation(const as_rpc::Kernel op,
-                        const std::filesystem::path& filename,
-                        const std::string& dset_name, unsigned timestep,
-                        const std::vector<char>& reduce_along_dim);
-void dispatch_operation(const std::filesystem::path& filename,
-                        const std::string& dset_name);
-void dispatch_operation(const std::filesystem::path& filename);
+void parse_as_rpc_config(const std::filesystem::path& path);
+void register_single_operation(std::string_view filename,
+                               std::string_view dset_name, unsigned timestep);
+void dispatch_operations(std::string_view filename, std::string_view dset_name);
+void dispatch_operations(const std::string_view filename);
 
 #endif

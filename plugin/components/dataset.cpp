@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -23,10 +23,10 @@
 #include "rpc_handler.hpp"
 #include <vector>
 
-H5VL_as_rpc_dset_t*
-H5VL_as_rpc_dset_t_new_obj(void* under_obj, hid_t under_vol_id,
-                           const std::filesystem::path& filename,
-                           const std::string& dsetname)
+H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
+                                               hid_t under_vol_id,
+                                               const std::string& filename,
+                                               const std::string& dsetname)
 {
   log_msg("DSET STRUCT creation");
   auto new_obj = new H5VL_as_rpc_dset_t();
@@ -150,9 +150,7 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
     H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                              nullptr);
 
-    const std::vector<char> reduction{1, 1, 1};
-    register_operation(as_rpc::Kernel::mean, o->filename, o->dsetname, start[0],
-                       reduction);
+    register_single_operation(o->filename, o->dsetname, start[0]);
 
     if (req && *req)
       *req = H5VL_as_rpc_dset_t_new_obj(*req, under_vol_id, o->filename,
@@ -199,7 +197,7 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
                                       o->dsetname);
 
   if (args->op_type == H5VL_DATASET_FLUSH)
-    dispatch_operation(o->filename, o->dsetname);
+    dispatch_operations(o->filename, o->dsetname);
 
   return ret_value;
 }
