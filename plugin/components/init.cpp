@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,11 +20,13 @@
 #include "init.hpp"
 #include "log.hpp"
 #include "rpc_handler.hpp"
+#include <cstdlib>
 
 herr_t H5VL_as_rpc_init([[maybe_unused]] hid_t vipl_id)
 {
   log_msg("INIT");
-
+  const std::filesystem::path operations_path{std::getenv("AS_RPC_OPERATIONS")};
+  parse_as_rpc_config(operations_path);
   register_rpc_client();
   return 0;
 }
