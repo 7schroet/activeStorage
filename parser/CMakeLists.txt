@@ -10,9 +10,10 @@ execute_process(
 )
 
 set(TOML11_PRECOMPILE ON)
+set(BUILD_SHARED_LIBS ON)
 add_subdirectory("${ext_toml11_dir}" ${CMAKE_BINARY_DIR}/externals/toml11)
 
-add_library(as-rpc-config-parse STATIC)
+add_library(as-rpc-config-parse SHARED)
 target_sources(as-rpc-config-parse
   PRIVATE
     as_rpc_config_parse.cpp

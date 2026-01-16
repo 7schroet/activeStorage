@@ -27,7 +27,11 @@ target_sources(as-rpc-hdf5
   BASE_DIRS include
 )
 target_link_libraries(as-rpc-hdf5 PRIVATE as-rpc-flags)
-target_link_libraries(as-rpc-hdf5 PRIVATE HDF5::HDF5 as-rpc)
+target_link_libraries(as-rpc-hdf5 PRIVATE
+  HDF5::HDF5
+  as-rpc
+  as-rpc-config-parse
+)
 if(ENABLE_PLUGIN_LOGGING)
   target_compile_definitions(as-rpc-hdf5 PRIVATE ENABLE_PLUGIN_LOGGING)
 endif()
