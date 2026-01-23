@@ -39,13 +39,14 @@
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
+#define TSTEP_INIT 20
 
 int main(void)
 {
   const hid_t file =
       H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-  constexpr hsize_t initial_dims[RANK] = {1, DSET_X, DSET_Y};
+  constexpr hsize_t initial_dims[RANK] = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
 
   const hid_t dcpl = H5Pcreate(H5P_DATASET_CREATE);
@@ -65,11 +66,11 @@ int main(void)
   printf("Press Enter to write a new time step, or Ctrl+D to terminate\n");
   while (fgets(input, bufsize, stdin))
   {
-    if (current_timestep != 0)
+    if (current_timestep % TSTEP_INIT == 0 && current_timestep != 0)
     {
       hsize_t dims[RANK];
       H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims, nullptr));
-      dims[0]++;
+      dims[0] += TSTEP_INIT;
       H5ERROR_CHECK(H5Dset_extent(dset, dims));
       // dspace must be reopened according to docs
       H5ERROR_CHECK(H5Sclose(dspace));
