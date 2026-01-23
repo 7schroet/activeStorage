@@ -21,7 +21,7 @@ set(exclude_patterns
   "cereal"
   "gmock"
   "gtest"
-  "hdf5"
+   "hdf5-"
   "mercury"
   "mochi"
   "/test"
