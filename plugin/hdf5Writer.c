@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -35,7 +35,7 @@
   } while (0)
 
 #define FILE_NAME "dummyWrite.h5"
-#define DSET_NAME "/dummyDataset"
+#define DSET_NAME "dummyDataset"
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
@@ -94,7 +94,7 @@ int main(void)
 
     H5ERROR_CHECK(
         H5Dwrite(dset, H5T_NATIVE_DOUBLE, memspace, dspace, H5P_DEFAULT, data));
-    H5ERROR_CHECK(H5Dflush(dset));
+    H5ERROR_CHECK(H5Fflush(file, H5F_SCOPE_LOCAL));
 
     H5ERROR_CHECK(H5Sclose(memspace));
     printf("Appended time step %d\n", current_timestep);

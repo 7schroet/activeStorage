@@ -22,6 +22,7 @@
 #include "log.hpp"
 #include "rpc_handler.hpp"
 #include <cstring>
+#include <filesystem>
 
 H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
                                                hid_t under_vol_id,
@@ -31,7 +32,7 @@ H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
   auto new_obj = new H5VL_as_rpc_file_t();
   new_obj->under_object = under_obj;
   new_obj->under_vol_id = under_vol_id;
-  new_obj->filename = filename;
+  new_obj->filename = std::filesystem::absolute(filename);
   H5Iinc_ref(new_obj->under_vol_id);
   return new_obj;
 }

@@ -86,12 +86,12 @@ void* H5VL_as_rpc_dataset_open(void* obj, const H5VL_loc_params_t* loc_params,
                                  name, dapl_id, dxpl_id, req);
   if (under)
   {
-    dset = H5VL_as_rpc_dset_t_new_obj(
-        under, o->under_vol_id, std::filesystem::absolute(o->filename), name);
+    dset =
+        H5VL_as_rpc_dset_t_new_obj(under, o->under_vol_id, o->filename, name);
 
     if (req && *req)
-      *req = H5VL_as_rpc_dset_t_new_obj(
-          *req, o->under_vol_id, std::filesystem::absolute(o->filename), name);
+      *req =
+          H5VL_as_rpc_dset_t_new_obj(*req, o->under_vol_id, o->filename, name);
   }
 
   return dset;
