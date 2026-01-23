@@ -14,6 +14,8 @@ H5FILE=file.h5
 RESULT=asrpc_results_file__dataset_mean.h5
 MEAN_INPUTS=("001" "010" "011" "100" "101" "110" "111")
 
+export HDF5_USE_FILE_LOCKING=FALSE
+
 $SERVER_EXE --addressfile $ADDRESS_FILE --port $PORT &
 PID=$!
 

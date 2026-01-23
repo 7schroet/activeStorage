@@ -45,6 +45,7 @@
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
+#define TSTEP_INIT 20
 
 namespace
 {
@@ -55,7 +56,7 @@ hid_t create_file()
 {
   hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-  constexpr std::array<hsize_t, RANK> dims = {1, DSET_X, DSET_Y};
+  constexpr std::array<hsize_t, RANK> dims = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
                                                   DSET_Y};
 
@@ -127,11 +128,11 @@ void add_timestep(hid_t file, bool randomize)
   auto dspace = H5Dget_space(dset);
   H5ERROR_CHECK(dspace);
 
-  if (current_timestep != 0)
+  if (current_timestep % TSTEP_INIT == 0 && current_timestep != 0)
   {
     std::array<hsize_t, RANK> dims{};
     H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims.data(), nullptr));
-    dims[0]++;
+    dims[0] += TSTEP_INIT;
     H5ERROR_CHECK(H5Dset_extent(dset, dims.data()));
     // dspace must be reopened according to docs
     H5ERROR_CHECK(H5Sclose(dspace));
