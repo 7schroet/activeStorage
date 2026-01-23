@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -76,7 +76,7 @@ void mean([[maybe_unused]] const thallium::request& req,
           const std::string& filename, const std::string& dataset,
           unsigned timestep, const std::vector<char>& reduce_along_dim)
 {
-  H5::H5File file{filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
+  H5::H5File file{filename, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
 
@@ -96,7 +96,7 @@ void mean([[maybe_unused]] const thallium::request& req,
   }
   else
   {
-    H5::H5File tmp{result_filename, H5F_ACC_RDONLY | H5F_ACC_SWMR_READ};
+    H5::H5File tmp{result_filename, H5F_ACC_RDONLY};
     auto result_dset = tmp.openDataSet("result");
     const auto [prev_avg, _] = h5::read_data<double>(result_dset, timestep - 1);
     result_dset.close();

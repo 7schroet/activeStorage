@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -53,8 +53,7 @@ void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 template <typename T>
 hid_t create_file()
 {
-  hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC | H5F_ACC_SWMR_WRITE,
-                         H5P_DEFAULT, H5P_DEFAULT);
+  hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr std::array<hsize_t, RANK> dims = {1, DSET_X, DSET_Y};
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
@@ -81,9 +80,7 @@ hid_t create_file()
   H5ERROR_CHECK(H5Dclose(dset));
   H5ERROR_CHECK(H5Sclose(dspace));
 
-  // close and reopen to enable swmr
-  close_file(file);
-  file = H5Fopen(FILE_NAME, H5F_ACC_RDWR | H5F_ACC_SWMR_WRITE, H5P_DEFAULT);
+  file = H5Fopen(FILE_NAME, H5F_ACC_RDWR, H5P_DEFAULT);
   return file;
 }
 
@@ -165,7 +162,7 @@ void add_timestep(hid_t file, bool randomize)
 
   H5ERROR_CHECK(
       H5Dwrite(dset, dtype, memspace, dspace, H5P_DEFAULT, data.data()));
-  H5ERROR_CHECK(H5Dflush(dset));
+  H5ERROR_CHECK(H5Fflush(file, H5F_SCOPE_LOCAL));
 
   H5ERROR_CHECK(H5Sclose(dspace));
   H5ERROR_CHECK(H5Sclose(memspace));

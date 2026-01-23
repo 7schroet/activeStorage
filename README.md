@@ -32,7 +32,8 @@ The `as-rpc` library is connected to HDF5 via a [VOL plugin](https://support.hdf
 As such, you only need to set four environment variables whenever you want to use the `as-rpc` library with your HDF5 application.
 After building the plugin, set:
 ```sh
-# these are for hdf5 in general
+# these are for HDF5 in general
+export HDF5_USE_FILE_LOCKING=FALSE
 export HDF5_PLUGIN_PATH=<path/to/dir/with/plugin>
 export HDF5_VOL_CONNECTOR="as-rpc-hdf5 under_vol=0;under_info={};"
 # these are specific to the plugin
