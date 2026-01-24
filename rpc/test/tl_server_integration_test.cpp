@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -44,7 +44,7 @@ protected:
 
   static unsigned get_next_port()
   {
-    static unsigned port = 8081;
+    static unsigned port = 8090;
     return port++;
   }
 
