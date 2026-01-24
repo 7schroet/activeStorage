@@ -28,6 +28,10 @@ target_sources(as-rpc-config-parse
     ${CMAKE_SOURCE_DIR}/rpc/include/as_rpc_kernels.hpp
 )
 target_link_libraries(as-rpc-config-parse PRIVATE as-rpc-flags)
+# No idea why clang requires this. Related to https://github.com/llvm/llvm-project/issues/138982
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_link_options(as-rpc-config-parse PRIVATE "-lubsan")
+endif()
 target_link_libraries(as-rpc-config-parse PRIVATE toml11::toml11)
 install(TARGETS as-rpc-config-parse FILE_SET HEADERS)
 
