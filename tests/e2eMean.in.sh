@@ -32,7 +32,14 @@ function run_test_case(){
   local type_in=$2
 
   local result_ref="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean${input}.h5"
-  (for _ in $(seq 1 20); do echo ; done) | $CLIENT_EXE --addressfile $ADDRESS_FILE --mean "$mean_in" --type "$type_in"
+  (
+    for _ in $(seq 1 2); do
+      for _ in $(seq 1 10); do
+        echo
+      done
+      sleep 0.1
+    done
+   ) | $CLIENT_EXE --addressfile $ADDRESS_FILE --mean "$mean_in" --type "$type_in"
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are

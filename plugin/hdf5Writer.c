@@ -39,7 +39,7 @@
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
-#define TSTEP_INIT 20
+#define TSTEP_INIT 10
 
 int main(void)
 {

@@ -34,7 +34,14 @@ export HDF5_VOL_CONNECTOR="as-rpc-hdf5 under_vol=0;under_info={};"
 export AS_RPC_SERVER_ADDRESS=$PWD/${ADDRESS_FILE}
 export AS_RPC_OPERATIONS="@CMAKE_CURRENT_BINARY_DIR@/$CONFIG_NAME"
 
-(for _ in $(seq 1 20); do echo ; done) | $H5_WRITER_EXE
+(
+  for _ in $(seq 1 2); do
+    for _ in $(seq 1 10); do
+      echo
+    done
+    sleep 0.1
+  done
+) | $H5_WRITER_EXE
 
 # see e2eMean.in.sh for explanation
 set +e
