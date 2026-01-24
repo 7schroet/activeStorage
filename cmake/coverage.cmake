@@ -22,6 +22,7 @@ set(exclude_patterns
   "gmock"
   "gtest"
    "hdf5-"
+   "hdf5/"
   "mercury"
   "mochi"
   "/test"
@@ -33,7 +34,7 @@ add_custom_target(coverage
   COMMAND ${CMAKE_CTEST_COMMAND} -T Test -T Coverage
   COMMAND ${LCOV_EXE} -d . -b . --capture
             --output-file coverage.info
-            --ignore-errors mismatch,mismatch
+            --ignore-errors mismatch,mismatch,unused
             ${exclude_patterns}
   COMMAND ${GENHTML_EXE} --demangle-cpp -o coverage coverage.info
 )
