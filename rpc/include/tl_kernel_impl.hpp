@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -28,9 +28,9 @@
 namespace as_rpc::kernel_impl
 {
 void hello(const thallium::request& req);
-void mean(const thallium::request& req, const std::string& filename,
-          const std::string& dataset, unsigned timestep,
-          const std::vector<char>& reduce_along_dim);
+void mean(const thallium::request& req, const std::string& infile,
+          const std::string& outfile, const std::string& dataset,
+          unsigned timestep, const std::vector<char>& reduce_along_dim);
 } // namespace as_rpc::kernel_impl
 
 #endif

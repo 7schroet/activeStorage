@@ -40,7 +40,8 @@
     }                                                                          \
   } while (0)
 
-#define FILE_NAME "file.h5"
+#define INFILE_NAME "infile.h5"
+#define OUTFILE_NAME "outfile.h5"
 #define DSET_NAME "/dataset"
 #define RANK 3
 #define DSET_X 10
@@ -54,7 +55,7 @@ void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 template <typename T>
 hid_t create_file()
 {
-  hid_t file = H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  hid_t file = H5Fcreate(INFILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr std::array<hsize_t, RANK> dims = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
@@ -81,7 +82,7 @@ hid_t create_file()
   H5ERROR_CHECK(H5Dclose(dset));
   H5ERROR_CHECK(H5Sclose(dspace));
 
-  file = H5Fopen(FILE_NAME, H5F_ACC_RDWR, H5P_DEFAULT);
+  file = H5Fopen(INFILE_NAME, H5F_ACC_RDWR, H5P_DEFAULT);
   return file;
 }
 
@@ -210,7 +211,8 @@ int main(int argc, char** argv)
       return create_file<int>();
   }();
 
-  const std::string filename{FILE_NAME};
+  const std::string infile{INFILE_NAME};
+  const std::string outfile{OUTFILE_NAME};
   const std::string dset_name{DSET_NAME};
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
@@ -224,7 +226,7 @@ int main(int argc, char** argv)
       add_timestep<int>(file, config.randomize_data);
 
     std::println("Appended time step {}", count);
-    search->second.on(server)(filename, dset_name, count,
+    search->second.on(server)(infile, outfile, dset_name, count,
                               config.reduce_along_dim);
     count++;
   }

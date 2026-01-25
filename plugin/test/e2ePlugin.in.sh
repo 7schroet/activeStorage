@@ -13,7 +13,7 @@ CONFIG_NAME=$3
 ADDRESS_FILE=e2ePluginAddress
 PORT=8081
 H5FILE="@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
-RESULT=asrpc_results_dummyWrite_dummyDataset_mean.h5
+RESULT="@CMAKE_CURRENT_BINARY_DIR@/outmean.h5"
 
 export HDF5_USE_FILE_LOCKING=FALSE
 

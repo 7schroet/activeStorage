@@ -21,8 +21,6 @@
 #include "as_rpc_kernel_math.hpp"
 #include "h5_helpers.hpp"
 #include <H5Cpp.h>
-#include <algorithm>
-#include <filesystem>
 #include <print>
 #include <string>
 #include <thallium.hpp>
@@ -31,17 +29,6 @@
 
 namespace
 {
-std::string generate_result_filename(const std::string& filename,
-                                     const std::string& dataset,
-                                     const std::string& op)
-{
-  std::string stripped_dataset(dataset);
-  std::ranges::replace(stripped_dataset, '/', '_');
-  const std::filesystem::path basename{filename};
-  return "asrpc_results_" + basename.stem().string() + "_" + stripped_dataset +
-         "_" + op + ".h5";
-}
-
 std::pair<std::vector<double>, std::vector<hsize_t>>
 apply_mean(const H5::PredType& dtype, const H5::DataSet& dset,
            unsigned timestep, const std::vector<char>& reduction_dims)
@@ -73,10 +60,11 @@ void hello([[maybe_unused]] const thallium::request& req)
 }
 
 void mean([[maybe_unused]] const thallium::request& req,
-          const std::string& filename, const std::string& dataset,
-          unsigned timestep, const std::vector<char>& reduce_along_dim)
+          const std::string& infile, const std::string& outfile,
+          const std::string& dataset, unsigned timestep,
+          const std::vector<char>& reduce_along_dim)
 {
-  H5::H5File file{filename, H5F_ACC_RDONLY};
+  H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
 
@@ -88,21 +76,19 @@ void mean([[maybe_unused]] const thallium::request& req,
   std::tie(avg, avg_dims) =
       apply_mean(dtype, dset, timestep, reduction_dims_without_time);
 
-  const std::string result_filename =
-      generate_result_filename(filename, dataset, "mean");
   if (reduce_along_dim[0] == 0 || timestep == 0)
   {
-    h5::write_data(avg, avg_dims, timestep, result_filename);
+    h5::write_data(avg, avg_dims, timestep, outfile);
   }
   else
   {
-    H5::H5File tmp{result_filename, H5F_ACC_RDONLY};
+    H5::H5File tmp{outfile, H5F_ACC_RDONLY};
     auto result_dset = tmp.openDataSet("result");
     const auto [prev_avg, _] = h5::read_data<double>(result_dset, timestep - 1);
     result_dset.close();
     tmp.close();
     const auto running_avg = running_mean(avg, prev_avg, timestep);
-    h5::write_data(running_avg, avg_dims, timestep, result_filename);
+    h5::write_data(running_avg, avg_dims, timestep, outfile);
   }
 
   dset.close();

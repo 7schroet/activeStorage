@@ -10,8 +10,8 @@ CLIENT_EXE=$2
 
 ADDRESS_FILE=e2eMeanAddress
 PORT=8080
-H5FILE=file.h5
-RESULT=asrpc_results_file__dataset_mean.h5
+H5FILE=infile.h5
+RESULT=outfile.h5
 MEAN_INPUTS=("001" "010" "011" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE

@@ -21,7 +21,9 @@
 #include "as_rpc.hpp"
 #include "as_rpc_config_parse.hpp"
 #include <fstream>
+#ifdef ENABLE_PLUGIN_LOGGING
 #include <print>
+#endif
 
 namespace
 {
@@ -33,18 +35,20 @@ public:
   explicit SingleOperation(const as_rpc_config::Operation& config_op,
                            unsigned timestep)
       : op_{config_op.kernel}, timestep_{timestep},
-        reduce_along_dim_{config_op.dims}, filename_{config_op.infile},
-        dset_name_{config_op.dset} {};
+        reduce_along_dim_{config_op.dims}, infile_{config_op.infile},
+        outfile_{config_op.outfile}, dset_name_{config_op.dset} {};
 
-  [[nodiscard]] const std::string& filename() const { return filename_; };
+  [[nodiscard]] const std::string& infile() const { return infile_; };
   [[nodiscard]] const std::string& dset_name() const { return dset_name_; };
 
   void dispatch(const as_rpc::ServerEndpoint& server,
                 const as_rpc::RemoteProcedures& rpc_kernels) const
   {
+#ifdef ENABLE_PLUGIN_LOGGING
     std::println("---------------------");
     std::println("Dispatching:");
-    std::println("File: {}", filename_);
+    std::println("In: {}", infile_);
+    std::println("Out: {}", outfile_);
     std::println("Dset: {}", dset_name_);
     std::println("Time: {}", timestep_);
     std::println("Op: {}", static_cast<int>(op_));
@@ -53,6 +57,7 @@ public:
       std::print("{}, ", static_cast<int>(el));
     std::println();
     std::println("---------------------");
+#endif
     auto search = rpc_kernels.find(op_);
     if (search == rpc_kernels.end())
       return;
@@ -60,7 +65,7 @@ public:
     switch (op_)
     {
     case as_rpc::Kernel::mean:
-      search->second.on(server)(filename_, dset_name_, timestep_,
+      search->second.on(server)(infile_, outfile_, dset_name_, timestep_,
                                 reduce_along_dim_);
       break;
     case as_rpc::Kernel::hello:
@@ -73,7 +78,8 @@ private:
   as_rpc::Kernel op_;
   unsigned timestep_;
   std::vector<char> reduce_along_dim_;
-  std::string filename_;
+  std::string infile_;
+  std::string outfile_;
   std::string dset_name_;
 };
 
@@ -128,7 +134,7 @@ void dispatch_operations(std::string_view filename, std::string_view dset_name)
 {
   for (auto it = single_ops.begin(); it != single_ops.end();)
   {
-    if (it->dset_name() == dset_name && it->filename() == filename)
+    if (it->dset_name() == dset_name && it->infile() == filename)
     {
       it->dispatch(server, rpc_kernels);
       it = single_ops.erase(it);
@@ -144,7 +150,7 @@ void dispatch_operations(std::string_view filename)
 {
   for (auto it = single_ops.begin(); it != single_ops.end();)
   {
-    if (it->filename() == filename)
+    if (it->infile() == filename)
     {
       it->dispatch(server, rpc_kernels);
       it = single_ops.erase(it);
