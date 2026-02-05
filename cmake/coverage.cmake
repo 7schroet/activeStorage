@@ -6,7 +6,7 @@ if(NOT ENABLE_TESTS)
   message(FATAL_ERROR "Coverage requires tests to be enabled!")
 endif()
 
-if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+if(NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
   message(FATAL_ERROR "Coverage requires gcc!")
 endif()
 
