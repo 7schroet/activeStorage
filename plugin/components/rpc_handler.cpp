@@ -45,18 +45,18 @@ public:
                 const as_rpc::RemoteProcedures& rpc_kernels) const
   {
 #ifdef ENABLE_PLUGIN_LOGGING
-    std::println("---------------------");
-    std::println("Dispatching:");
-    std::println("In: {}", infile_);
-    std::println("Out: {}", outfile_);
-    std::println("Dset: {}", dset_name_);
-    std::println("Time: {}", timestep_);
-    std::println("Op: {}", static_cast<int>(op_));
-    std::print("Reduction: ");
+    std::println(stderr, "---------------------");
+    std::println(stderr, "Dispatching:");
+    std::println(stderr, "In: {}", infile_);
+    std::println(stderr, "Out: {}", outfile_);
+    std::println(stderr, "Dset: {}", dset_name_);
+    std::println(stderr, "Time: {}", timestep_);
+    std::println(stderr, "Op: {}", static_cast<int>(op_));
+    std::print(stderr, "Reduction: ");
     for (auto const& el : reduce_along_dim_)
-      std::print("{}, ", static_cast<int>(el));
-    std::println();
-    std::println("---------------------");
+      std::print(stderr, "{}, ", static_cast<int>(el));
+    std::println(stderr);
+    std::println(stderr, "---------------------");
 #endif
     auto search = rpc_kernels.find(op_);
     if (search == rpc_kernels.end())
