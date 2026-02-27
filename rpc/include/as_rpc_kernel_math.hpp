@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -21,6 +21,7 @@
 #define AS_RPC_KERNEL_MATH_HPP
 
 #include <H5Cpp.h>
+#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <numeric>
@@ -28,6 +29,11 @@
 
 namespace as_rpc::kernel_impl
 {
+
+inline const auto max_wrap = [](auto& container)
+{ return *std::ranges::max_element(container); };
+inline const auto min_wrap = [](auto& container)
+{ return *std::ranges::min_element(container); };
 
 template <typename T>
 std::pair<std::vector<double>, std::vector<hsize_t>>
@@ -37,6 +43,11 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
                                  int num_entries);
+
+template <typename T, auto Func>
+std::pair<std::vector<T>, std::vector<hsize_t>>
+compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+                  const std::vector<char>& reduce_along_dim);
 
 // Template impl
 template <typename T>
@@ -131,6 +142,26 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
   std::erase(new_dims, 1);
   return {std::move(result), std::move(new_dims)};
+}
+
+template <typename T, auto Func>
+std::pair<std::vector<T>, std::vector<hsize_t>>
+compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+                  const std::vector<char>& reduce_along_dim)
+{
+  assert((data.size() != 0) && "Passed vector of size 0!");
+  assert((dims.size() == reduce_along_dim.size()) &&
+         "Dimensionalities do not match!");
+
+  const auto num_reduced_dims =
+      std::reduce(reduce_along_dim.begin(), reduce_along_dim.end(), 0u);
+  const bool reduce_to_single_value = num_reduced_dims == dims.size();
+  if (reduce_to_single_value)
+  {
+    const T result = Func(data);
+    return {{result}, {1}};
+  }
+  return {{}, {}};
 }
 
 } // namespace as_rpc::kernel_impl

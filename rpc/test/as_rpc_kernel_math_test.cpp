@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -441,4 +441,350 @@ TEST(Math, MeanReduceAllButThird3D)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
   EXPECT_EQ(expected_dims, actual_dims);
 }
+
+TEST(Math, MaxOneElement)
+{
+  const std::vector<double> expected_data{5.0};
+  const std::vector<hsize_t> expected_dims{1};
+
+  const auto [actual_data, actual_dims] =
+      as_rpc::kernel_impl::compare_reduction<double,
+                                             as_rpc::kernel_impl::max_wrap>(
+          expected_data, expected_dims, {1});
+  EXPECT_EQ(expected_data.size(), actual_data.size());
+  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
+  EXPECT_EQ(expected_dims, actual_dims);
+}
+
+TEST(Math, MinOneElement)
+{
+  const std::vector<double> expected_data{5.0};
+  const std::vector<hsize_t> expected_dims{1};
+
+  const auto [actual_data, actual_dims] =
+      as_rpc::kernel_impl::compare_reduction<double,
+                                             as_rpc::kernel_impl::min_wrap>(
+          expected_data, expected_dims, {1});
+  EXPECT_EQ(expected_data.size(), actual_data.size());
+  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
+  EXPECT_EQ(expected_dims, actual_dims);
+}
+
+TEST(Math, MaxDoubles1D)
+{
+  const std::vector<double> data{12.0, 13.0, 14.0, 15.0};
+  const std::vector<hsize_t> dims{data.size()};
+  const std::vector<double> expected_data{15.0};
+  const std::vector<hsize_t> expected_dims{1};
+
+  const auto [actual_data, actual_dims] =
+      as_rpc::kernel_impl::compare_reduction<double,
+                                             as_rpc::kernel_impl::max_wrap>(
+          data, dims, {1});
+  EXPECT_EQ(expected_data.size(), actual_data.size());
+  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
+  EXPECT_EQ(expected_dims, actual_dims);
+}
+
+TEST(Math, MinInts1D)
+{
+  const std::vector<int> data{12, 13, 14, 15, 16, 17};
+  const std::vector<hsize_t> dims{data.size()};
+  const std::vector<double> expected_data{12};
+  const std::vector<hsize_t> expected_dims{1};
+
+  const auto [actual_data, actual_dims] =
+      as_rpc::kernel_impl::compare_reduction<int,
+                                             as_rpc::kernel_impl::min_wrap>(
+          data, dims, {1});
+  EXPECT_EQ(expected_data.size(), actual_data.size());
+  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
+  EXPECT_EQ(expected_dims, actual_dims);
+}
+
+TEST(Math, MaxReduceAll2D)
+{
+  std::vector<double> data{};
+  const std::vector<hsize_t> dims{5, 10};
+  const auto elements = dims[0] * dims[1];
+  constexpr auto mult = 5.55;
+  const std::vector<char> reduce_along_dim{1, 1};
+  for (decltype(dims)::value_type i = 0; i < elements; i++)
+    data.push_back(mult * i);
+
+  const std::vector<double> expected_data{mult * (elements - 1)};
+  const std::vector<hsize_t> expected_dims{1};
+
+  const auto [actual_data, actual_dims] =
+      as_rpc::kernel_impl::compare_reduction<double,
+                                             as_rpc::kernel_impl::max_wrap>(
+          data, dims, reduce_along_dim);
+  EXPECT_EQ(expected_data.size(), actual_data.size());
+  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
+  EXPECT_EQ(expected_dims.size(), actual_dims.size());
+}
+/**/
+/*TEST(Math, MeanReduceFirst2D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{10};*/
+/**/
+/*  const std::vector<hsize_t> dims{5, 10};*/
+/*  const std::vector<char> reduce_along_dim{1, 0};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*      data.push_back(10.0 * j);*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[1]; i++)*/
+/*    expected_data.push_back(10.0 * i);*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(10, actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceSecond2D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{5};*/
+/**/
+/*  const std::vector<hsize_t> dims{5, 10};*/
+/*  const std::vector<char> reduce_along_dim{0, 1};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*      data.push_back(10.0 * j + i);*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*    expected_data.push_back(45.0 + i);*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(5, actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceAll3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{1, 1, 1};*/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0] * dims[1] * dims[2];
+ * i++)*/
+/*    data.push_back(5.55 * i);*/
+/**/
+/*  auto sum = std::reduce(data.cbegin(), data.cend(), 0.0);*/
+/*  std::vector<double> expected_data{sum / data.size()};*/
+/*  const std::vector<hsize_t> expected_dims{1};*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(expected_data.size(), actual_data.size());*/
+/*  EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);*/
+/*  EXPECT_EQ(expected_dims.size(), actual_dims.size());*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceFirst3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{5, 10};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{1, 0, 0};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*        data.push_back(10.0 * k + i);*/
+/*    }*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[1]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[2]; j++)*/
+/*      expected_data.push_back(10.0 * j + 0.5);*/
+/*  }*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[1] * dims[2], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceSecond3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{2, 10};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{0, 1, 0};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*      {*/
+/*        data.push_back(10.0 * k + i);*/
+/*        std::cout << data.back() << ", ";*/
+/*      }*/
+/*      std::cout << "\n";*/
+/*    }*/
+/*    std::cout << "\n\n";*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[2]; j++)*/
+/*    {*/
+/*      expected_data.push_back(10.0 * j + i);*/
+/*      std::cout << expected_data.back() << ", ";*/
+/*    }*/
+/*    std::cout << "\n";*/
+/*  }*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[0] * dims[2], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceThird3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{2, 5};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{0, 0, 1};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*        data.push_back(10.0 * k + i);*/
+/*    }*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*      expected_data.push_back(45.0 + i);*/
+/*  }*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[0] * dims[1], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceAllButFirst3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{2};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{0, 1, 1};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*        data.push_back(10.0 * k + i);*/
+/*    }*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*    expected_data.push_back(45.0 + i);*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[0], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceAllButSecond3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{5};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{1, 0, 1};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*        data.push_back(10.0 * k + i);*/
+/*    }*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[1]; i++)*/
+/*    expected_data.push_back(45.5);*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[1], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
+/**/
+/*TEST(Math, MeanReduceAllButThird3D)*/
+/*{*/
+/*  std::vector<double> data{};*/
+/*  std::vector<double> expected_data{};*/
+/*  const std::vector<hsize_t> expected_dims{10};*/
+/**/
+/*  const std::vector<hsize_t> dims{2, 5, 10};*/
+/*  const std::vector<char> reduce_along_dim{1, 1, 0};*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[0]; i++)*/
+/*  {*/
+/*    for (decltype(dims)::value_type j = 0; j < dims[1]; j++)*/
+/*    {*/
+/*      for (decltype(dims)::value_type k = 0; k < dims[2]; k++)*/
+/*        data.push_back(10.0 * k + i);*/
+/*    }*/
+/*  }*/
+/**/
+/*  for (decltype(dims)::value_type i = 0; i < dims[2]; i++)*/
+/*    expected_data.push_back(10.0 * i + 0.5);*/
+/**/
+/*  const auto [actual_data, actual_dims] =*/
+/*      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);*/
+/*  EXPECT_EQ(dims[2], actual_data.size());*/
+/*  for (auto i = 0ul; i < expected_data.size(); i++)*/
+/*    EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);*/
+/*  EXPECT_EQ(expected_dims, actual_dims);*/
+/*}*/
 } // namespace
