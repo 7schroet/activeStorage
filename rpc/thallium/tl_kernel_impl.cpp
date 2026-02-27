@@ -36,17 +36,17 @@ apply_mean(const H5::PredType& dtype, const H5::DataSet& dset,
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
     const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
-    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
     const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
-    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
   }
   else
   {
     const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
-    return as_rpc::kernel_impl::mean_reduction(data, dims, reduction_dims);
+    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
   }
 }
 } // namespace

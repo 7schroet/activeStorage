@@ -114,7 +114,8 @@ TEST(Math, MeanOneElement)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(expected_data, expected_dims, {1});
+      as_rpc::kernel_impl::reduction_operation(expected_data, expected_dims,
+                                               {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -128,7 +129,7 @@ TEST(Math, MeanDoubles1D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, {1});
+      as_rpc::kernel_impl::reduction_operation(data, dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -142,7 +143,7 @@ TEST(Math, MeanInts1D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, {1});
+      as_rpc::kernel_impl::reduction_operation(data, dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -150,14 +151,16 @@ TEST(Math, MeanInts1D)
 
 TEST(Math, MeanZeroElementDeathTest)
 {
-  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({}, {1}, {1}),
-                     "Passed vector of size 0!");
+  EXPECT_DEBUG_DEATH(
+      as_rpc::kernel_impl::reduction_operation<int>({}, {1}, {1}),
+      "Passed vector of size 0!");
 }
 
 TEST(Math, MeanDimMismatchDeathTest)
 {
-  EXPECT_DEBUG_DEATH(as_rpc::kernel_impl::mean_reduction<int>({1}, {1}, {1, 0}),
-                     "Dimensionalities do not match!");
+  EXPECT_DEBUG_DEATH(
+      as_rpc::kernel_impl::reduction_operation<int>({1}, {1}, {1, 0}),
+      "Dimensionalities do not match!");
 }
 
 TEST(Math, MeanReduceAll2D)
@@ -173,7 +176,7 @@ TEST(Math, MeanReduceAll2D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims.size(), actual_dims.size());
@@ -198,7 +201,7 @@ TEST(Math, MeanReduceFirst2D)
     expected_data.push_back(10.0 * i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -224,7 +227,7 @@ TEST(Math, MeanReduceSecond2D)
     expected_data.push_back(45.0 + i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -245,7 +248,7 @@ TEST(Math, MeanReduceAll3D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims.size(), actual_dims.size());
@@ -276,7 +279,7 @@ TEST(Math, MeanReduceFirst3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -308,7 +311,7 @@ TEST(Math, MeanReduceSecond3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -340,7 +343,7 @@ TEST(Math, MeanReduceThird3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -369,7 +372,7 @@ TEST(Math, MeanReduceAllButFirst3D)
     expected_data.push_back(45.0 + i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -398,7 +401,7 @@ TEST(Math, MeanReduceAllButSecond3D)
     expected_data.push_back(45.5);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -427,7 +430,7 @@ TEST(Math, MeanReduceAllButThird3D)
     expected_data.push_back(10.0 * i + 0.5);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::mean_reduction(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation(data, dims, reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -440,10 +443,10 @@ TEST(Math, MaxOneElement)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(expected_data, expected_dims,
-                                                {1});
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(expected_data,
+                                                       expected_dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -455,10 +458,10 @@ TEST(Math, MinOneElement)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(expected_data, expected_dims,
-                                                {1});
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(expected_data,
+                                                       expected_dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -472,9 +475,9 @@ TEST(Math, MaxDoubles1D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, {1});
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -488,9 +491,9 @@ TEST(Math, MinInts1D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          int, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, {1});
+      as_rpc::kernel_impl::reduction_operation<
+          int, int, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims, {1});
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims, actual_dims);
@@ -510,9 +513,10 @@ TEST(Math, MaxReduceAll2D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_DOUBLE_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims.size(), actual_dims.size());
@@ -537,9 +541,10 @@ TEST(Math, MinReduceFirst2D)
     expected_data.push_back(10.0 * i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -565,9 +570,10 @@ TEST(Math, MaxReduceSecond2D)
     expected_data.push_back(10 * (dims[1] - 1) + i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          int, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          int, int, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_EQ(expected_data[i], actual_data[i]);
@@ -587,9 +593,10 @@ TEST(Math, MinReduceAll3D)
   const std::vector<hsize_t> expected_dims{1};
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          float, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          float, float, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   EXPECT_FLOAT_EQ(expected_data[0], actual_data[0]);
   EXPECT_EQ(expected_dims.size(), actual_dims.size());
@@ -620,9 +627,10 @@ TEST(Math, MaxReduceFirst3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -654,9 +662,10 @@ TEST(Math, MinReduceSecond3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -688,9 +697,10 @@ TEST(Math, MaxReduceThird3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -716,9 +726,10 @@ TEST(Math, MinReduceAllButFirst3D)
   }
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -747,9 +758,10 @@ TEST(Math, MaxReduceAllButSecond3D)
     expected_data.push_back(10.0 * (dims[2] - 1) + dims[0] - 1);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_max,
-          as_rpc::kernel_impl::elementwise_max>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
@@ -778,9 +790,10 @@ TEST(Math, MinReduceAllButThird3D)
     expected_data.push_back(10.0 * i);
 
   const auto [actual_data, actual_dims] =
-      as_rpc::kernel_impl::compare_reduction<
-          double, as_rpc::kernel_impl::global_min,
-          as_rpc::kernel_impl::elementwise_min>(data, dims, reduce_along_dim);
+      as_rpc::kernel_impl::reduction_operation<
+          double, double, as_rpc::kernel_impl::global_min,
+          as_rpc::kernel_impl::elementwise_min, false>(data, dims,
+                                                       reduce_along_dim);
   EXPECT_EQ(expected_data.size(), actual_data.size());
   for (auto i = 0ul; i < expected_data.size(); i++)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);

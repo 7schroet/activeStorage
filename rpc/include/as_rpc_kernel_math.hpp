@@ -36,31 +36,51 @@ inline const auto global_max = [](auto& container)
 inline const auto global_min = [](auto& container)
 { return *std::ranges::min_element(container); };
 
+inline const auto global_avg = [](auto& container)
+{
+  const double sum = std::reduce(container.begin(), container.end(), 0.0);
+  return sum / container.size();
+};
+
 inline const auto elementwise_max = [](auto a, auto b)
 { return std::max(a, b); };
 
 inline const auto elementwise_min = [](auto a, auto b)
 { return std::min(a, b); };
 
-template <typename T>
-std::pair<std::vector<double>, std::vector<hsize_t>>
-mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
-               const std::vector<char>& reduce_along_dim);
+/**
+ * This template implements the logic of how the input vector is iterated over.
+ * The reduction itself is governed by @GlobalFunc@ and @ElementFunc@. The
+ * @GlobalFunc@ is used iff the input is supposed to be reduced to a single
+ * value, as a short-cut of some sorts. The @ElementFunc@ is used to process
+ * two consecutive elements during a reduction. So for finding a max value, it
+ * should be a function that returns the larger value of two inputs. For means,
+ * it should sum the two elements. The last template parameter, @normalize@, is
+ * a flag to enable a normalization by the number of elements once all
+ * consecutive elements have been touched. This is needed for things like the
+ * average.
+ *
+ * The defaults are chosen to match a mean reduction.
+ */
+template <typename InputType, typename OutputType = double,
+          auto GlobalFunc = global_avg, auto ElementFunc = std::plus{},
+          bool normalize = true>
+std::pair<std::vector<OutputType>, std::vector<hsize_t>>
+reduction_operation(const std::vector<InputType>& data,
+                    const std::vector<hsize_t>& dims,
+                    const std::vector<char>& reduce_along_dim);
 
 std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
                                  int num_entries);
 
-template <typename T, auto Func>
-std::pair<std::vector<T>, std::vector<hsize_t>>
-compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
-                  const std::vector<char>& reduce_along_dim);
-
 // Template impl
-template <typename T>
-std::pair<std::vector<double>, std::vector<hsize_t>>
-mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
-               const std::vector<char>& reduce_along_dim)
+template <typename InputType, typename OutputType, auto GlobalFunc,
+          auto ElementFunc, bool normalize>
+std::pair<std::vector<OutputType>, std::vector<hsize_t>>
+reduction_operation(const std::vector<InputType>& data,
+                    const std::vector<hsize_t>& dims,
+                    const std::vector<char>& reduce_along_dim)
 {
   assert((data.size() != 0) && "Passed vector of size 0!");
   assert((dims.size() == reduce_along_dim.size()) &&
@@ -71,13 +91,12 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
   const bool reduce_to_single_value = num_reduced_dims == dims.size();
   if (reduce_to_single_value)
   {
-    const double sum = std::reduce(data.begin(), data.end(), 0.0);
-    const double avg = sum / data.size();
-    return {{avg}, {1}};
+    const OutputType result = GlobalFunc(data);
+    return {{result}, {1}};
   }
 
   std::vector<hsize_t> new_dims{dims};
-  std::vector<double> result(data.begin(), data.end());
+  std::vector<OutputType> result(data.begin(), data.end());
 
   /**
    * Each iteration of this loop reduces one dimension down to 1, if requested
@@ -92,7 +111,7 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
       continue;
 
     const auto elements_post_reduction = result.size() / new_dims[current_dim];
-    std::vector<double> tmp(elements_post_reduction);
+    std::vector<OutputType> tmp(elements_post_reduction);
 
     /**
      * Each reduction operates in 'blocks'. A block in this case is a contiguous
@@ -131,76 +150,8 @@ mean_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
       for (auto j = 0ul; j < stride_for_reduction_steps; j++)
       {
-        double sum = 0.0;
         auto offset = j * stride_reduction_starts + block_offset;
-        for (auto element = 0ul; element < new_dims[current_dim]; element++)
-        {
-          sum += result[offset];
-          offset += stride_for_reduction_steps;
-        }
-
-        tmp[j + i * stride_for_reduction_steps] = sum / new_dims[current_dim];
-      }
-    }
-
-    new_dims[current_dim] = 1;
-    result = std::move(tmp);
-  }
-
-  std::erase(new_dims, 1);
-  return {std::move(result), std::move(new_dims)};
-}
-
-template <typename T, auto GlobalFunc, auto ElementFunc>
-std::pair<std::vector<T>, std::vector<hsize_t>>
-compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
-                  const std::vector<char>& reduce_along_dim)
-{
-  assert((data.size() != 0) && "Passed vector of size 0!");
-  assert((dims.size() == reduce_along_dim.size()) &&
-         "Dimensionalities do not match!");
-
-  const auto num_reduced_dims =
-      std::reduce(reduce_along_dim.begin(), reduce_along_dim.end(), 0u);
-  const bool reduce_to_single_value = num_reduced_dims == dims.size();
-  if (reduce_to_single_value)
-  {
-    const T result = GlobalFunc(data);
-    return {{result}, {1}};
-  }
-
-  std::vector<hsize_t> new_dims{dims};
-  std::vector<T> result(data.begin(), data.end());
-
-  for (int current_dim = new_dims.size() - 1; current_dim >= 0; current_dim--)
-  {
-    if (!(reduce_along_dim[current_dim]))
-      continue;
-
-    const auto elements_post_reduction = result.size() / new_dims[current_dim];
-    std::vector<T> tmp(elements_post_reduction);
-
-    const auto elements_in_block =
-        std::reduce(new_dims.begin() + current_dim, new_dims.end(), 1ul,
-                    std::multiplies<>());
-
-    const auto num_blocks = result.size() / elements_in_block;
-
-    const auto stride_for_reduction_steps =
-        std::reduce(new_dims.begin() + current_dim + 1, new_dims.end(), 1ul,
-                    std::multiplies<>());
-
-    const auto stride_reduction_starts =
-        stride_for_reduction_steps == 1 ? new_dims[current_dim] : 1ul;
-
-    for (auto i = 0ul; i < num_blocks; i++)
-    {
-      auto block_offset = i * elements_in_block;
-
-      for (auto j = 0ul; j < stride_for_reduction_steps; j++)
-      {
-        auto offset = j * stride_reduction_starts + block_offset;
-        T reduction = result[offset];
+        OutputType reduction = result[offset];
         offset += stride_for_reduction_steps;
         for (auto element = 1ul; element < new_dims[current_dim]; element++)
         {
@@ -208,7 +159,11 @@ compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
           offset += stride_for_reduction_steps;
         }
 
-        tmp[j + i * stride_for_reduction_steps] = reduction;
+        if constexpr (normalize)
+          tmp[j + i * stride_for_reduction_steps] =
+              reduction / new_dims[current_dim];
+        else
+          tmp[j + i * stride_for_reduction_steps] = reduction;
       }
     }
 
@@ -219,6 +174,5 @@ compare_reduction(const std::vector<T>& data, const std::vector<hsize_t>& dims,
   std::erase(new_dims, 1);
   return {std::move(result), std::move(new_dims)};
 }
-
 } // namespace as_rpc::kernel_impl
 #endif
