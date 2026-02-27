@@ -74,6 +74,10 @@ std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
                                  int num_entries);
 
+template <typename T, auto CompFunc>
+std::vector<T> running_reduction(const std::vector<T>& most_recent,
+                                 const std::vector<T>& current_running);
+
 // Template impl
 template <typename InputType, typename OutputType, auto GlobalFunc,
           auto ElementFunc, bool normalize>
@@ -173,6 +177,23 @@ reduction_operation(const std::vector<InputType>& data,
 
   std::erase(new_dims, 1);
   return {std::move(result), std::move(new_dims)};
+}
+
+template <typename T, auto CompFunc>
+std::vector<T> running_reduction(const std::vector<T>& most_recent,
+                                 const std::vector<T>& current_running)
+{
+  assert((most_recent.size() == current_running.size()) &&
+         "Passed vectors must have the same size!");
+  assert((current_running.size() != 0) &&
+         "Running result must contain elements!");
+
+  std::vector<T> result(most_recent.size());
+  for (auto i = 0ul; i < most_recent.size(); i++)
+  {
+    result[i] = CompFunc(most_recent[i], current_running[i]);
+  }
+  return result;
 }
 } // namespace as_rpc::kernel_impl
 #endif

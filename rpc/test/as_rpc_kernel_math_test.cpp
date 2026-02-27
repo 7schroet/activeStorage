@@ -799,4 +799,30 @@ TEST(Math, MinReduceAllButThird3D)
     EXPECT_DOUBLE_EQ(expected_data[i], actual_data[i]);
   EXPECT_EQ(expected_dims, actual_dims);
 }
+
+TEST(Math, RunningCompSingleElements)
+{
+  const std::vector<float> first{20.0f};
+  const std::vector<float> second{30.0f};
+  const std::vector<float> expected{30.0f};
+
+  const auto actual = as_rpc::kernel_impl::running_reduction<
+      float, as_rpc::kernel_impl::elementwise_max>(second, first);
+  EXPECT_EQ(expected.size(), actual.size());
+  EXPECT_DOUBLE_EQ(expected[0], actual[0]);
+}
+
+TEST(Math, RunningCompVectors)
+{
+  const std::vector<double> first{20.0, 31.0, 42.2, 50.0};
+  const std::vector<double> second{25.0, 31.0, 40.0, 49.4};
+  const std::vector<double> expected{20.0, 31.0, 40.0, 49.4};
+
+  const auto actual = as_rpc::kernel_impl::running_reduction<
+      double, as_rpc::kernel_impl::elementwise_min>(second, first);
+  EXPECT_EQ(expected.size(), actual.size());
+  for (auto i = 0ul; i < expected.size(); i++)
+    EXPECT_DOUBLE_EQ(expected[i], actual[i]);
+}
+
 } // namespace
