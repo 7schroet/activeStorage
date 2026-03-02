@@ -20,8 +20,6 @@
 #include <hdf5.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #define H5ERROR_CHECK(func)                                                    \
   do                                                                           \
@@ -42,36 +40,8 @@
 #define DSET_Y 10
 #define TSTEP_INIT 10
 
-[[noreturn]] void usage()
+int main()
 {
-  fprintf(stderr, "Run the HDF5 writer.\n");
-  fprintf(stderr, "Usage:\n");
-  fprintf(stderr, "--randomize: Randomize the input data (optional)\n");
-  exit(EXIT_FAILURE);
-}
-
-int main(int argc, char* argv[])
-{
-  bool randomize = false;
-  if (argc > 2)
-  {
-    fprintf(stderr, "Too many args, aborting.");
-    usage();
-  }
-  else if (argc == 2)
-  {
-    const char* randomize_flag = "--randomize";
-    if (strncmp(randomize_flag, argv[1], strlen(randomize_flag)) == 0)
-    {
-      randomize = true;
-    }
-    else
-    {
-      fprintf(stderr, "Unknown arg %s, aborting\n", argv[1]);
-      usage();
-    }
-  }
-
   const hid_t file =
       H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -90,7 +60,6 @@ int main(int argc, char* argv[])
   int current_timestep = 0;
   constexpr int bufsize = 256;
   char input[bufsize];
-  srand((unsigned)time(nullptr));
 
   printf("Press Enter to write a new time step, or Ctrl+D to terminate\n");
   while (fgets(input, bufsize, stdin))
@@ -112,16 +81,10 @@ int main(int argc, char* argv[])
                                       count, nullptr));
 
     double data[DSET_X * DSET_Y];
-    double random = 0.0;
     for (int i = 0; i < DSET_X; i++)
     {
       for (int j = 0; j < DSET_Y; j++)
-      {
-        if (randomize)
-          random = ((double)rand() / (double)(RAND_MAX));
-
-        data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0 + random;
-      }
+        data[i * DSET_Y + j] = 1.0 * offset[0] + 10.0;
     }
 
     const hid_t memspace = H5Screate_simple(RANK, count, nullptr);
