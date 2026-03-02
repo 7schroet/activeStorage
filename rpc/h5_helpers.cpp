@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -113,14 +113,24 @@ read_data<float>(const H5::DataSet& dset, unsigned timestep);
 template std::pair<std::vector<int>, std::vector<hsize_t>>
 read_data<int>(const H5::DataSet& dset, unsigned timestep);
 
-void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, unsigned timestep,
-                const std::string& filename, const std::string& dset_name)
+template <typename T>
+void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+                unsigned timestep, const std::string& filename,
+                const std::string& dset_name)
 {
   H5::H5File file;
   H5::DataSet dset;
   H5::DataSpace dspace;
   constexpr hsize_t chunk_size_first_dim = 16;
+  const H5::PredType dtype = []
+  {
+    if constexpr (std::is_same_v<T, double>)
+      return H5::PredType::NATIVE_DOUBLE;
+    else if constexpr (std::is_same_v<T, float>)
+      return H5::PredType::NATIVE_FLOAT;
+    else if constexpr (std::is_same_v<T, int>)
+      return H5::PredType::NATIVE_INT;
+  }();
 
   if (timestep == 0)
   {
@@ -143,8 +153,7 @@ void write_data(const std::vector<double>& data,
 
     dspace = H5::DataSpace{static_cast<int>(dset_dims.size()), dset_dims.data(),
                            max_dims.data()};
-    dset = file.createDataSet(dset_name.c_str(), H5::PredType::NATIVE_DOUBLE,
-                              dspace, dcpl);
+    dset = file.createDataSet(dset_name.c_str(), dtype, dspace, dcpl);
 
     dcpl.close();
   }
@@ -173,11 +182,24 @@ void write_data(const std::vector<double>& data,
   H5::DataSpace memspace{static_cast<int>(current_dset_dims.size()),
                          count.data()};
 
-  dset.write(data.data(), H5::PredType::NATIVE_DOUBLE, memspace, dspace);
+  dset.write(data.data(), dtype, memspace, dspace);
 
   memspace.close();
   dspace.close();
   dset.close();
   file.close();
 }
+
+template void write_data(const std::vector<double>& data,
+                         const std::vector<hsize_t>& dims, unsigned timestep,
+                         const std::string& filename,
+                         const std::string& dset_name);
+template void write_data(const std::vector<float>& data,
+                         const std::vector<hsize_t>& dims, unsigned timestep,
+                         const std::string& filename,
+                         const std::string& dset_name);
+template void write_data(const std::vector<int>& data,
+                         const std::vector<hsize_t>& dims, unsigned timestep,
+                         const std::string& filename,
+                         const std::string& dset_name);
 } // namespace as_rpc::h5

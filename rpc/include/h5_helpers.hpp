@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -49,10 +49,22 @@ read_data<int>(const H5::DataSet& dset, unsigned timestep);
 // we pass the dims of the data separately.
 // For any given filename, it is required to always call this with the
 // same dims, otherwise the write might fail/lead to unexpected results.
-void write_data(const std::vector<double>& data,
-                const std::vector<hsize_t>& dims, unsigned timestep,
-                const std::string& filename,
+template <typename T>
+void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+                unsigned timestep, const std::string& filename,
                 const std::string& dset_name = "/result");
 
+extern template void write_data(const std::vector<double>& data,
+                                const std::vector<hsize_t>& dims,
+                                unsigned timestep, const std::string& filename,
+                                const std::string& dset_name);
+extern template void write_data(const std::vector<float>& data,
+                                const std::vector<hsize_t>& dims,
+                                unsigned timestep, const std::string& filename,
+                                const std::string& dset_name);
+extern template void write_data(const std::vector<int>& data,
+                                const std::vector<hsize_t>& dims,
+                                unsigned timestep, const std::string& filename,
+                                const std::string& dset_name);
 } // namespace as_rpc::h5
 #endif
