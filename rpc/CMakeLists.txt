@@ -1,18 +1,24 @@
 add_library(as-rpc SHARED)
 
-set(public_headers
-    as_rpc.hpp
-    as_rpc_engine.hpp
-    as_rpc_kernels.hpp
-    as_rpc_kernel_registration.hpp
-    as_rpc_macros.hpp
-    as_rpc_protocols.hpp
-    as_rpc_types.hpp
-    as_rpc_utils.hpp
+set(
+  public_headers
+  as_rpc.hpp
+  as_rpc_engine.hpp
+  as_rpc_kernels.hpp
+  as_rpc_kernel_registration.hpp
+  as_rpc_macros.hpp
+  as_rpc_protocols.hpp
+  as_rpc_types.hpp
+  as_rpc_utils.hpp
 )
-list(TRANSFORM public_headers PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/include/" OUTPUT_VARIABLE public_headers)
+list(
+  TRANSFORM public_headers
+  PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  OUTPUT_VARIABLE public_headers
+)
 
-target_sources(as-rpc
+target_sources(
+  as-rpc
   PRIVATE
     thallium/tl_engine.cpp
     thallium/tl_kernel_impl.cpp
@@ -24,15 +30,21 @@ target_sources(as-rpc
     include/h5_helpers.hpp
     h5_helpers.cpp
     as_rpc_kernel_math.cpp
-
   PUBLIC
-  FILE_SET HEADERS
-  BASE_DIRS include
-  FILES ${public_headers}
+    FILE_SET HEADERS
+      BASE_DIRS
+        include
+      FILES
+        ${public_headers}
 )
 
 target_link_libraries(as-rpc PRIVATE as-rpc-flags)
-target_link_libraries(as-rpc PUBLIC thallium HDF5::HDF5) # PUBLIC because there is an include thallium in the rpc headers
+target_link_libraries(
+  as-rpc
+  PUBLIC
+    thallium
+    HDF5::HDF5
+) # PUBLIC because there is an include thallium in the rpc headers
 install(TARGETS as-rpc FILE_SET HEADERS)
 
 if(ENABLE_TESTS)

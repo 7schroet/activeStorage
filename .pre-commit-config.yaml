@@ -7,3 +7,11 @@ repos:
   rev: v20.1.6
   hooks:
   - id: clang-format
+- repo: https://github.com/BlankSpruce/gersemi
+  rev: 0.26.0
+  hooks:
+  - id: gersemi
+    args:
+      - -i
+      - --indent=2
+      - --list-expansion=favour-expansion

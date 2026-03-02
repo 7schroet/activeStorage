@@ -5,7 +5,8 @@ find_package(Git REQUIRED)
 set(patch_check "${GIT_EXECUTABLE} apply ${ext_toml11_patch} --check -q")
 set(patch_apply "${GIT_EXECUTABLE} apply ${ext_toml11_patch}")
 execute_process(
-  COMMAND bash -c "${patch_check} && ${patch_apply}"
+  COMMAND
+    bash -c "${patch_check} && ${patch_apply}"
   WORKING_DIRECTORY ${ext_toml11_dir}
 )
 
@@ -14,18 +15,18 @@ set(BUILD_SHARED_LIBS ON)
 add_subdirectory("${ext_toml11_dir}" ${CMAKE_BINARY_DIR}/externals/toml11)
 
 add_library(as-rpc-config-parse SHARED)
-target_sources(as-rpc-config-parse
+target_sources(
+  as-rpc-config-parse
   PRIVATE
     as_rpc_config_parse.cpp
-
   PUBLIC
-  FILE_SET HEADERS
-  BASE_DIRS
-    include
-    ${CMAKE_SOURCE_DIR}/rpc/include
-  FILES
-    include/as_rpc_config_parse.hpp
-    ${CMAKE_SOURCE_DIR}/rpc/include/as_rpc_kernels.hpp
+    FILE_SET HEADERS
+      BASE_DIRS
+        include
+        ${CMAKE_SOURCE_DIR}/rpc/include
+      FILES
+        include/as_rpc_config_parse.hpp
+        ${CMAKE_SOURCE_DIR}/rpc/include/as_rpc_kernels.hpp
 )
 target_link_libraries(as-rpc-config-parse PRIVATE as-rpc-flags)
 # No idea why clang requires this. Related to https://github.com/llvm/llvm-project/issues/138982

@@ -1,7 +1,8 @@
 option(ENABLE_PLUGIN_LOGGING "Enable log messages for the HDF5 plugin" OFF)
 
 add_library(as-rpc-hdf5 SHARED)
-target_sources(as-rpc-hdf5
+target_sources(
+  as-rpc-hdf5
   PRIVATE
     components/attribute.cpp
     components/blob.cpp
@@ -21,16 +22,18 @@ target_sources(as-rpc-hdf5
     components/utils.cpp
     components/wrap.cpp
     as_rpc_hdf5.cpp
-
   PRIVATE
-  FILE_SET HEADERS
-  BASE_DIRS include
+    FILE_SET HEADERS
+      BASE_DIRS
+        include
 )
 target_link_libraries(as-rpc-hdf5 PRIVATE as-rpc-flags)
-target_link_libraries(as-rpc-hdf5 PRIVATE
-  HDF5::HDF5
-  as-rpc
-  as-rpc-config-parse
+target_link_libraries(
+  as-rpc-hdf5
+  PRIVATE
+    HDF5::HDF5
+    as-rpc
+    as-rpc-config-parse
 )
 if(ENABLE_PLUGIN_LOGGING)
   target_compile_definitions(as-rpc-hdf5 PRIVATE ENABLE_PLUGIN_LOGGING)

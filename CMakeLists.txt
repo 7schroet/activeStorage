@@ -5,14 +5,31 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(ENABLE_SANITIZER "Build with asan, lsan and ubsan" OFF)
 option(ENABLE_TESTS "Build with tests enabled (requires GoogleTest)" OFF)
-option(ENABLE_COVERAGE "Create target 'coverage' to calculate test coverage (requires gcov and lcov)" OFF)
-option(ENABLE_STATIC_ANALYSIS "Create target 'analysis' for static analyses (requires cppcheck and clang-tidy)" OFF)
+option(
+  ENABLE_COVERAGE
+  "Create target 'coverage' to calculate test coverage (requires gcov and lcov)"
+  OFF
+)
+option(
+  ENABLE_STATIC_ANALYSIS
+  "Create target 'analysis' for static analyses (requires cppcheck and clang-tidy)"
+  OFF
+)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install" CACHE PATH "" FORCE)
-  message(STATUS "No install prefix was specified, defaulting to ${CMAKE_CURRENT_SOURCE_DIR}/install")
+  set(
+    CMAKE_INSTALL_PREFIX
+    "${CMAKE_CURRENT_SOURCE_DIR}/install"
+    CACHE PATH
+    ""
+    FORCE
+  )
+  message(
+    STATUS
+    "No install prefix was specified, defaulting to ${CMAKE_CURRENT_SOURCE_DIR}/install"
+  )
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -30,12 +47,28 @@ find_package(thallium REQUIRED)
 find_package(HDF5 COMPONENTS C;CXX REQUIRED)
 
 add_library(as-rpc-flags INTERFACE)
-target_compile_options(as-rpc-flags INTERFACE "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>")
-target_compile_options(as-rpc-flags INTERFACE "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>")
+target_compile_options(
+  as-rpc-flags
+  INTERFACE
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>"
+)
+target_compile_options(
+  as-rpc-flags
+  INTERFACE
+    "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>"
+)
 
 if(ENABLE_SANITIZER)
-  target_compile_options(as-rpc-flags INTERFACE "-fsanitize=address,leak,undefined")
-  target_link_options(as-rpc-flags INTERFACE "-fsanitize=address,leak,undefined")
+  target_compile_options(
+    as-rpc-flags
+    INTERFACE
+      "-fsanitize=address,leak,undefined"
+  )
+  target_link_options(
+    as-rpc-flags
+    INTERFACE
+      "-fsanitize=address,leak,undefined"
+  )
 endif()
 
 if(ENABLE_TESTS)
@@ -60,12 +93,20 @@ endif()
 
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON CACHE BOOL "" FORCE)
-file(RELATIVE_PATH lib_dir
+file(
+  RELATIVE_PATH
+  lib_dir
   "${CMAKE_INSTALL_FULL_BINDIR}"
   "${CMAKE_INSTALL_FULL_LIBDIR}"
 )
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/${lib_dir};${CMAKE_INSTALL_RPATH}" CACHE STRING "" FORCE)
+set(
+  CMAKE_INSTALL_RPATH
+  "$ORIGIN/${lib_dir};${CMAKE_INSTALL_RPATH}"
+  CACHE STRING
+  ""
+  FORCE
+)
 
 add_subdirectory(rpc)
 add_subdirectory(server)

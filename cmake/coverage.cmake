@@ -6,9 +6,11 @@ if(NOT ENABLE_TESTS)
   message(FATAL_ERROR "Coverage requires tests to be enabled!")
 endif()
 
+# gersemi: off
 if(NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
   message(FATAL_ERROR "Coverage requires gcc!")
 endif()
+# gersemi: on
 
 message(STATUS "Overriding build type to Debug for coverage calculation")
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
@@ -16,25 +18,32 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 target_compile_options(as-rpc-flags INTERFACE "--coverage")
 target_link_options(as-rpc-flags INTERFACE "--coverage")
 
-set(exclude_patterns
+set(
+  exclude_patterns
   "c++"
   "cereal"
   "gmock"
   "gtest"
-   "hdf5-"
-   "hdf5/"
+  "hdf5-"
+  "hdf5/"
   "mercury"
   "mochi"
   "/test"
   "externals/toml11"
 )
-list(TRANSFORM exclude_patterns PREPEND "--exclude;" OUTPUT_VARIABLE exclude_patterns)
+list(
+  TRANSFORM exclude_patterns
+  PREPEND "--exclude;"
+  OUTPUT_VARIABLE exclude_patterns
+)
 
-add_custom_target(coverage
-  COMMAND ${CMAKE_CTEST_COMMAND} -T Test -T Coverage
-  COMMAND ${LCOV_EXE} -d . -b . --capture
-            --output-file coverage.info
-            --ignore-errors mismatch,mismatch,unused
-            ${exclude_patterns}
-  COMMAND ${GENHTML_EXE} --demangle-cpp -o coverage coverage.info
+add_custom_target(
+  coverage
+  COMMAND
+    ${CMAKE_CTEST_COMMAND} -T Test -T Coverage
+  COMMAND
+    ${LCOV_EXE} -d . -b . --capture --output-file coverage.info --ignore-errors
+    mismatch,mismatch,unused ${exclude_patterns}
+  COMMAND
+    ${GENHTML_EXE} --demangle-cpp -o coverage coverage.info
 )

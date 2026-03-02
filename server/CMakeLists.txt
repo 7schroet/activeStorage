@@ -1,11 +1,11 @@
 add_executable(as-server)
-target_sources(as-server
+target_sources(
+  as-server
   PRIVATE
     argparse.cpp
     main.cpp
-
   PRIVATE
-  FILE_SET HEADERS
+    FILE_SET HEADERS
 )
 target_link_libraries(as-server PRIVATE as-rpc-flags)
 target_link_libraries(as-server PRIVATE as-rpc)
