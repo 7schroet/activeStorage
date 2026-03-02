@@ -2,8 +2,11 @@
   "author": {
     "from_git": true
   },
-  "license": "Apache-2.0",
-  "title": false,
+  "exclude": [
+    "^build.*",
+    "^\\.git[^/]+",
+    "^\\.git/.+"
+  ],
   "force_license": true,
   "include": [
     "**/*.c",
@@ -11,9 +14,6 @@
     "**/*.cpp",
     "**/*.hpp"
   ],
-  "exclude": [
-    "^build.*",
-    "^\\.git[^/]+",
-    "^\\.git/.+"
-  ]
+  "license": "Apache-2.0",
+  "title": false
 }
