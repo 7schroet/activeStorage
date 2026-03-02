@@ -35,7 +35,8 @@
  */
 #define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
   KERNEL(hello)                                                                \
-  KERNEL(mean)
+  KERNEL(mean)                                                                 \
+  KERNEL(max)
 
 namespace as_rpc
 {
