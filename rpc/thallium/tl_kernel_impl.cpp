@@ -49,6 +49,38 @@ apply_mean(const H5::PredType& dtype, const H5::DataSet& dset,
     return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
   }
 }
+
+template <typename T>
+void apply_max(const H5::DataSet& dset, const std::string& outfile,
+               unsigned timestep, const std::vector<char>& reduce_along_dim)
+{
+  const std::vector<char> reduction_dims_without_time{
+      reduce_along_dim.begin() + 1, reduce_along_dim.end()};
+
+  const auto [data, dims] = as_rpc::h5::read_data<T>(dset, timestep);
+  const auto [result_data, result_dims] =
+      as_rpc::kernel_impl::reduction_operation<
+          T, T, as_rpc::kernel_impl::global_max,
+          as_rpc::kernel_impl::elementwise_max, false>(
+          data, dims, reduction_dims_without_time);
+
+  if (reduce_along_dim[0] == 0 || timestep == 0)
+  {
+    as_rpc::h5::write_data<T>(result_data, result_dims, timestep, outfile);
+  }
+  else
+  {
+    H5::H5File tmp{outfile, H5F_ACC_RDONLY};
+    auto result_dset = tmp.openDataSet("result");
+    const auto [prev_result, _] =
+        as_rpc::h5::read_data<T>(result_dset, timestep - 1);
+    result_dset.close();
+    tmp.close();
+    const auto running_result = as_rpc::kernel_impl::running_reduction<
+        T, as_rpc::kernel_impl::elementwise_max>(result_data, prev_result);
+    as_rpc::h5::write_data<T>(running_result, result_dims, timestep, outfile);
+  }
+}
 } // namespace
 
 namespace as_rpc::kernel_impl
@@ -89,6 +121,32 @@ void mean([[maybe_unused]] const thallium::request& req,
     tmp.close();
     const auto running_avg = running_mean(avg, prev_avg, timestep);
     h5::write_data(running_avg, avg_dims, timestep, outfile);
+  }
+
+  dset.close();
+  file.close();
+}
+
+void max([[maybe_unused]] const thallium::request& req,
+         const std::string& infile, const std::string& outfile,
+         const std::string& dataset, unsigned timestep,
+         const std::vector<char>& reduce_along_dim)
+{
+  H5::H5File file{infile, H5F_ACC_RDONLY};
+  auto dset = file.openDataSet(dataset);
+  auto dtype = h5::determine_datatype(dset);
+
+  if (dtype == H5::PredType::NATIVE_DOUBLE)
+  {
+    apply_max<double>(dset, outfile, timestep, reduce_along_dim);
+  }
+  else if (dtype == H5::PredType::NATIVE_FLOAT)
+  {
+    apply_max<float>(dset, outfile, timestep, reduce_along_dim);
+  }
+  else
+  {
+    apply_max<int>(dset, outfile, timestep, reduce_along_dim);
   }
 
   dset.close();
