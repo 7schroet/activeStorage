@@ -41,7 +41,7 @@ export AS_RPC_OPERATIONS="@CMAKE_CURRENT_BINARY_DIR@/$CONFIG_NAME"
     done
     sleep 0.1
   done
-) | $H5_WRITER_EXE
+) | $H5_WRITER_EXE --randomize
 
 # see e2eMean.in.sh for explanation
 set +e
