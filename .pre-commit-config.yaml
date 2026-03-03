@@ -29,3 +29,11 @@ repos:
       - -i
       - --indent=2
       - --list-expansion=favour-expansion
+
+- repo: https://github.com/hukkin/mdformat
+  rev: 1.0.0
+  hooks:
+  - id: mdformat
+    additional_dependencies:
+    - mdformat-gfm
+    - mdformat-black
