@@ -1,7 +1,7 @@
 # Active Storage
 
 [![CI](https://github.com/7schroet/activeStorage/actions/workflows/tests.yaml/badge.svg)](https://github.com/7schroet/activeStorage/actions/workflows/tests.yaml)
-![Coverage](https://gist.githubusercontent.com/7schroet/8e4e4da82638ecfb5c987b161dc405da/raw/ed3269b2354f3e02edf006fc39d6cebb7ead0b28/coverage.svg)
+![Coverage](https://gist.githubusercontent.com/7schroet/8e4e4da82638ecfb5c987b161dc405da/raw/coverage.svg)
 
 yes
 
