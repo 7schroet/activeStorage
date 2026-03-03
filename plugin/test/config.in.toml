@@ -11,3 +11,10 @@ dims = [1,1,1]
 infile = "@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
 dset = "dummyDataset"
 outfile = "@CMAKE_CURRENT_BINARY_DIR@/outmax.h5"
+
+[[operations]]
+type = "min"
+dims = [1,1,1]
+infile = "@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
+dset = "dummyDataset"
+outfile = "@CMAKE_CURRENT_BINARY_DIR@/outmin.h5"
