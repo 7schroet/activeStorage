@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -130,7 +130,7 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
   if (under_vol_info_end != (under_vol_info_start + 1))
   {
     const unsigned info_str_len = under_vol_info_end - under_vol_info_start;
-    char* under_vol_info_str = static_cast<char*>(malloc(info_str_len));
+    char* under_vol_info_str = static_cast<char*>(malloc(info_str_len + 1));
     if (under_vol_info_str == nullptr)
     {
       exit(1);
