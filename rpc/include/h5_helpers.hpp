@@ -21,17 +21,23 @@
 #define H5_HELPERS_HPP
 
 #include <H5Cpp.h>
+#include <concepts>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 namespace as_rpc::h5
 {
+
+template <typename T>
+concept H5Number = std::floating_point<T> || std::is_same_v<T, int>;
+
 const H5::PredType& determine_datatype(const H5::DataSet& dset);
 
 // No mdarray support yet, so this function returns a pair consisting
 // of the data and its dims.
-template <typename T>
+template <H5Number T>
 std::pair<std::vector<T>, std::vector<hsize_t>>
 read_data(const H5::DataSet& dset, unsigned timestep);
 
@@ -49,7 +55,7 @@ read_data<int>(const H5::DataSet& dset, unsigned timestep);
 // we pass the dims of the data separately.
 // For any given filename, it is required to always call this with the
 // same dims, otherwise the write might fail/lead to unexpected results.
-template <typename T>
+template <H5Number T>
 void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                 unsigned timestep, const std::string& filename,
                 const std::string& dset_name = "/result");

@@ -48,6 +48,9 @@ inline const auto elementwise_max = [](auto a, auto b)
 inline const auto elementwise_min = [](auto a, auto b)
 { return std::min(a, b); };
 
+template <typename T>
+concept Number = std::integral<T> || std::floating_point<T>;
+
 /**
  * This template implements the logic of how the input vector is iterated over.
  * The reduction itself is governed by @GlobalFunc@ and @ElementFunc@. The
@@ -62,7 +65,7 @@ inline const auto elementwise_min = [](auto a, auto b)
  *
  * The defaults are chosen to match a mean reduction.
  */
-template <typename InputType, typename OutputType = double,
+template <Number InputType, Number OutputType = double,
           auto GlobalFunc = global_avg, auto ElementFunc = std::plus{},
           bool normalize = true>
 std::pair<std::vector<OutputType>, std::vector<hsize_t>>
@@ -74,12 +77,12 @@ std::vector<double> running_mean(const std::vector<double>& mean,
                                  const std::vector<double>& running_mean,
                                  int num_entries);
 
-template <typename T, auto CompFunc>
+template <Number T, auto CompFunc>
 std::vector<T> running_reduction(const std::vector<T>& most_recent,
                                  const std::vector<T>& current_running);
 
 // Template impl
-template <typename InputType, typename OutputType, auto GlobalFunc,
+template <Number InputType, Number OutputType, auto GlobalFunc,
           auto ElementFunc, bool normalize>
 std::pair<std::vector<OutputType>, std::vector<hsize_t>>
 reduction_operation(const std::vector<InputType>& data,
@@ -179,7 +182,7 @@ reduction_operation(const std::vector<InputType>& data,
   return {std::move(result), std::move(new_dims)};
 }
 
-template <typename T, auto CompFunc>
+template <Number T, auto CompFunc>
 std::vector<T> running_reduction(const std::vector<T>& most_recent,
                                  const std::vector<T>& current_running)
 {

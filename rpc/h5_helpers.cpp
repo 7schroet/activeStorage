@@ -54,7 +54,7 @@ const H5::PredType& determine_datatype(const H5::DataSet& dset)
   }
 }
 
-template <typename T>
+template <H5Number T>
 std::pair<std::vector<T>, std::vector<hsize_t>>
 read_data(const H5::DataSet& dset, unsigned timestep)
 {
@@ -113,7 +113,7 @@ read_data<float>(const H5::DataSet& dset, unsigned timestep);
 template std::pair<std::vector<int>, std::vector<hsize_t>>
 read_data<int>(const H5::DataSet& dset, unsigned timestep);
 
-template <typename T>
+template <H5Number T>
 void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                 unsigned timestep, const std::string& filename,
                 const std::string& dset_name)
