@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -31,7 +31,7 @@ namespace
   std::cerr << "Start the Active Storage server.\n";
   std::cerr << "Usage:\n";
   std::cerr << "\t--help:\t\t\tPrint this message\n";
-  std::cerr << "\t--protocol:\t\tPick a protocol (tpc[default],verbs)\n";
+  std::cerr << "\t--protocol:\t\tPick a protocol (tcp[default],verbs)\n";
   std::cerr << "\t--port:\t\t\tPick a port (default: 8080)\n";
   std::cerr << "\t--addressfile:\t\tPath to the file that contains the "
                "server's address (default: ./servername)\n";

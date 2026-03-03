@@ -15,7 +15,7 @@ $> as-server --help
 Start the Active Storage server.
 Usage:
         --help:                 Print this message
-        --protocol:             Pick a protocol (tpc[default],verbs)
+        --protocol:             Pick a protocol (tcp[default],verbs)
         --port:                 Pick a port (default: 8080)
         --addressfile:          Path to the file that contains the server's address (default: ./servername)
 ```
@@ -28,7 +28,7 @@ $> as-client --help
 Start the Active Storage client.
 Usage:
         --help:                 Print this message
-        --protocol:             Pick a protocol (tpc[default],verbs)
+        --protocol:             Pick a protocol (tcp[default],verbs)
         --addressfile:          Path to the file that contains the server's address (default: ./servername)
         --random:               Add random numbers in [0,1) to the written data
         --mean:                 Choose which dimensions to calculate the mean over (default: "111")
