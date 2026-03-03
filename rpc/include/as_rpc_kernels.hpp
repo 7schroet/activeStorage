@@ -31,7 +31,8 @@
  * This macro is supposed to be the single "point of truth"
  * for existing kernels. Whenever you want to add a kernel,
  * add the implementation somewhere and then add the name
- * of the new kernel to this macro.
+ * of the new kernel to this macro. Also add it to the string
+ * conversion function.
  */
 #define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
   KERNEL(hello)                                                                \
@@ -63,10 +64,15 @@ inline constexpr Kernel string_to_kernel(std::string_view kernel_string)
   {
     return Kernel::mean;
   }
+  else if (kernel_string == "max")
+  {
+    return Kernel::max;
+  }
   else
   {
-    throw std::runtime_error(
-        std::format("Unknown kernel '{}'\n", kernel_string));
+    throw std::runtime_error(std::format(
+        "Unknown kernel '{}'. Did you forget to add the string conversion?\n",
+        kernel_string));
   }
 }
 

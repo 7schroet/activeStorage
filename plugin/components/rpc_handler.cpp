@@ -65,12 +65,15 @@ public:
     switch (op_)
     {
     case as_rpc::Kernel::mean:
+    case as_rpc::Kernel::max:
       search->second.on(server)(infile_, outfile_, dset_name_, timestep_,
                                 reduce_along_dim_);
       break;
     case as_rpc::Kernel::hello:
       search->second.on(server)();
       break;
+    default:
+      throw std::runtime_error("Unknown op in RPC Handler");
     }
   }
 
