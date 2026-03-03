@@ -32,12 +32,13 @@
  * for existing kernels. Whenever you want to add a kernel,
  * add the implementation somewhere and then add the name
  * of the new kernel to this macro. Also add it to the string
- * conversion function.
+ * conversion function and the plugin rpc handler.
  */
 #define ASRPC_FOREACH_KERNEL(KERNEL)                                           \
   KERNEL(hello)                                                                \
   KERNEL(mean)                                                                 \
-  KERNEL(max)
+  KERNEL(max)                                                                  \
+  KERNEL(min)
 
 namespace as_rpc
 {
@@ -67,6 +68,10 @@ inline constexpr Kernel string_to_kernel(std::string_view kernel_string)
   else if (kernel_string == "max")
   {
     return Kernel::max;
+  }
+  else if (kernel_string == "min")
+  {
+    return Kernel::min;
   }
   else
   {

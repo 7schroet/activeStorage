@@ -37,6 +37,10 @@ void max(const thallium::request& req, const std::string& infile,
          const std::string& outfile, const std::string& dataset,
          unsigned timestep, const std::vector<char>& reduce_along_dim);
 
+void min(const thallium::request& req, const std::string& infile,
+         const std::string& outfile, const std::string& dataset,
+         unsigned timestep, const std::vector<char>& reduce_along_dim);
+
 } // namespace as_rpc::kernel_impl
 
 #endif

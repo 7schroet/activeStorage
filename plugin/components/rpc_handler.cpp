@@ -66,6 +66,7 @@ public:
     {
     case as_rpc::Kernel::mean:
     case as_rpc::Kernel::max:
+    case as_rpc::Kernel::min:
       search->second.on(server)(infile_, outfile_, dset_name_, timestep_,
                                 reduce_along_dim_);
       break;
