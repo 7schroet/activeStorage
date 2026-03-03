@@ -5,24 +5,24 @@
 
 set -ue
 
-SERVER_EXE=$1
-CLIENT_EXE=$2
+server_exe=$1
+client_exe=$2
 
-ADDRESS_FILE=e2eMeanAddress
-PORT=8080
-H5FILE=infile.h5
-RESULT=outfile.h5
-MEAN_INPUTS=("001" "010" "011" "100" "101" "110" "111")
+address_file=e2eMeanAddress
+port=8080
+h5file=infile.h5
+result=outfile.h5
+mean_inputs=("001" "010" "011" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
 
-$SERVER_EXE --addressfile $ADDRESS_FILE --port $PORT &
+$server_exe --addressfile $address_file --port $port &
 PID=$!
 
 sleep 1
 
 function cleanup(){
-  rm -f "$RESULT" "$ADDRESS_FILE" "$H5FILE"
+  rm -f "$result" "$address_file" "$h5file"
   kill $PID
 }
 trap cleanup EXIT
@@ -39,7 +39,7 @@ function run_test_case(){
       done
       sleep 0.1
     done
-   ) | $CLIENT_EXE --addressfile $ADDRESS_FILE --mean "$mean_in" --type "$type_in"
+   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in"
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are
@@ -48,22 +48,22 @@ function run_test_case(){
   # is still 0. This case if obviously a failure. So for that case, we need to also
   # capture stdout and check if it is empty, alongside the exit code check.
   set +e
-  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$RESULT" "$result_ref")
+  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$result" "$result_ref")
   if [[ "$h5diff_result" || $? != 0 ]]; then
     echo "Failure while comparing to $result_ref:"
     echo "$h5diff_result"
 
     local copy_on_fail="./failure.h5"
     echo "Copying failed file to $(realpath $copy_on_fail)"
-    cp "$RESULT" "$copy_on_fail"
+    cp "$result" "$copy_on_fail"
 
     exit 1
   fi
   set -e
-  rm "$RESULT"
+  rm "$result"
 }
 
-for input in "${MEAN_INPUTS[@]}"; do
+for input in "${mean_inputs[@]}"; do
   run_test_case "$input" "double"
 done
 
