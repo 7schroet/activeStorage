@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -38,6 +38,12 @@
 #include <H5VLpublic.h>
 #include <hdf5.h>
 
+#ifdef FILE_STAGING
+#define PLUGIN_NAME "as-rpc-hdf5"
+#else
+#define PLUGIN_NAME "as-rpc-hdf5-bulk"
+#endif
+
 namespace
 {
 /* Defined separately due to dependency on connector struct */
@@ -52,7 +58,7 @@ herr_t H5VL_as_rpc_introspect_opt_query(void* obj, H5VL_subclass_t cls,
 const H5VL_class_t H5VL_as_rpc_g = {
     .version = H5VL_VERSION,
     .value = 1234,
-    .name = "as-rpc-hdf5",
+    .name = PLUGIN_NAME,
     .conn_version = 1,
     .cap_flags = 0,
     .initialize = H5VL_as_rpc_init,
