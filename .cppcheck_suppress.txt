@@ -7,3 +7,6 @@ unusedFunction:plugin/as_rpc_hdf5.cpp
 # Suggests to replace a loop calling emplace_back with stl copy.
 # Using stl transform results in too many moves.
 useStlAlgorithm:parser/as_rpc_config_parse.cpp
+
+# Changing signatures here is a bad idea, they are prescribed by HDF5.
+constParameter:plugin/components/dataset.cpp

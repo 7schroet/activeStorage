@@ -20,6 +20,7 @@
 #include "rpc_handler.hpp"
 #include "as_rpc.hpp"
 #include "as_rpc_config_parse.hpp"
+#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <print>
@@ -136,12 +137,9 @@ void register_single_operation(std::string_view filename,
 
 bool dset_is_in_ops(std::string_view filename, std::string_view dset_name)
 {
-  for (const auto& op : configured_ops)
-  {
-    if (filename == op.infile && dset_name == op.dset)
-      return true;
-  }
-  return false;
+  auto check = [=](const as_rpc_config::Operation& op)
+  { return filename == op.infile && dset_name == op.dset; };
+  return std::ranges::any_of(configured_ops, check);
 }
 
 void dispatch_operations(std::string_view filename, std::string_view dset_name)
