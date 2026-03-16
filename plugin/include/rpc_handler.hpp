@@ -27,6 +27,7 @@ void register_rpc_client();
 void parse_as_rpc_config(const std::filesystem::path& path);
 void register_single_operation(std::string_view filename,
                                std::string_view dset_name, unsigned timestep);
+bool dset_is_in_ops(std::string_view filename, std::string_view dset_name);
 void dispatch_operations(std::string_view filename, std::string_view dset_name);
 void dispatch_operations(const std::string_view filename);
 

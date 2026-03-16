@@ -134,6 +134,16 @@ void register_single_operation(std::string_view filename,
   }
 }
 
+bool dset_is_in_ops(std::string_view filename, std::string_view dset_name)
+{
+  for (const auto& op : configured_ops)
+  {
+    if (filename == op.infile && dset_name == op.dset)
+      return true;
+  }
+  return false;
+}
+
 void dispatch_operations(std::string_view filename, std::string_view dset_name)
 {
   for (auto it = single_ops.begin(); it != single_ops.end();)

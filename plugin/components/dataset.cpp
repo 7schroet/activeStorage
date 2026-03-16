@@ -138,23 +138,36 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
   {
     auto o = static_cast<H5VL_as_rpc_dset_t*>(dset[i]);
 
+#ifdef FILE_STAGING
     const herr_t ret_value = H5VLdataset_write(
         1, &(o->under_object), under_vol_id, &(mem_type_id[i]),
         &(mem_space_id[i]), &(file_space_id[i]), plist_id, &(buf[i]), req);
 
     if (ret_value != 0)
       return ret_value;
+#endif
 
     auto rank = H5Sget_simple_extent_ndims(file_space_id[i]);
     std::vector<hsize_t> start(rank);
     H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                              nullptr);
 
+#ifdef FILE_STAGING
     register_single_operation(o->filename, o->dsetname, start[0]);
+#else
+    if (dset_is_in_ops(o->filename, o->dsetname))
+    {
+      // get dtype
+      // copy
+      // call rpc handler func with timestep and data
+    }
+#endif
 
+#ifdef FILE_STAGING
     if (req && *req)
       *req = H5VL_as_rpc_dset_t_new_obj(*req, under_vol_id, o->filename,
                                         o->dsetname);
+#endif
   }
 
   return 0;
@@ -196,8 +209,10 @@ herr_t H5VL_as_rpc_dataset_specific(void* obj,
     *req = H5VL_as_rpc_dset_t_new_obj(*req, under_vol_id, o->filename,
                                       o->dsetname);
 
+#ifdef FILE_STAGING
   if (args->op_type == H5VL_DATASET_FLUSH)
     dispatch_operations(o->filename, o->dsetname);
+#endif
 
   return ret_value;
 }

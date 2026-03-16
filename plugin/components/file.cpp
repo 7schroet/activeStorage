@@ -226,8 +226,10 @@ herr_t H5VL_as_rpc_file_specific(void* obj, H5VL_file_specific_args_t* args,
           *args->args.reopen.file, o->under_vol_id, o->filename);
   }
 
+#ifdef FILE_STAGING
   if (op_type == H5VL_FILE_FLUSH)
     dispatch_operations(o->filename);
+#endif
 
   return ret_value;
 }
