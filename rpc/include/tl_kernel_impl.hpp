@@ -44,7 +44,7 @@ void min(const thallium::request& req, const std::string& infile,
          unsigned timestep, const std::vector<char>& reduce_along_dim);
 
 void analyse_doubles([[maybe_unused]] const thallium::request& req,
-                     std::vector<double>& data,
+                     const std::vector<double>& data,
                      const std::vector<hsize_t>& dims,
                      const std::string& outfile, unsigned timestep,
                      const std::vector<char>& reduce_along_dim,

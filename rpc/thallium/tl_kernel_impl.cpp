@@ -194,13 +194,13 @@ void min([[maybe_unused]] const thallium::request& req,
 }
 
 void analyse_doubles([[maybe_unused]] const thallium::request& req,
-                     std::vector<double>& data,
+                     const std::vector<double>& data,
                      const std::vector<hsize_t>& dims,
                      const std::string& outfile, unsigned timestep,
                      const std::vector<char>& reduce_along_dim,
                      std::uint8_t operation)
 {
-  Kernel op{operation};
+  const Kernel op{operation};
   switch (op)
   {
   case Kernel::mean:

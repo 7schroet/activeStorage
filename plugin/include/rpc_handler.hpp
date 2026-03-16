@@ -20,8 +20,10 @@
 #ifndef AS_RPC_HANDLER_HPP
 #define AS_RPC_HANDLER_HPP
 
+#include <H5Cpp.h>
 #include <filesystem>
 #include <string_view>
+#include <vector>
 
 void register_rpc_client();
 void parse_as_rpc_config(const std::filesystem::path& path);
@@ -29,6 +31,28 @@ void register_single_operation(std::string_view filename,
                                std::string_view dset_name, unsigned timestep);
 bool dset_is_in_ops(std::string_view filename, std::string_view dset_name);
 void dispatch_operations(std::string_view filename, std::string_view dset_name);
-void dispatch_operations(const std::string_view filename);
+void dispatch_operations(std::string_view filename);
+template <typename T>
+void dispatch_without_staging(std::string_view filename,
+                              std::string_view dset_name,
+                              const std::vector<T>& data,
+                              const std::vector<hsize_t>& dims,
+                              unsigned timestep);
+
+extern template void dispatch_without_staging(std::string_view filename,
+                                              std::string_view dset_name,
+                                              const std::vector<double>& data,
+                                              const std::vector<hsize_t>& dims,
+                                              unsigned int timestep);
+extern template void dispatch_without_staging(std::string_view filename,
+                                              std::string_view dset_name,
+                                              const std::vector<float>& data,
+                                              const std::vector<hsize_t>& dims,
+                                              unsigned int timestep);
+extern template void dispatch_without_staging(std::string_view filename,
+                                              std::string_view dset_name,
+                                              const std::vector<int>& data,
+                                              const std::vector<hsize_t>& dims,
+                                              unsigned int timestep);
 
 #endif

@@ -20,10 +20,10 @@
 #include "rpc_handler.hpp"
 #include "as_rpc.hpp"
 #include "as_rpc_config_parse.hpp"
+#include <cstdint>
 #include <fstream>
-#ifdef ENABLE_PLUGIN_LOGGING
 #include <print>
-#endif
+#include <type_traits>
 
 namespace
 {
@@ -175,3 +175,59 @@ void dispatch_operations(std::string_view filename)
     }
   }
 }
+
+template <typename T>
+void dispatch_without_staging(std::string_view filename,
+                              std::string_view dset_name,
+                              const std::vector<T>& data,
+                              const std::vector<hsize_t>& dims,
+                              unsigned timestep)
+{
+  for (const auto& op : configured_ops)
+  {
+    if (filename == op.infile && dset_name == op.dset)
+    {
+
+      if constexpr (std::is_same_v<T, double>)
+      {
+        auto search = rpc_kernels.find(as_rpc::Kernel::analyse_doubles);
+        if (search == rpc_kernels.end())
+          return;
+
+        switch (op.kernel)
+        {
+        case as_rpc::Kernel::mean:
+        case as_rpc::Kernel::max:
+        case as_rpc::Kernel::min:
+          search->second.on(server)(data, dims, op.outfile, timestep, op.dims,
+                                    static_cast<std::uint8_t>(op.kernel));
+          break;
+        default:
+          std::println(stderr, "Kernel for bulk operation was not found!");
+        }
+      }
+      else if constexpr (std::is_same_v<T, float>)
+      {
+      }
+      else
+      {
+      }
+    }
+  }
+}
+
+template void dispatch_without_staging(std::string_view filename,
+                                       std::string_view dset_name,
+                                       const std::vector<double>& data,
+                                       const std::vector<hsize_t>& dims,
+                                       unsigned int timestep);
+template void dispatch_without_staging(std::string_view filename,
+                                       std::string_view dset_name,
+                                       const std::vector<float>& data,
+                                       const std::vector<hsize_t>& dims,
+                                       unsigned int timestep);
+template void dispatch_without_staging(std::string_view filename,
+                                       std::string_view dset_name,
+                                       const std::vector<int>& data,
+                                       const std::vector<hsize_t>& dims,
+                                       unsigned int timestep);

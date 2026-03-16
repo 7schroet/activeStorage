@@ -21,6 +21,11 @@
 #include "file.hpp"
 #include "log.hpp"
 #include "rpc_handler.hpp"
+#ifndef FILE_STAGING
+#include <cstring>
+#include <functional>
+#include <numeric>
+#endif
 #include <vector>
 
 H5VL_as_rpc_dset_t* H5VL_as_rpc_dset_t_new_obj(void* under_obj,
@@ -131,8 +136,10 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
 {
   log_msg("DATASET Write");
 
+#ifdef FILE_STAGING
   const hid_t under_vol_id =
       (static_cast<H5VL_as_rpc_dset_t*>(dset[0]))->under_vol_id;
+#endif
 
   for (decltype(count) i = 0; i < count; i++)
   {
@@ -147,21 +154,36 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
       return ret_value;
 #endif
 
-    auto rank = H5Sget_simple_extent_ndims(file_space_id[i]);
-    std::vector<hsize_t> start(rank);
-    H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
-                             nullptr);
-
-#ifdef FILE_STAGING
-    register_single_operation(o->filename, o->dsetname, start[0]);
-#else
     if (dset_is_in_ops(o->filename, o->dsetname))
     {
-      // get dtype
-      // copy
-      // call rpc handler func with timestep and data
-    }
+      auto rank = H5Sget_simple_extent_ndims(file_space_id[i]);
+      std::vector<hsize_t> start(rank);
+      H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
+                               nullptr);
+
+#ifdef FILE_STAGING
+      register_single_operation(o->filename, o->dsetname, start[0]);
+#else
+      const std::vector<hsize_t> dims{start.begin() + 1, start.end()};
+      const auto num_elements =
+          std::reduce(dims.begin(), dims.end(), 1u, std::multiplies<>());
+      if (mem_type_id[i] == H5T_NATIVE_DOUBLE)
+      {
+        std::vector<double> data(num_elements);
+        std::memcpy(data.data(), buf[i], num_elements * sizeof(double));
+        dispatch_without_staging<double>(o->filename, o->dsetname, data, dims,
+                                         start[0]);
+      }
+      else if (mem_type_id[i] == H5T_NATIVE_FLOAT)
+      {
+        std::vector<float> data(num_elements);
+      }
+      else if (mem_type_id[i] == H5T_NATIVE_INT)
+      {
+        std::vector<int> data(num_elements);
+      }
 #endif
+    }
 
 #ifdef FILE_STAGING
     if (req && *req)
