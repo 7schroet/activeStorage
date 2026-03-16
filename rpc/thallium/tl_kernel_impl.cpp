@@ -19,46 +19,54 @@
 
 #include "tl_kernel_impl.hpp"
 #include "as_rpc_kernel_math.hpp"
+#include "as_rpc_kernels.hpp"
 #include "h5_helpers.hpp"
 #include <H5Cpp.h>
 #include <print>
 #include <string>
 #include <thallium.hpp>
-#include <tuple>
 #include <vector>
 
 namespace
 {
-std::pair<std::vector<double>, std::vector<hsize_t>>
-apply_mean(const H5::PredType& dtype, const H5::DataSet& dset,
-           unsigned timestep, const std::vector<char>& reduction_dims)
+template <typename T>
+void apply_mean(const std::vector<T>& data, const std::vector<hsize_t>& dims,
+                const std::string& outfile, unsigned timestep,
+                const std::vector<char>& reduce_along_dim)
 {
-  if (dtype == H5::PredType::NATIVE_DOUBLE)
+  const std::vector<char> reduction_dims_without_time{
+      reduce_along_dim.begin() + 1, reduce_along_dim.end()};
+
+  const auto [avg, avg_dims] = as_rpc::kernel_impl::reduction_operation(
+      data, dims, reduction_dims_without_time);
+
+  if (reduce_along_dim[0] == 0 || timestep == 0)
   {
-    const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
-    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
-  }
-  else if (dtype == H5::PredType::NATIVE_FLOAT)
-  {
-    const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
-    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
+    as_rpc::h5::write_data(avg, avg_dims, timestep, outfile);
   }
   else
   {
-    const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
-    return as_rpc::kernel_impl::reduction_operation(data, dims, reduction_dims);
+    H5::H5File tmp{outfile, H5F_ACC_RDONLY};
+    auto result_dset = tmp.openDataSet("result");
+    const auto [prev_avg, _] =
+        as_rpc::h5::read_data<double>(result_dset, timestep - 1);
+    result_dset.close();
+    tmp.close();
+    const auto running_avg =
+        as_rpc::kernel_impl::running_mean(avg, prev_avg, timestep);
+    as_rpc::h5::write_data(running_avg, avg_dims, timestep, outfile);
   }
 }
 
 template <typename T, auto GlobalFunc, auto ElementFunc>
-void apply_comparison(const H5::DataSet& dset, const std::string& outfile,
-                      unsigned timestep,
+void apply_comparison(const std::vector<T>& data,
+                      const std::vector<hsize_t>& dims,
+                      const std::string& outfile, unsigned timestep,
                       const std::vector<char>& reduce_along_dim)
 {
   const std::vector<char> reduction_dims_without_time{
       reduce_along_dim.begin() + 1, reduce_along_dim.end()};
 
-  const auto [data, dims] = as_rpc::h5::read_data<T>(dset, timestep);
   const auto [result_data, result_dims] =
       as_rpc::kernel_impl::reduction_operation<T, T, GlobalFunc, ElementFunc,
                                                false>(
@@ -101,27 +109,20 @@ void mean([[maybe_unused]] const thallium::request& req,
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
 
-  std::vector<double> avg;
-  std::vector<hsize_t> avg_dims;
-  const std::vector<char> reduction_dims_without_time{
-      reduce_along_dim.begin() + 1, reduce_along_dim.end()};
-
-  std::tie(avg, avg_dims) =
-      apply_mean(dtype, dset, timestep, reduction_dims_without_time);
-
-  if (reduce_along_dim[0] == 0 || timestep == 0)
+  if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
-    h5::write_data(avg, avg_dims, timestep, outfile);
+    const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
+  }
+  else if (dtype == H5::PredType::NATIVE_FLOAT)
+  {
+    const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
   }
   else
   {
-    H5::H5File tmp{outfile, H5F_ACC_RDONLY};
-    auto result_dset = tmp.openDataSet("result");
-    const auto [prev_avg, _] = h5::read_data<double>(result_dset, timestep - 1);
-    result_dset.close();
-    tmp.close();
-    const auto running_avg = running_mean(avg, prev_avg, timestep);
-    h5::write_data(running_avg, avg_dims, timestep, outfile);
+    const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
   }
 
   dset.close();
@@ -133,26 +134,27 @@ void max([[maybe_unused]] const thallium::request& req,
          const std::string& dataset, unsigned timestep,
          const std::vector<char>& reduce_along_dim)
 {
-  using namespace as_rpc::kernel_impl;
-
   H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
+    const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
     apply_comparison<double, global_max, elementwise_max>(
-        dset, outfile, timestep, reduce_along_dim);
+        data, dims, outfile, timestep, reduce_along_dim);
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
+    const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
     apply_comparison<float, global_max, elementwise_max>(
-        dset, outfile, timestep, reduce_along_dim);
+        data, dims, outfile, timestep, reduce_along_dim);
   }
   else
   {
-    apply_comparison<int, global_max, elementwise_max>(dset, outfile, timestep,
-                                                       reduce_along_dim);
+    const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
+    apply_comparison<int, global_max, elementwise_max>(
+        data, dims, outfile, timestep, reduce_along_dim);
   }
 
   dset.close();
@@ -164,29 +166,57 @@ void min([[maybe_unused]] const thallium::request& req,
          const std::string& dataset, unsigned timestep,
          const std::vector<char>& reduce_along_dim)
 {
-  using namespace as_rpc::kernel_impl;
-
   H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
   auto dtype = h5::determine_datatype(dset);
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
+    const auto [data, dims] = as_rpc::h5::read_data<double>(dset, timestep);
     apply_comparison<double, global_min, elementwise_min>(
-        dset, outfile, timestep, reduce_along_dim);
+        data, dims, outfile, timestep, reduce_along_dim);
   }
   else if (dtype == H5::PredType::NATIVE_FLOAT)
   {
+    const auto [data, dims] = as_rpc::h5::read_data<float>(dset, timestep);
     apply_comparison<float, global_min, elementwise_min>(
-        dset, outfile, timestep, reduce_along_dim);
+        data, dims, outfile, timestep, reduce_along_dim);
   }
   else
   {
-    apply_comparison<int, global_min, elementwise_min>(dset, outfile, timestep,
-                                                       reduce_along_dim);
+    const auto [data, dims] = as_rpc::h5::read_data<int>(dset, timestep);
+    apply_comparison<int, global_min, elementwise_min>(
+        data, dims, outfile, timestep, reduce_along_dim);
   }
 
   dset.close();
   file.close();
+}
+
+void analyse_doubles([[maybe_unused]] const thallium::request& req,
+                     std::vector<double>& data,
+                     const std::vector<hsize_t>& dims,
+                     const std::string& outfile, unsigned timestep,
+                     const std::vector<char>& reduce_along_dim,
+                     std::uint8_t operation)
+{
+  Kernel op{operation};
+  switch (op)
+  {
+  case Kernel::mean:
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::min:
+    apply_comparison<double, global_min, elementwise_min>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::max:
+    apply_comparison<double, global_max, elementwise_max>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  default:
+    std::println("Operation {} is not valid input for {}!", operation,
+                 __func__);
+  }
 }
 } // namespace as_rpc::kernel_impl

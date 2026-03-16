@@ -20,6 +20,8 @@
 #ifndef TL_KERNEL_IMPL_HPP
 #define TL_KERNEL_IMPL_HPP
 
+#include <H5Cpp.h>
+#include <cstdint>
 #include <string>
 #include <thallium.hpp>
 #include <thallium/serialization/stl/string.hpp>
@@ -40,6 +42,13 @@ void max(const thallium::request& req, const std::string& infile,
 void min(const thallium::request& req, const std::string& infile,
          const std::string& outfile, const std::string& dataset,
          unsigned timestep, const std::vector<char>& reduce_along_dim);
+
+void analyse_doubles([[maybe_unused]] const thallium::request& req,
+                     std::vector<double>& data,
+                     const std::vector<hsize_t>& dims,
+                     const std::string& outfile, unsigned timestep,
+                     const std::vector<char>& reduce_along_dim,
+                     std::uint8_t operation);
 
 } // namespace as_rpc::kernel_impl
 

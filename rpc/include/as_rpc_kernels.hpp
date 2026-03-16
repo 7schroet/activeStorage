@@ -38,7 +38,8 @@
   KERNEL(hello)                                                                \
   KERNEL(mean)                                                                 \
   KERNEL(max)                                                                  \
-  KERNEL(min)
+  KERNEL(min)                                                                  \
+  KERNEL(analyse_doubles)
 
 namespace as_rpc
 {
@@ -72,6 +73,10 @@ inline constexpr Kernel string_to_kernel(std::string_view kernel_string)
   else if (kernel_string == "min")
   {
     return Kernel::min;
+  }
+  else if (kernel_string == "analyse_doubles")
+  {
+    return Kernel::analyse_doubles;
   }
   else
   {
