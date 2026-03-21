@@ -28,43 +28,48 @@ PID=$!
 
 sleep 1
 
-function cleanup(){
-  rm -f "$result_mean" "$result_max" "$result_min" "$address_file" "$h5file"
+function cleanup_iteration(){
+  rm -f "$result_mean" "$result_max" "$result_min" "$h5file"
+}
+
+function cleanup_final(){
+  cleanup_iteration
+  rm -f "$address_file"
   kill $PID
 }
-trap cleanup EXIT
+trap cleanup_final EXIT
 
 HDF5_PLUGIN_PATH=$(realpath "@CMAKE_CURRENT_BINARY_DIR@/.."); export HDF5_PLUGIN_PATH
-export HDF5_VOL_CONNECTOR="as-rpc-hdf5 under_vol=0;under_info={};"
-
 export AS_RPC_SERVER_ADDRESS=$PWD/${address_file}
 export AS_RPC_OPERATIONS="@CMAKE_CURRENT_BINARY_DIR@/$config_name"
 
-(
+for plugin in "as-rpc-hdf5-bulk" "as-rpc-hdf5"; do
+  export HDF5_VOL_CONNECTOR="${plugin} under_vol=0;under_info={};"
+  (
   for _ in $(seq 1 2); do
     for _ in $(seq 1 10); do
       echo
     done
     sleep 0.1
   done
-) | $h5_writer_exe
+  ) | $h5_writer_exe
 
-# see e2eMean.in.sh for explanation
-set +e
-unset HDF5_VOL_CONNECTOR
-for op in "max" "mean" "min"; do
-  expected="result_ref_${op}"
-  actual="result_${op}"
-  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "${!actual}" "${!expected}")
-  if [[ "$h5diff_result" || $? != 0 ]]; then
-    echo "Failure while comparing to ${!expected}:"
-    echo "$h5diff_result"
-
-    copy_on_fail="./failure.h5"
-    echo "Copying failed file to $(realpath $copy_on_fail)"
-    cp "${!actual}" "$copy_on_fail"
-
-    exit 1
-  fi
+  # see e2eMean.in.sh for explanation
+  set +e
+  unset HDF5_VOL_CONNECTOR
+  for op in "max" "mean" "min"; do
+    expected="result_ref_${op}"
+    actual="result_${op}"
+    h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "${!actual}" "${!expected}")
+    if [[ "$h5diff_result" || $? != 0 ]]; then
+      echo "Failure while comparing to ${!expected}:"
+      echo "$h5diff_result"
+      copy_on_fail="./failure.h5"
+      echo "Copying failed file to $(realpath $copy_on_fail)"
+      cp "${!actual}" "$copy_on_fail"
+      exit 1
+    fi
+  done
+  set -e
+  cleanup_iteration
 done
-set -e
