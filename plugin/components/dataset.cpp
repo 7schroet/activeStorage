@@ -162,19 +162,23 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
       std::vector<hsize_t> start(rank);
       H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                                nullptr);
-
 #ifdef FILE_STAGING
       register_single_operation(o->filename, o->dsetname, start[0]);
 #else
-      const std::vector<hsize_t> dims{start.begin() + 1, start.end()};
-      const auto num_elements =
-          std::reduce(dims.begin(), dims.end(), 1u, std::multiplies<>());
+      std::vector<hsize_t> dims_dset(rank);
+      H5Sget_simple_extent_dims(file_space_id[i], dims_dset.data(), nullptr);
+
+      const std::vector<hsize_t> dims_for_step{dims_dset.begin() + 1,
+                                               dims_dset.end()};
+      const auto num_elements = std::reduce(
+          dims_for_step.begin(), dims_for_step.end(), 1u, std::multiplies<>());
+
       if (mem_type_id[i] == H5T_NATIVE_DOUBLE)
       {
         std::vector<double> data(num_elements);
         std::memcpy(data.data(), buf[i], num_elements * sizeof(double));
-        dispatch_without_staging<double>(o->filename, o->dsetname, data, dims,
-                                         start[0]);
+        dispatch_without_staging<double>(o->filename, o->dsetname, data,
+                                         dims_for_step, start[0]);
       }
       else if (mem_type_id[i] == H5T_NATIVE_FLOAT)
       {
