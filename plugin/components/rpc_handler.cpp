@@ -182,30 +182,29 @@ void dispatch_without_staging(std::string_view filename,
   {
     if (filename == op.infile && dset_name == op.dset)
     {
+      as_rpc::Kernel bulk_kernel{};
 
       if constexpr (std::is_same_v<T, double>)
-      {
-        auto search = rpc_kernels.find(as_rpc::Kernel::analyse_doubles);
-        if (search == rpc_kernels.end())
-          return;
-
-        switch (op.kernel)
-        {
-        case as_rpc::Kernel::mean:
-        case as_rpc::Kernel::max:
-        case as_rpc::Kernel::min:
-          search->second.on(server)(data, dims, op.outfile, timestep, op.dims,
-                                    static_cast<std::uint8_t>(op.kernel));
-          break;
-        default:
-          std::println(stderr, "Kernel for bulk operation was not found!");
-        }
-      }
+        bulk_kernel = as_rpc::Kernel::analyse_doubles;
       else if constexpr (std::is_same_v<T, float>)
-      {
-      }
+        bulk_kernel = as_rpc::Kernel::analyse_floats;
       else
+        bulk_kernel = as_rpc::Kernel::analyse_ints;
+
+      auto search = rpc_kernels.find(bulk_kernel);
+      if (search == rpc_kernels.end())
+        return;
+
+      switch (op.kernel)
       {
+      case as_rpc::Kernel::mean:
+      case as_rpc::Kernel::max:
+      case as_rpc::Kernel::min:
+        search->second.on(server)(data, dims, op.outfile, timestep, op.dims,
+                                  static_cast<std::uint8_t>(op.kernel));
+        break;
+      default:
+        std::println(stderr, "Kernel for bulk operation was not found!");
       }
     }
   }

@@ -219,4 +219,57 @@ void analyse_doubles([[maybe_unused]] const thallium::request& req,
                  __func__);
   }
 }
+
+void analyse_floats([[maybe_unused]] const thallium::request& req,
+                    const std::vector<float>& data,
+                    const std::vector<hsize_t>& dims,
+                    const std::string& outfile, unsigned timestep,
+                    const std::vector<char>& reduce_along_dim,
+                    std::uint8_t operation)
+{
+  const Kernel op{operation};
+  switch (op)
+  {
+  case Kernel::mean:
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::min:
+    apply_comparison<float, global_min, elementwise_min>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::max:
+    apply_comparison<float, global_max, elementwise_max>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  default:
+    std::println("Operation {} is not valid input for {}!", operation,
+                 __func__);
+  }
+}
+
+void analyse_ints([[maybe_unused]] const thallium::request& req,
+                  const std::vector<int>& data,
+                  const std::vector<hsize_t>& dims, const std::string& outfile,
+                  unsigned timestep, const std::vector<char>& reduce_along_dim,
+                  std::uint8_t operation)
+{
+  const Kernel op{operation};
+  switch (op)
+  {
+  case Kernel::mean:
+    apply_mean(data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::min:
+    apply_comparison<int, global_min, elementwise_min>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  case Kernel::max:
+    apply_comparison<int, global_max, elementwise_max>(
+        data, dims, outfile, timestep, reduce_along_dim);
+    break;
+  default:
+    std::println("Operation {} is not valid input for {}!", operation,
+                 __func__);
+  }
+}
 } // namespace as_rpc::kernel_impl

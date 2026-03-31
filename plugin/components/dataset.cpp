@@ -184,11 +184,15 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
       {
         std::vector<float> data(num_elements);
         std::memcpy(data.data(), buf[i], num_elements * sizeof(float));
+        dispatch_without_staging<float>(o->filename, o->dsetname, data,
+                                        dims_for_step, start[0]);
       }
       else if (mem_type_id[i] == H5T_NATIVE_INT)
       {
         std::vector<int> data(num_elements);
         std::memcpy(data.data(), buf[i], num_elements * sizeof(int));
+        dispatch_without_staging<int>(o->filename, o->dsetname, data,
+                                      dims_for_step, start[0]);
       }
 #endif
     }

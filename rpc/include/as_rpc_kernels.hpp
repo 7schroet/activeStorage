@@ -39,7 +39,9 @@
   KERNEL(mean)                                                                 \
   KERNEL(max)                                                                  \
   KERNEL(min)                                                                  \
-  KERNEL(analyse_doubles)
+  KERNEL(analyse_doubles)                                                      \
+  KERNEL(analyse_floats)                                                       \
+  KERNEL(analyse_ints)
 
 namespace as_rpc
 {
@@ -77,6 +79,14 @@ inline constexpr Kernel string_to_kernel(std::string_view kernel_string)
   else if (kernel_string == "analyse_doubles")
   {
     return Kernel::analyse_doubles;
+  }
+  else if (kernel_string == "analyse_floats")
+  {
+    return Kernel::analyse_floats;
+  }
+  else if (kernel_string == "analyse_ints")
+  {
+    return Kernel::analyse_ints;
   }
   else
   {

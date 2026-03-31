@@ -43,13 +43,24 @@ void min(const thallium::request& req, const std::string& infile,
          const std::string& outfile, const std::string& dataset,
          unsigned timestep, const std::vector<char>& reduce_along_dim);
 
-void analyse_doubles([[maybe_unused]] const thallium::request& req,
+void analyse_doubles(const thallium::request& req,
                      const std::vector<double>& data,
                      const std::vector<hsize_t>& dims,
                      const std::string& outfile, unsigned timestep,
                      const std::vector<char>& reduce_along_dim,
                      std::uint8_t operation);
 
-} // namespace as_rpc::kernel_impl
+void analyse_floats(const thallium::request& req,
+                    const std::vector<float>& data,
+                    const std::vector<hsize_t>& dims,
+                    const std::string& outfile, unsigned timestep,
+                    const std::vector<char>& reduce_along_dim,
+                    std::uint8_t operation);
 
+void analyse_ints(const thallium::request& req, const std::vector<int>& data,
+                  const std::vector<hsize_t>& dims, const std::string& outfile,
+                  unsigned timestep, const std::vector<char>& reduce_along_dim,
+                  std::uint8_t operation);
+
+} // namespace as_rpc::kernel_impl
 #endif
