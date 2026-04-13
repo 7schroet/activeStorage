@@ -37,7 +37,7 @@ function run_test_case(){
       for _ in $(seq 1 10); do
         echo
       done
-      sleep 0.1
+      sleep 0.2
     done
    ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in"
 
