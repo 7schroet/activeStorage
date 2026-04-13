@@ -52,13 +52,25 @@ ClientConfig parse_args(int argc, char** argv)
   ClientConfig config{};
 
   const struct option options[] = {
-      {"help", no_argument, nullptr, 'h'},
-      {"protocol", required_argument, nullptr, 'p'},
-      {"addressfile", required_argument, nullptr, 'f'},
-      {"random", no_argument, nullptr, 'r'},
-      {"mean", required_argument, nullptr, 'm'},
-      {"type", required_argument, nullptr, 't'},
-      {nullptr, 0, nullptr, 0},
+      {.name = "help", .has_arg = no_argument, .flag = nullptr, .val = 'h'},
+      {.name = "protocol",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'p'},
+      {.name = "addressfile",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'f'},
+      {.name = "random", .has_arg = no_argument, .flag = nullptr, .val = 'r'},
+      {.name = "mean",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'm'},
+      {.name = "type",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 't'},
+      {.name = nullptr, .has_arg = 0, .flag = nullptr, .val = 0},
   };
 
   int opt = 0;

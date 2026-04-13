@@ -6,7 +6,6 @@ Checks: 'clang-diagnostic-*,
         -modernize-use-trailing-return-type,
         -modernize-avoid-c-arrays,
         -modernize-macro-to-enum,
-        -modernize-use-designated-initializers,
         misc-*,
         -misc-include-cleaner,
         performance-*'

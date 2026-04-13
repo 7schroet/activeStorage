@@ -44,11 +44,20 @@ ServerConfig parse_args(int argc, char** argv)
   ServerConfig config{};
 
   const struct option options[] = {
-      {"help", no_argument, nullptr, 'h'},
-      {"protocol", required_argument, nullptr, 'p'},
-      {"port", required_argument, nullptr, 'o'},
-      {"addressfile", required_argument, nullptr, 'f'},
-      {nullptr, 0, nullptr, 0},
+      {.name = "help", .has_arg = no_argument, .flag = nullptr, .val = 'h'},
+      {.name = "protocol",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'p'},
+      {.name = "port",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'o'},
+      {.name = "addressfile",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'f'},
+      {.name = nullptr, .has_arg = 0, .flag = nullptr, .val = 0},
   };
 
   int opt = 0;
