@@ -26,7 +26,7 @@ namespace as_rpc_config
 
 Operations parse_toml(std::istream& input)
 {
-  constexpr char ARRAY_NAME[] = "operations";
+  static constexpr std::string ARRAY_NAME{"operations"};
   const toml::value toml_in = toml::parse(input);
   Operations operations{};
 

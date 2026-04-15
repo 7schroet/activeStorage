@@ -77,12 +77,12 @@ public:
   }
 
 private:
-  as_rpc::Kernel op_;
-  unsigned timestep_;
-  std::vector<char> reduce_along_dim_;
-  std::string infile_;
-  std::string outfile_;
-  std::string dset_name_;
+  as_rpc::Kernel op_{};
+  unsigned timestep_{};
+  std::vector<char> reduce_along_dim_{};
+  std::string infile_{};
+  std::string outfile_{};
+  std::string dset_name_{};
 };
 
 as_rpc::Engine engine;

@@ -40,13 +40,13 @@
     }                                                                          \
   } while (0)
 
-#define INFILE_NAME "infile.h5"
-#define OUTFILE_NAME "outfile.h5"
-#define DSET_NAME "/dataset"
-#define RANK 3
-#define DSET_X 10
-#define DSET_Y 10
-#define TSTEP_INIT 10
+constexpr std::string INFILE_NAME{"infile.h5"};
+constexpr std::string OUTFILE_NAME{"outfile.h5"};
+constexpr std::string DSET_NAME{"/dataset"};
+constexpr int RANK{3};
+constexpr int DSET_X{10};
+constexpr int DSET_Y{10};
+constexpr int TSTEP_INIT{10};
 
 namespace
 {
@@ -55,7 +55,8 @@ void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
 template <typename T>
 hid_t create_file()
 {
-  hid_t file = H5Fcreate(INFILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  hid_t file =
+      H5Fcreate(INFILE_NAME.data(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr std::array<hsize_t, RANK> dims = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
@@ -75,14 +76,14 @@ hid_t create_file()
   }();
 
   auto dspace = H5Screate_simple(RANK, dims.data(), max_dims.data());
-  auto dset =
-      H5Dcreate(file, DSET_NAME, dtype, dspace, H5P_DEFAULT, dcpl, H5P_DEFAULT);
+  auto dset = H5Dcreate(file, DSET_NAME.data(), dtype, dspace, H5P_DEFAULT,
+                        dcpl, H5P_DEFAULT);
 
   H5ERROR_CHECK(H5Pclose(dcpl));
   H5ERROR_CHECK(H5Dclose(dset));
   H5ERROR_CHECK(H5Sclose(dspace));
 
-  file = H5Fopen(INFILE_NAME, H5F_ACC_RDWR, H5P_DEFAULT);
+  file = H5Fopen(INFILE_NAME.data(), H5F_ACC_RDWR, H5P_DEFAULT);
   return file;
 }
 
@@ -93,13 +94,14 @@ std::vector<T> generate_data(unsigned base_value, bool randomize)
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<T> dis(0.0, 1.0);
+  constexpr T additional_value{10.0};
   for (auto i = 0u; i < DSET_X; i++)
   {
     for (auto j = 0u; j < DSET_Y; j++)
     {
       const T random_value = randomize ? dis(gen) : static_cast<T>(0.5) * j;
-      result[i * DSET_Y + j] = static_cast<T>(1.0) * base_value +
-                               static_cast<T>(10.0) + random_value;
+      result[i * DSET_Y + j] =
+          static_cast<T>(1.0) * base_value + additional_value + random_value;
     }
   }
   return result;
@@ -109,12 +111,13 @@ template <>
 std::vector<int> generate_data<int>(unsigned base_value,
                                     [[maybe_unused]] bool randomize)
 {
+  constexpr int additional_value = 10;
   std::vector<int> result(DSET_X * DSET_Y);
   for (auto i = 0u; i < DSET_X; i++)
   {
     for (auto j = 0u; j < DSET_Y; j++)
     {
-      result[i * DSET_Y + j] = base_value + 10 + j;
+      result[i * DSET_Y + j] = base_value + additional_value + j;
     }
   }
   return result;
@@ -124,7 +127,7 @@ template <typename T>
 void add_timestep(hid_t file, bool randomize)
 {
   static int current_timestep = 0;
-  auto dset = H5Dopen2(file, DSET_NAME, H5P_DEFAULT);
+  auto dset = H5Dopen2(file, DSET_NAME.data(), H5P_DEFAULT);
   H5ERROR_CHECK(dset);
   auto dspace = H5Dget_space(dset);
   H5ERROR_CHECK(dspace);
@@ -211,9 +214,6 @@ int main(int argc, char** argv)
       return create_file<int>();
   }();
 
-  const std::string infile{INFILE_NAME};
-  const std::string outfile{OUTFILE_NAME};
-  const std::string dset_name{DSET_NAME};
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
   for (std::string in; std::getline(std::cin, in);)
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
       add_timestep<int>(file, config.randomize_data);
 
     std::println("Appended time step {}", count);
-    search->second.on(server)(infile, outfile, dset_name, count,
+    search->second.on(server)(INFILE_NAME, OUTFILE_NAME, DSET_NAME, count,
                               config.reduce_along_dim);
     count++;
   }
