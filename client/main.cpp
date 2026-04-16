@@ -27,19 +27,6 @@
 #include <string>
 #include <vector>
 
-#define H5ERROR_CHECK(func)                                                    \
-  do                                                                           \
-  {                                                                            \
-    const herr_t err = (func);                                                 \
-    if (err < 0)                                                               \
-    {                                                                          \
-      std::println(stderr,                                                     \
-                   "Error in HDF5 function call at {} in {}, aborting",        \
-                   __LINE__, __FILE__);                                        \
-      exit(EXIT_FAILURE);                                                      \
-    }                                                                          \
-  } while (0)
-
 constexpr std::string INFILE_NAME{"infile.h5"};
 constexpr std::string OUTFILE_NAME{"outfile.h5"};
 constexpr std::string DSET_NAME{"/dataset"};
@@ -50,7 +37,26 @@ constexpr int TSTEP_INIT{10};
 
 namespace
 {
-void close_file(hid_t file) { H5ERROR_CHECK(H5Fclose(file)); }
+
+constexpr void h5error_check(herr_t return_value)
+{
+  if (return_value < 0)
+  {
+    // std::stacktrace is not yet widely supported.
+    // Otherwise this would be great here.
+    std::println(stderr, "Error in HDF5 function call,aborting");
+    exit(EXIT_FAILURE);
+  }
+}
+
+template <typename H5Func, typename... Args>
+constexpr void h5checked_function(H5Func func, const Args&... args)
+{
+  const herr_t err = func(args...);
+  h5error_check(err);
+}
+
+void close_file(hid_t file) { h5checked_function(H5Fclose, file); }
 
 template <typename T>
 hid_t create_file()
@@ -63,7 +69,7 @@ hid_t create_file()
                                                   DSET_Y};
 
   auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
-  H5ERROR_CHECK(H5Pset_chunk(dcpl, RANK, dims.data()));
+  h5checked_function(H5Pset_chunk, dcpl, RANK, dims.data());
 
   const hid_t dtype = []
   {
@@ -79,9 +85,9 @@ hid_t create_file()
   auto dset = H5Dcreate(file, DSET_NAME.data(), dtype, dspace, H5P_DEFAULT,
                         dcpl, H5P_DEFAULT);
 
-  H5ERROR_CHECK(H5Pclose(dcpl));
-  H5ERROR_CHECK(H5Dclose(dset));
-  H5ERROR_CHECK(H5Sclose(dspace));
+  h5checked_function(H5Pclose, dcpl);
+  h5checked_function(H5Dclose, dset);
+  h5checked_function(H5Sclose, dspace);
 
   file = H5Fopen(INFILE_NAME.data(), H5F_ACC_RDWR, H5P_DEFAULT);
   return file;
@@ -128,27 +134,27 @@ void add_timestep(hid_t file, bool randomize)
 {
   static int current_timestep = 0;
   auto dset = H5Dopen2(file, DSET_NAME.data(), H5P_DEFAULT);
-  H5ERROR_CHECK(dset);
+  h5error_check(dset);
   auto dspace = H5Dget_space(dset);
-  H5ERROR_CHECK(dspace);
+  h5error_check(dspace);
 
   if (current_timestep % TSTEP_INIT == 0 && current_timestep != 0)
   {
     std::array<hsize_t, RANK> dims{};
-    H5ERROR_CHECK(H5Sget_simple_extent_dims(dspace, dims.data(), nullptr));
+    h5checked_function(H5Sget_simple_extent_dims, dspace, dims.data(), nullptr);
     dims[0] += TSTEP_INIT;
-    H5ERROR_CHECK(H5Dset_extent(dset, dims.data()));
+    h5checked_function(H5Dset_extent, dset, dims.data());
     // dspace must be reopened according to docs
-    H5ERROR_CHECK(H5Sclose(dspace));
+    h5checked_function(H5Sclose, dspace);
     dspace = H5Dget_space(dset);
-    H5ERROR_CHECK(dspace);
+    h5error_check(dspace);
   }
 
   constexpr std::array<hsize_t, RANK> count = {1, DSET_X, DSET_Y};
   const std::array<hsize_t, RANK> offset = {
       static_cast<hsize_t>(current_timestep), 0, 0};
-  H5ERROR_CHECK(H5Sselect_hyperslab(dspace, H5S_SELECT_SET, offset.data(),
-                                    nullptr, count.data(), nullptr));
+  h5checked_function(H5Sselect_hyperslab, dspace, H5S_SELECT_SET, offset.data(),
+                     nullptr, count.data(), nullptr);
 
   auto data = generate_data<T>(offset[0], randomize);
 
@@ -163,15 +169,15 @@ void add_timestep(hid_t file, bool randomize)
   }();
 
   auto memspace = H5Screate_simple(RANK, count.data(), nullptr);
-  H5ERROR_CHECK(memspace);
+  h5error_check(memspace);
 
-  H5ERROR_CHECK(
-      H5Dwrite(dset, dtype, memspace, dspace, H5P_DEFAULT, data.data()));
-  H5ERROR_CHECK(H5Fflush(file, H5F_SCOPE_LOCAL));
+  h5checked_function(H5Dwrite, dset, dtype, memspace, dspace, H5P_DEFAULT,
+                     data.data());
+  h5checked_function(H5Fflush, file, H5F_SCOPE_LOCAL);
 
-  H5ERROR_CHECK(H5Sclose(dspace));
-  H5ERROR_CHECK(H5Sclose(memspace));
-  H5ERROR_CHECK(H5Dclose(dset));
+  h5checked_function(H5Sclose, dspace);
+  h5checked_function(H5Sclose, memspace);
+  h5checked_function(H5Dclose, dset);
   current_timestep++;
 }
 } // namespace
