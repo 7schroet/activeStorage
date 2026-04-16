@@ -35,9 +35,9 @@ class SingleOperation
 public:
   explicit SingleOperation(const as_rpc_config::Operation& config_op,
                            unsigned timestep)
-      : op_{config_op.kernel}, timestep_{timestep},
-        reduce_along_dim_{config_op.dims}, infile_{config_op.infile},
-        outfile_{config_op.outfile}, dset_name_{config_op.dset} {};
+      : reduce_along_dim_{config_op.dims}, infile_{config_op.infile},
+        outfile_{config_op.outfile}, dset_name_{config_op.dset},
+        timestep_{timestep}, op_{config_op.kernel} {};
 
   [[nodiscard]] const std::string& infile() const { return infile_; };
   [[nodiscard]] const std::string& dset_name() const { return dset_name_; };
@@ -77,12 +77,12 @@ public:
   }
 
 private:
-  as_rpc::Kernel op_{};
-  unsigned timestep_{};
   std::vector<char> reduce_along_dim_{};
   std::string infile_{};
   std::string outfile_{};
   std::string dset_name_{};
+  unsigned timestep_{};
+  as_rpc::Kernel op_{};
 };
 
 as_rpc::Engine engine;
