@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -25,8 +25,8 @@
 /* The pass through VOL connector's object */
 struct H5VL_as_rpc_t
 {
-  hid_t under_vol_id; /* ID for underlying VOL connector */
-  void* under_object; /* Underlying VOL connector's object */
+  hid_t under_vol_id;          /* ID for underlying VOL connector */
+  void* under_object{nullptr}; /* Underlying VOL connector's object */
 };
 
 H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id);

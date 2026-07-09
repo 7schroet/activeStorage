@@ -74,7 +74,7 @@ reduction_operation(const std::vector<InputType>& data,
                     const std::vector<char>& reduce_along_dim);
 
 std::vector<double> running_mean(const std::vector<double>& mean,
-                                 const std::vector<double>& running_mean,
+                                 const std::vector<double>& running_result,
                                  int num_entries);
 
 template <Number T, auto CompFunc>

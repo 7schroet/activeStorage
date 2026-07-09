@@ -29,7 +29,7 @@
 struct H5VL_as_rpc_file_t
 {
   hid_t under_vol_id;
-  void* under_object;
+  void* under_object{nullptr};
   std::string filename;
 };
 H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,

@@ -33,7 +33,7 @@ struct Operation
   std::string outfile;
   std::string dset;
   std::vector<char> dims;
-  as_rpc::Kernel kernel;
+  as_rpc::Kernel kernel{};
 };
 
 using Operations = std::vector<Operation>;

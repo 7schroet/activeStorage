@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -23,18 +23,18 @@
 namespace as_rpc::kernel_impl
 {
 std::vector<double> running_mean(const std::vector<double>& mean,
-                                 const std::vector<double>& running_mean,
+                                 const std::vector<double>& running_result,
                                  int num_entries)
 {
-  assert((mean.size() == running_mean.size()) &&
+  assert((mean.size() == running_result.size()) &&
          "Passed vectors must have the same size!");
-  assert((running_mean.size() != 0) && "Running mean must contain elements!");
+  assert((running_result.size() != 0) && "Running mean must contain elements!");
 
   const double reciprocal = 1.0 / (num_entries + 1);
   std::vector<double> result(mean.size());
   for (auto i = 0ul; i < mean.size(); i++)
   {
-    result[i] = (mean[i] + num_entries * running_mean[i]) * reciprocal;
+    result[i] = (mean[i] + num_entries * running_result[i]) * reciprocal;
   }
   return result;
 }

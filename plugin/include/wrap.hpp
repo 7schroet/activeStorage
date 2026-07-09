@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -24,8 +24,8 @@
 
 struct H5VL_as_rpc_wrap_ctx_t
 {
-  hid_t under_vol_id;   /* VOL ID for under VOL */
-  void* under_wrap_ctx; /* Object wrapping context for under VOL */
+  hid_t under_vol_id;            /* VOL ID for under VOL */
+  void* under_wrap_ctx{nullptr}; /* Object wrapping context for under VOL */
 };
 
 void* H5VL_as_rpc_get_object(const void* obj);

@@ -30,7 +30,7 @@
 struct H5VL_as_rpc_dset_t
 {
   hid_t under_vol_id;
-  void* under_object;
+  void* under_object{nullptr};
   std::string filename;
   std::string dsetname;
 };

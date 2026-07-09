@@ -43,7 +43,7 @@ public:
   [[nodiscard]] const std::string& dset_name() const { return dset_name_; };
 
   void dispatch(const as_rpc::ServerEndpoint& server,
-                const as_rpc::RemoteProcedures& rpc_kernels) const
+                const as_rpc::RemoteProcedures& kernels) const
   {
 #ifdef ENABLE_PLUGIN_LOGGING
     std::println(stderr, "---------------------");
@@ -59,8 +59,8 @@ public:
     std::println(stderr);
     std::println(stderr, "---------------------");
 #endif
-    auto search = rpc_kernels.find(op_);
-    if (search == rpc_kernels.end())
+    auto search = kernels.find(op_);
+    if (search == kernels.end())
       return;
 
     switch (op_)
@@ -86,7 +86,7 @@ private:
 };
 
 as_rpc::Engine engine;
-as_rpc::ServerEndpoint server;
+as_rpc::ServerEndpoint rpc_server;
 as_rpc::RemoteProcedures rpc_kernels;
 std::vector<SingleOperation> single_ops{};
 as_rpc_config::Operations configured_ops{};
@@ -113,12 +113,12 @@ void register_rpc_client()
 
   engine = as_rpc::init_engine(client_address, false);
   rpc_kernels = as_rpc::register_kernels_at_client(engine);
-  server = find_server();
+  rpc_server = find_server();
 
   auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {
-    search->second.on(server)();
+    search->second.on(rpc_server)();
   }
 }
 
@@ -145,7 +145,7 @@ void dispatch_operations(std::string_view filename, std::string_view dset_name)
   {
     if (it->dset_name() == dset_name && it->infile() == filename)
     {
-      it->dispatch(server, rpc_kernels);
+      it->dispatch(rpc_server, rpc_kernels);
       it = single_ops.erase(it);
     }
     else
@@ -161,7 +161,7 @@ void dispatch_operations(std::string_view filename)
   {
     if (it->infile() == filename)
     {
-      it->dispatch(server, rpc_kernels);
+      it->dispatch(rpc_server, rpc_kernels);
       it = single_ops.erase(it);
     }
     else
@@ -200,8 +200,8 @@ void dispatch_without_staging(std::string_view filename,
       case as_rpc::Kernel::mean:
       case as_rpc::Kernel::max:
       case as_rpc::Kernel::min:
-        search->second.on(server)(data, dims, op.outfile, timestep, op.dims,
-                                  static_cast<std::uint8_t>(op.kernel));
+        search->second.on(rpc_server)(data, dims, op.outfile, timestep, op.dims,
+                                      static_cast<std::uint8_t>(op.kernel));
         break;
       default:
         std::println(stderr, "Kernel for bulk operation was not found!");

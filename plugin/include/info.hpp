@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -24,8 +24,8 @@
 
 struct H5VL_as_rpc_info_t
 {
-  hid_t under_vol_id;   /* VOL ID for under VOL */
-  void* under_vol_info; /* VOL info for under VOL */
+  hid_t under_vol_id;            /* VOL ID for under VOL */
+  void* under_vol_info{nullptr}; /* VOL info for under VOL */
 };
 
 void* H5VL_as_rpc_info_copy(const void* info);
