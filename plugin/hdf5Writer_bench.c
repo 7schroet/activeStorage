@@ -34,17 +34,22 @@
     }                                                                          \
   } while (0)
 
-#define FILE_NAME "dummyWriteBench.h5"
 #define DSET_NAME "dummyDataset"
 #define RANK 3
 #define DSET_X 3125
 #define DSET_Y 3125
 #define TSTEP_INIT 128
 
-int main()
+int main(int argc, char* argv[])
 {
+  if (argc != 2)
+  {
+    fprintf(stderr, "Error: Provide the absolute path to the output file");
+    exit(EXIT_FAILURE);
+  }
+
   const hid_t file =
-      H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+      H5Fcreate(argv[1], H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr hsize_t initial_dims[RANK] = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr hsize_t max_dims[RANK] = {TSTEP_INIT, DSET_X, DSET_Y};
