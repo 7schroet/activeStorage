@@ -37,9 +37,9 @@
 #define FILE_NAME "dummyWriteBench.h5"
 #define DSET_NAME "dummyDataset"
 #define RANK 3
-#define DSET_X 3536
-#define DSET_Y 3536
-#define TSTEP_INIT 100
+#define DSET_X 3125
+#define DSET_Y 3125
+#define TSTEP_INIT 128
 
 int main()
 {
