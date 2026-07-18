@@ -1,0 +1,6 @@
+[[operations]]
+type = "mean"
+dims = [0,1,1]
+infile = "PATHdummyWriteBench.h5"
+dset = "dummyDataset"
+outfile = "PATHplugin_result.h5"
