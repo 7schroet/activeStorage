@@ -166,7 +166,7 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
   std::vector<hsize_t> current_dset_dims(dspace.getSimpleExtentNdims());
   dspace.getSimpleExtentDims(current_dset_dims.data());
-  if (current_dset_dims[0] == timestep + 1)
+  if (current_dset_dims[0] == timestep)
   {
     std::vector<hsize_t> new_dims{current_dset_dims};
     new_dims[0] += chunk_size_first_dim;
