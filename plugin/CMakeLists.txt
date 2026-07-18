@@ -54,6 +54,11 @@ target_link_libraries(hdf5Writer PRIVATE as-rpc-flags)
 target_link_libraries(hdf5Writer PRIVATE HDF5::HDF5)
 install(TARGETS hdf5Writer)
 
+add_executable(hdf5Writer_bench hdf5Writer_bench.c)
+target_link_libraries(hdf5Writer_bench PRIVATE as-rpc-flags)
+target_link_libraries(hdf5Writer_bench PRIVATE HDF5::HDF5)
+install(TARGETS hdf5Writer_bench)
+
 if(ENABLE_TESTS)
   add_subdirectory(test)
 endif()
