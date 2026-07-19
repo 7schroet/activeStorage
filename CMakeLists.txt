@@ -47,16 +47,8 @@ find_package(thallium REQUIRED)
 find_package(HDF5 COMPONENTS C;CXX REQUIRED)
 
 add_library(as-rpc-flags INTERFACE)
-target_compile_options(
-  as-rpc-flags
-  INTERFACE
-    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wshadow>"
-)
-target_compile_options(
-  as-rpc-flags
-  INTERFACE
-    "$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wnrvo>"
-)
+include(flags)
+populate_flags(as-rpc-flags)
 
 if(ENABLE_SANITIZER)
   target_compile_options(
