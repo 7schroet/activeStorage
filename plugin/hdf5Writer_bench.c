@@ -36,8 +36,8 @@
 
 #define DSET_NAME "dummyDataset"
 #define RANK 3
-#define DSET_X 3125
-#define DSET_Y 3125
+#define DSET_X 4420
+#define DSET_Y 4420
 #define TSTEP_INIT 128
 
 int main(int argc, char* argv[])
