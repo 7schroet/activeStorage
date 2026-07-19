@@ -72,7 +72,7 @@ For an overview of all available CMake options, run `cmake -LH`.
 ## Using the HDF5 plugin
 
 An Active Storage client is available in an HDF5 [VOL plugin](https://support.hdfgroup.org/documentation/hdf5/latest/_h5_v_l__u_g.html).
-As such, you only need to set four environment variables whenever you want to use the Active Storage with your HDF5 application for in-situ
+As such, you only need to set a few environment variables whenever you want to use the Active Storage with your HDF5 application for in-situ
 data analysis. After building the plugin, set:
 
 ```sh
@@ -85,9 +85,11 @@ export AS_RPC_SERVER_ADDRESS=</path/to/servername/file> # written by the server 
 export AS_RPC_OPERATIONS=</path/to/config/toml>
 ```
 
-Now all HDF5 calls will go through this connector. The plugin is currently built as a pass-through connector. This means that all
+Now all HDF5 calls will go through this connector. The plugin is built as a pass-through connector. This means that all
 your HDF5 calls will behave as they normally do (i.e., write calls will still write the data), but some functions also invoke
-`as-rpc` calls to calculate statistics in-situ in a transparent manner.
+`as-rpc` calls to calculate statistics in-situ in a transparent manner. There is also a second connector that does not write the
+files anymore and instead transfers the data directly to the server. If you want to use that plugin, adjust the
+`HDF5_VOL_CONNECTOR` variable and use `as-rpc-hdf5-bulk` instead of `as-rpc-hdf5`.
 
 ## Configuring the Data Analysis Operations
 
