@@ -21,14 +21,15 @@
 #include "as_rpc.hpp"
 #include <array>
 #include <cstdlib>
+#include <filesystem>
 #include <hdf5.h>
 #include <print>
 #include <random>
 #include <string>
 #include <vector>
 
-constexpr std::string INFILE_NAME{"infile.h5"};
-constexpr std::string OUTFILE_NAME{"outfile.h5"};
+const std::string SERVER_OUTFILE{std::filesystem::current_path().string() +
+                                 "/outfile.h5"};
 constexpr std::string DSET_NAME{"/dataset"};
 constexpr int RANK{3};
 constexpr int DSET_X{10};
@@ -59,10 +60,10 @@ constexpr void h5checked_function(H5Func func, const Args&... args)
 void close_file(hid_t file) { h5checked_function(H5Fclose, file); }
 
 template <typename T>
-hid_t create_file()
+hid_t create_file(const std::string& filename)
 {
   hid_t file =
-      H5Fcreate(INFILE_NAME.data(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+      H5Fcreate(filename.data(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr std::array<hsize_t, RANK> dims = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
@@ -89,7 +90,7 @@ hid_t create_file()
   h5checked_function(H5Dclose, dset);
   h5checked_function(H5Sclose, dspace);
 
-  file = H5Fopen(INFILE_NAME.data(), H5F_ACC_RDWR, H5P_DEFAULT);
+  file = H5Fopen(filename.data(), H5F_ACC_RDWR, H5P_DEFAULT);
   return file;
 }
 
@@ -210,14 +211,15 @@ int main(int argc, char** argv)
     exit(1);
   }
 
+  const std::string client_outfile{config.output_file};
   const hid_t file = [&]
   {
     if (config.value_type == Datatype::DOUBLE)
-      return create_file<double>();
+      return create_file<double>(client_outfile);
     else if (config.value_type == Datatype::FLOAT)
-      return create_file<float>();
+      return create_file<float>(client_outfile);
     else
-      return create_file<int>();
+      return create_file<int>(client_outfile);
   }();
 
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
@@ -232,7 +234,7 @@ int main(int argc, char** argv)
       add_timestep<int>(file, config.randomize_data);
 
     std::println("Appended time step {}", count);
-    search->second.on(server)(INFILE_NAME, OUTFILE_NAME, DSET_NAME, count,
+    search->second.on(server)(client_outfile, SERVER_OUTFILE, DSET_NAME, count,
                               config.reduce_along_dim);
     count++;
   }

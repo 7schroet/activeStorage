@@ -7,11 +7,12 @@ set -ue
 
 server_exe=$1
 client_exe=$2
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 address_file=e2eMeanAddress
 port=8080
-h5file=infile.h5
-result=outfile.h5
+h5file_stem="$SCRIPT_DIR/infile"
+result="$SCRIPT_DIR/outfile.h5"
 mean_inputs=("001" "010" "011" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
@@ -22,7 +23,7 @@ PID=$!
 sleep 1
 
 function cleanup(){
-  rm -f "$result" "$address_file" "$h5file"
+  rm -f "$result" "$address_file" "$h5file_stem"*
   kill $PID
 }
 trap cleanup EXIT
@@ -32,6 +33,7 @@ function run_test_case(){
   local type_in=$2
 
   local result_ref="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean${input}.h5"
+  local client_output="${h5file_stem}${input}.h5"
   (
     for _ in $(seq 1 2); do
       for _ in $(seq 1 10); do
@@ -39,7 +41,7 @@ function run_test_case(){
       done
       sleep 0.2
     done
-   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in"
+   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in" --output "$client_output"
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are
@@ -53,7 +55,7 @@ function run_test_case(){
     echo "Failure while comparing to $result_ref:"
     echo "$h5diff_result"
 
-    local copy_on_fail="./failure.h5"
+    local copy_on_fail="${SCRIPT_DIR}/failure.h5"
     echo "Copying failed file to $(realpath $copy_on_fail)"
     cp "$result" "$copy_on_fail"
 
