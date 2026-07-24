@@ -30,6 +30,7 @@ file(
 add_executable(h5_helpers_test h5_helpers_test.cpp)
 target_include_directories(h5_helpers_test PRIVATE ../include)
 target_link_libraries(h5_helpers_test PRIVATE as-rpc-flags)
+target_link_libraries(h5_helpers_test PRIVATE thallium)
 target_link_libraries(
   h5_helpers_test
   PRIVATE

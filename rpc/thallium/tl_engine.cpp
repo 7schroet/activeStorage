@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -25,9 +25,10 @@ namespace as_rpc
 
 Engine init_engine(const std::string& address, bool is_server)
 {
-  auto is_server_switch =
-      is_server ? THALLIUM_SERVER_MODE : THALLIUM_CLIENT_MODE;
-  return thallium::engine{address, is_server_switch};
+  if (is_server)
+    return thallium::engine{address, THALLIUM_SERVER_MODE, false, 1};
+  else
+    return thallium::engine{address, THALLIUM_CLIENT_MODE};
 }
 
 void run_server(Engine& engine) { engine.wait_for_finalize(); }

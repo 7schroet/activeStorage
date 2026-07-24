@@ -18,11 +18,42 @@
  */
 
 #include "h5_helpers.hpp"
+#include <cassert>
+#include <filesystem>
+#include <memory>
+#include <mutex>
 #include <numeric>
 #include <stdexcept>
+#include <string>
+#include <thallium/mutex.hpp>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
+
+namespace
+{
+class FileMutexes
+{
+public:
+  std::shared_ptr<thallium::mutex> get_mutex_for(const std::string& filename)
+  {
+    assert(std::filesystem::path(filename).is_absolute());
+    std::lock_guard guard{_map_mutex};
+    auto& mutex = _mutexes[filename];
+    if (!mutex)
+      mutex = std::make_shared<thallium::mutex>();
+
+    return mutex;
+  }
+
+private:
+  thallium::mutex _map_mutex{};
+  std::unordered_map<std::string, std::shared_ptr<thallium::mutex>> _mutexes{};
+};
+
+FileMutexes mutexes{};
+} // namespace
 
 namespace as_rpc::h5
 {
@@ -118,6 +149,9 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                 unsigned timestep, const std::string& filename,
                 const std::string& dset_name)
 {
+  auto mutex = mutexes.get_mutex_for(filename);
+  std::lock_guard lock(*mutex);
+
   H5::H5File file;
   H5::DataSet dset;
   H5::DataSpace dspace;
@@ -166,10 +200,10 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
 
   std::vector<hsize_t> current_dset_dims(dspace.getSimpleExtentNdims());
   dspace.getSimpleExtentDims(current_dset_dims.data());
-  if (current_dset_dims[0] == timestep)
+  if (current_dset_dims[0] <= timestep)
   {
     std::vector<hsize_t> new_dims{current_dset_dims};
-    new_dims[0] += chunk_size_first_dim;
+    new_dims[0] += chunk_size_first_dim * (timestep / new_dims[0]);
     dset.extend(new_dims.data());
     dspace = dset.getSpace();
   }
