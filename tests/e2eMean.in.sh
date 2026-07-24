@@ -11,9 +11,9 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 address_file=e2eMeanAddress
 port=8080
-h5file_stem="$SCRIPT_DIR/infile"
-result="$SCRIPT_DIR/outfile.h5"
-mean_inputs=("001" "010" "011" "100" "101" "110" "111")
+client_output_stem="$SCRIPT_DIR/infile"
+rpc_output_stem="$SCRIPT_DIR/rpc_outfile"
+mean_inputs=("001" "010" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
 
@@ -23,7 +23,7 @@ PID=$!
 sleep 1
 
 function cleanup(){
-  rm -f "$result" "$address_file" "$h5file_stem"*
+  rm -f "$rpc_output_stem"* "$address_file" "$client_output_stem"*
   kill $PID
 }
 trap cleanup EXIT INT TERM
@@ -31,9 +31,11 @@ trap cleanup EXIT INT TERM
 function run_test_case(){
   local mean_in=$1
   local type_in=$2
+  local ref=$3
 
-  local result_ref="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean${input}.h5"
-  local client_output="${h5file_stem}${input}.h5"
+  local result_ref="@CMAKE_CURRENT_SOURCE_DIR@/e2eMean${ref}.h5"
+  local client_output="${client_output_stem}_${mean_in}_${type_in}.h5"
+  local rpc_output="${rpc_output_stem}_${mean_in}_${type_in}.h5"
   (
     for _ in $(seq 1 2); do
       for _ in $(seq 1 10); do
@@ -41,7 +43,7 @@ function run_test_case(){
       done
       sleep 0.2
     done
-   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in" --output "$client_output"
+   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in" --output "$client_output" --rpc-output "$rpc_output"
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are
@@ -50,25 +52,24 @@ function run_test_case(){
   # is still 0. This case if obviously a failure. So for that case, we need to also
   # capture stdout and check if it is empty, alongside the exit code check.
   set +e
-  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$result" "$result_ref")
+  h5diff_result=$(@HDF5_DIFF_EXECUTABLE@ -c "$rpc_output" "$result_ref")
   if [[ "$h5diff_result" || $? != 0 ]]; then
     echo "Failure while comparing to $result_ref:"
     echo "$h5diff_result"
 
     local copy_on_fail="${SCRIPT_DIR}/failure.h5"
-    echo "Copying failed file to $(realpath $copy_on_fail)"
-    cp "$result" "$copy_on_fail"
+    echo "Copying failed file to $(realpath "$copy_on_fail")"
+    cp "$rpc_output" "$copy_on_fail"
 
     exit 1
   fi
   set -e
-  rm "$result"
 }
 
 for input in "${mean_inputs[@]}"; do
-  run_test_case "$input" "double"
+  run_test_case "$input" "double" "$input"
 done
 
 for input in "float" "int"; do
-  run_test_case "011" "$input"
+  run_test_case "011" "$input" "$input"
 done

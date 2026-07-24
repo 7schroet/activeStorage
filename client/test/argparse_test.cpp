@@ -55,6 +55,7 @@ void assert_config_eq(const ClientConfig& expected, const ClientConfig& actual)
   EXPECT_EQ(expected.reduce_along_dim, actual.reduce_along_dim);
   EXPECT_EQ(expected.value_type, actual.value_type);
   EXPECT_EQ(expected.output_file, actual.output_file);
+  EXPECT_EQ(expected.rpc_output_file, actual.rpc_output_file);
 }
 
 TEST_F(ClientConfigTest, Default)
@@ -133,6 +134,17 @@ TEST_F(ClientConfigTest, PassOutfile)
   assert_config_eq(expected, actual);
 }
 
+TEST_F(ClientConfigTest, PassRPCOutfile)
+{
+  ClientConfig expected{};
+  expected.rpc_output_file = "out";
+
+  constexpr int argc = 3;
+  const char* argv[argc] = {"as-client", "--rpc-output", "out"};
+  ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
+  assert_config_eq(expected, actual);
+}
+
 TEST_F(ClientConfigTest, PassAll)
 {
   ClientConfig expected{};
@@ -142,12 +154,13 @@ TEST_F(ClientConfigTest, PassAll)
   expected.reduce_along_dim = {0, 0, 1};
   expected.value_type = Datatype::FLOAT;
   expected.output_file = "outfile";
+  expected.rpc_output_file = "rpc_outfile";
 
-  constexpr int argc = 12;
-  const char* argv[argc] = {"as-client",     "--protocol", "tcp",
-                            "--addressfile", "file",       "--random",
-                            "--mean",        "001",        "--type",
-                            "float",         "--output",   "outfile"};
+  constexpr int argc = 14;
+  const char* argv[argc] = {
+      "as-client", "--protocol", "tcp",          "--addressfile", "file",
+      "--random",  "--mean",     "001",          "--type",        "float",
+      "--output",  "outfile",    "--rpc-output", "rpc_outfile"};
   ClientConfig actual = parse_args(argc, const_cast<char**>(argv));
   assert_config_eq(expected, actual);
 }

@@ -28,8 +28,6 @@
 #include <string>
 #include <vector>
 
-const std::string SERVER_OUTFILE{std::filesystem::current_path().string() +
-                                 "/outfile.h5"};
 constexpr std::string DSET_NAME{"/dataset"};
 constexpr int RANK{3};
 constexpr int DSET_X{10};
@@ -224,6 +222,8 @@ int main(int argc, char** argv)
 
   std::println("Press Enter to write a new time step, or Ctrl+D to terminate");
   auto count = 0;
+  const std::string rpc_outfile =
+      std::filesystem::absolute(config.rpc_output_file);
   for (std::string in; std::getline(std::cin, in);)
   {
     if (config.value_type == Datatype::DOUBLE)
@@ -234,7 +234,7 @@ int main(int argc, char** argv)
       add_timestep<int>(file, config.randomize_data);
 
     std::println("Appended time step {}", count);
-    search->second.on(server)(client_outfile, SERVER_OUTFILE, DSET_NAME, count,
+    search->second.on(server)(client_outfile, rpc_outfile, DSET_NAME, count,
                               config.reduce_along_dim);
     count++;
   }

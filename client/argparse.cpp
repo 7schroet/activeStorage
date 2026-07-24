@@ -36,6 +36,8 @@ namespace
   std::cerr << "\t--addressfile:\t\tPath to the file that contains the "
                "server's address (default: ./servername)\n";
   std::cerr << "\t--output:\t\tPath to the output file (default: ./out.h5)\n";
+  std::cerr << "\t--rpc-output:\t\tPath to the RPC output file (default: "
+               "./rpc_out.h5)\n";
   std::cerr
       << "\t--random:\t\tAdd random numbers in [0,1) to the written data\n";
   std::cerr << "\t--mean:\t\t\tChoose which dimensions to calculate the mean "
@@ -66,6 +68,10 @@ ClientConfig parse_args(int argc, char** argv)
        .has_arg = required_argument,
        .flag = nullptr,
        .val = 'o'},
+      {.name = "rpc-output",
+       .has_arg = required_argument,
+       .flag = nullptr,
+       .val = 'R'},
       {.name = "random", .has_arg = no_argument, .flag = nullptr, .val = 'r'},
       {.name = "mean",
        .has_arg = required_argument,
@@ -102,6 +108,9 @@ ClientConfig parse_args(int argc, char** argv)
       break;
     case 'o':
       config.output_file = optarg;
+      break;
+    case 'R':
+      config.rpc_output_file = optarg;
       break;
     case 'r':
       config.randomize_data = true;

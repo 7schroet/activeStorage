@@ -37,6 +37,7 @@ struct ClientConfig
   as_rpc::Protocol protocol{};
   std::filesystem::path server_address_file{"servername"};
   std::filesystem::path output_file{"out.h5"};
+  std::filesystem::path rpc_output_file{"rpc_out.h5"};
   std::vector<char> reduce_along_dim{1, 1, 1};
   Datatype value_type{Datatype::DOUBLE};
   bool randomize_data{};
