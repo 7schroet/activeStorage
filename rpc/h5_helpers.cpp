@@ -39,7 +39,7 @@ public:
   std::shared_ptr<thallium::mutex> get_mutex_for(const std::string& filename)
   {
     assert(std::filesystem::path(filename).is_absolute());
-    std::lock_guard guard{_map_mutex};
+    const std::scoped_lock guard{_map_mutex};
     auto& mutex = _mutexes[filename];
     if (!mutex)
       mutex = std::make_shared<thallium::mutex>();
@@ -150,7 +150,7 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                 const std::string& dset_name)
 {
   auto mutex = mutexes.get_mutex_for(filename);
-  std::lock_guard lock(*mutex);
+  const std::scoped_lock lock(*mutex);
 
   H5::H5File file;
   H5::DataSet dset;
