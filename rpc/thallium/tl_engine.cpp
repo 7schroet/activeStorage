@@ -18,6 +18,11 @@
  */
 
 #include "as_rpc_engine.hpp"
+#include <charconv>
+#include <cstdlib>
+#include <cstring>
+#include <print>
+#include <system_error>
 #include <thallium.hpp>
 
 namespace as_rpc
@@ -26,9 +31,26 @@ namespace as_rpc
 Engine init_engine(const std::string& address, bool is_server)
 {
   if (is_server)
-    return thallium::engine{address, THALLIUM_SERVER_MODE, false, 1};
+  {
+    char AS_SERVER_THREADS[] = "AS_SERVER_THREADS";
+    int thread_count = 1;
+    if (const char* const env_value = std::getenv(AS_SERVER_THREADS))
+    {
+      auto end = env_value + strlen(env_value);
+      auto [ptr, ec] = std::from_chars(env_value, end, thread_count);
+      if (!(ec == std::errc{} && ptr == end))
+      {
+        thread_count = 1;
+        std::println(stderr, "Could not parse {}, using default value of {}",
+                     AS_SERVER_THREADS, thread_count);
+      }
+    }
+    return thallium::engine{address, THALLIUM_SERVER_MODE, false, thread_count};
+  }
   else
+  {
     return thallium::engine{address, THALLIUM_CLIENT_MODE};
+  }
 }
 
 void run_server(Engine& engine) { engine.wait_for_finalize(); }

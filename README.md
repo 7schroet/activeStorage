@@ -130,6 +130,12 @@ executable. Currently, these are the available reduction operations:
 - min
 - max
 
+## Server Setup
+
+The server can run multiple threads at once to serve RPCs by making use of Thallium's (actually Argobot's) ULTs. By default, the server runs a
+single thread. If you want more, set the environment variable `AS_SERVER_THREADS` to the desired value before starting the server. Make sure to
+build the server with thread-safe HDF5 if you do so!
+
 ## Development
 
 ### Pre-commit
