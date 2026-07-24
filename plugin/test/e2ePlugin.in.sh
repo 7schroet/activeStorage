@@ -37,7 +37,7 @@ function cleanup_final(){
   rm -f "$address_file"
   kill $PID
 }
-trap cleanup_final EXIT
+trap cleanup_final EXIT INT TERM
 
 HDF5_PLUGIN_PATH=$(realpath "@CMAKE_CURRENT_BINARY_DIR@/.."); export HDF5_PLUGIN_PATH
 export AS_RPC_SERVER_ADDRESS=$PWD/${address_file}

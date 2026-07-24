@@ -26,7 +26,7 @@ function cleanup(){
   rm -f "$result" "$address_file" "$h5file_stem"*
   kill $PID
 }
-trap cleanup EXIT
+trap cleanup EXIT INT TERM
 
 function run_test_case(){
   local mean_in=$1
