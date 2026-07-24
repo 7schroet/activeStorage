@@ -124,7 +124,7 @@ herr_t H5VL_as_rpc_str_to_info(const char* str, void** info)
   // Retrieve the underlying VOL connector value and info
   sscanf(str, "under_vol=%u;", &under_vol_value);
   under_vol_id = H5VLregister_connector_by_value(
-      (H5VL_class_value_t)under_vol_value, H5P_DEFAULT);
+      static_cast<H5VL_class_value_t>(under_vol_value), H5P_DEFAULT);
   under_vol_info_start = strchr(str, '{');
   under_vol_info_end = strrchr(str, '}');
   if (under_vol_info_end != (under_vol_info_start + 1))
