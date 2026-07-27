@@ -16,6 +16,8 @@ rpc_output_stem="$script_dir/rpc_outfile"
 mean_inputs=("001" "010" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
+export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
+background_pids=()
 
 $server_exe --addressfile $address_file --port $port &
 server_pid=$!
@@ -35,6 +37,11 @@ sleep 1 # await server startup
 function cleanup(){
   rm -f "$rpc_output_stem"* "$address_file" "$client_output_stem"*
   kill $monitor_pid $server_pid
+  for pid in "${background_pids[@]}"; do
+    if [[ -e /proc/"$pid" ]]; then
+      kill "$pid"
+    fi
+  done
 }
 trap cleanup EXIT INT TERM
 
@@ -50,6 +57,10 @@ function run_test_case(){
     for _ in $(seq 1 2); do
       for _ in $(seq 1 10); do
         echo
+        ## additional sleep to cope with mutex overheads
+        if [[ $AS_SERVER_THREADS != 1 ]]; then
+          sleep 0.1
+        fi
       done
       sleep 0.2
     done
@@ -76,10 +87,35 @@ function run_test_case(){
   set -e
 }
 
+# Only terminates once $1 background jobs are left running
+function wait_for_job_completion(){
+  while [[ ${#background_pids[@]} -gt $1 ]]; do
+    length=${#background_pids[@]}
+    tmp=()
+    for i in $(seq 0 $((length - 1)) ); do
+      pid=${background_pids[$i]}
+      if [[ -e /proc/"$pid" ]]; then
+        tmp+=("$pid")
+      fi
+    done
+    background_pids=(${tmp[@]})
+    sleep 0.2
+  done
+}
+
+# if threaded, start multiple jobs at once
 for input in "${mean_inputs[@]}"; do
-  run_test_case "$input" "double" "$input"
+  wait_for_job_completion $(( AS_SERVER_THREADS - 1))
+
+  run_test_case "$input" "double" "$input" &
+  background_pids+=($!)
 done
 
 for input in "float" "int"; do
-  run_test_case "011" "$input" "$input"
+  wait_for_job_completion $(( AS_SERVER_THREADS - 1))
+
+  run_test_case "011" "$input" "$input" &
+  background_pids+=($!)
 done
+
+wait_for_job_completion 0
