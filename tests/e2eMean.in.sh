@@ -7,24 +7,34 @@ set -ue
 
 server_exe=$1
 client_exe=$2
-SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 address_file=e2eMeanAddress
 port=8080
-client_output_stem="$SCRIPT_DIR/infile"
-rpc_output_stem="$SCRIPT_DIR/rpc_outfile"
+client_output_stem="$script_dir/infile"
+rpc_output_stem="$script_dir/rpc_outfile"
 mean_inputs=("001" "010" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
 
 $server_exe --addressfile $address_file --port $port &
-PID=$!
+server_pid=$!
 
-sleep 1
+function check_server_health(){
+  while :; do
+    if [[ ! -e /proc/"$1" ]]; then
+      kill -- $$
+    fi
+    sleep 0.5
+  done
+}
+check_server_health $server_pid &
+monitor_pid=$!
+sleep 1 # await server startup
 
 function cleanup(){
   rm -f "$rpc_output_stem"* "$address_file" "$client_output_stem"*
-  kill $PID
+  kill $monitor_pid $server_pid
 }
 trap cleanup EXIT INT TERM
 
@@ -57,7 +67,7 @@ function run_test_case(){
     echo "Failure while comparing to $result_ref:"
     echo "$h5diff_result"
 
-    local copy_on_fail="${SCRIPT_DIR}/failure.h5"
+    local copy_on_fail="${script_dir}/failure.h5"
     echo "Copying failed file to $(realpath "$copy_on_fail")"
     cp "$rpc_output" "$copy_on_fail"
 
