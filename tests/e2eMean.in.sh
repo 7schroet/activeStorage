@@ -10,7 +10,7 @@ client_exe=$2
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
 
-address_file=e2eMeanAddress_${AS_SERVER_THREADS}
+address_file=$script_dir/e2eMeanAddress_${AS_SERVER_THREADS}
 port=$(( 8000 + RANDOM % 10000 ))
 client_output_stem="$script_dir/infile_${AS_SERVER_THREADS}_"
 rpc_output_stem="$script_dir/rpc_outfile_${AS_SERVER_THREADS}_"

@@ -9,9 +9,10 @@ set -ue
 server_exe=$1
 h5_writer_exe=$2
 config_name=$3
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-address_file=e2ePluginAddress
-port=8081
+address_file=$script_dir/e2ePluginAddress
+port=$(( 8000 + RANDOM % 10000 ))
 h5file="@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
 
 result_mean="@CMAKE_CURRENT_BINARY_DIR@/outmean.h5"
@@ -23,9 +24,22 @@ result_ref_min="@CMAKE_CURRENT_SOURCE_DIR@/e2ePluginMinRef.h5"
 
 export HDF5_USE_FILE_LOCKING=FALSE
 
+while lsof -i :$port; do
+  port=$(( port + 1 ))
+done
 $server_exe --addressfile $address_file --port $port &
-PID=$!
+server_pid=$!
 
+function check_server_health(){
+  while :; do
+    if [[ ! -e /proc/"$1" ]]; then
+      kill -- $$
+    fi
+    sleep 0.5
+  done
+}
+check_server_health $server_pid &
+monitor_pid=$!
 sleep 1
 
 function cleanup_iteration(){
@@ -35,12 +49,12 @@ function cleanup_iteration(){
 function cleanup_final(){
   cleanup_iteration
   rm -f "$address_file"
-  kill $PID
+  kill $monitor_pid $server_pid
 }
 trap cleanup_final EXIT INT TERM
 
 HDF5_PLUGIN_PATH=$(realpath "@CMAKE_CURRENT_BINARY_DIR@/.."); export HDF5_PLUGIN_PATH
-export AS_RPC_SERVER_ADDRESS=$PWD/${address_file}
+export AS_RPC_SERVER_ADDRESS=$address_file
 export AS_RPC_OPERATIONS="@CMAKE_CURRENT_BINARY_DIR@/$config_name"
 
 for plugin in "as-rpc-hdf5-bulk" "as-rpc-hdf5"; do
