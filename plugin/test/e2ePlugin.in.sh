@@ -10,14 +10,15 @@ server_exe=$1
 h5_writer_exe=$2
 config_name=$3
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
 
-address_file=$script_dir/e2ePluginAddress
+address_file=$script_dir/e2ePluginAddress_${AS_SERVER_THREADS}
 port=$(( 8000 + RANDOM % 10000 ))
-h5file="@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
+h5file="@hdf5_writer_out@"
 
-result_mean="@CMAKE_CURRENT_BINARY_DIR@/outmean.h5"
-result_max="@CMAKE_CURRENT_BINARY_DIR@/outmax.h5"
-result_min="@CMAKE_CURRENT_BINARY_DIR@/outmin.h5"
+result_mean="@plugin_out_mean@"
+result_max="@plugin_out_max@"
+result_min="@plugin_out_min@"
 result_ref_mean="@CMAKE_CURRENT_SOURCE_DIR@/e2ePluginMeanRef.h5"
 result_ref_max="@CMAKE_CURRENT_SOURCE_DIR@/e2ePluginMaxRef.h5"
 result_ref_min="@CMAKE_CURRENT_SOURCE_DIR@/e2ePluginMinRef.h5"
@@ -27,7 +28,7 @@ export HDF5_USE_FILE_LOCKING=FALSE
 while lsof -i :$port; do
   port=$(( port + 1 ))
 done
-$server_exe --addressfile $address_file --port $port &
+$server_exe --addressfile "$address_file" --port $port &
 server_pid=$!
 
 function check_server_health(){
@@ -66,7 +67,7 @@ for plugin in "as-rpc-hdf5-bulk" "as-rpc-hdf5"; do
     done
     sleep 0.1
   done
-  ) | $h5_writer_exe "@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
+  ) | $h5_writer_exe "$h5file"
 
   # see e2eMean.in.sh for explanation
   set +e
@@ -78,8 +79,8 @@ for plugin in "as-rpc-hdf5-bulk" "as-rpc-hdf5"; do
     if [[ "$h5diff_result" || $? != 0 ]]; then
       echo "Failure while comparing to ${!expected}:"
       echo "$h5diff_result"
-      copy_on_fail="./failure.h5"
-      echo "Copying failed file to $(realpath $copy_on_fail)"
+      copy_on_fail="$script_dir/failure.h5"
+      echo "Copying failed file to $(realpath "$copy_on_fail")"
       cp "${!actual}" "$copy_on_fail"
       exit 1
     fi
