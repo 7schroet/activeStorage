@@ -166,7 +166,7 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
       return H5::PredType::NATIVE_INT;
   }();
 
-  if (timestep == 0)
+  if (!std::filesystem::exists(filename))
   {
     file = {filename, H5F_ACC_EXCL};
 
