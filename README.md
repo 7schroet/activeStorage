@@ -30,6 +30,8 @@ Usage:
         --help:                 Print this message
         --protocol:             Pick a protocol (tcp[default],verbs)
         --addressfile:          Path to the file that contains the server's address (default: ./servername)
+        --output:               Path to the output file (default: ./out.h5)
+        --rpc-output:           Path to the RPC output file (default: ./rpc_out.h5)
         --random:               Add random numbers in [0,1) to the written data
         --mean:                 Choose which dimensions to calculate the mean over (default: "111")
                                 The input is always 3 digits (0 to keep the dimension, 1 to reduce it)
