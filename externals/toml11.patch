@@ -1,3 +1,31 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6f215a7..02a0104 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,19 +20,10 @@ option(TOML11_PRECOMPILE "precompile toml11 library" OFF)
+ option(TOML11_ENABLE_ACCESS_CHECK "enable access check feature (beta)" OFF)
+ 
+ include(CMakeDependentOption)
+-cmake_policy(PUSH)
+-if(POLICY CMP0127)
+-cmake_policy(SET CMP0127 OLD) # syntax of condition changed in 3.22
+-endif()
+-cmake_dependent_option(TOML11_INSTALL "install toml11 library" ON
+-    "${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME}" OFF)
+-cmake_dependent_option(TOML11_BUILD_EXAMPLES "build toml11 examples" OFF
+-    "${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME}" OFF)
+-cmake_dependent_option(TOML11_BUILD_TESTS "build toml11 unit tests" OFF
+-    "${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME}; ${BUILD_TESTING}" OFF)
+-cmake_dependent_option(TOML11_BUILD_TOML_TESTS "build toml11 toml-test encoder & decoder" OFF
+-    "${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME}" OFF)
+-cmake_policy(POP)
++set(TOML11_INSTALL OFF)
++set(TOML11_BUILD_EXAMPLES OFF)
++set(TOML11_BUILD_TESTS OFF)
++set(TOML11_BUILD_TOML_TESTS OFF)
+ 
+ cmake_dependent_option(TOML11_TEST_WITH_ASAN  "build toml11 unit tests with asan" OFF
+     "${TOML11_BUILD_TESTS}" OFF)
 diff --git a/include/toml11/fwd/literal_fwd.hpp b/include/toml11/fwd/literal_fwd.hpp
 index 8c1179f..7432b67 100644
 --- a/include/toml11/fwd/literal_fwd.hpp
