@@ -8,18 +8,21 @@ set -ue
 server_exe=$1
 client_exe=$2
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
 
-address_file=e2eMeanAddress
-port=8080
-client_output_stem="$script_dir/infile"
-rpc_output_stem="$script_dir/rpc_outfile"
+address_file=e2eMeanAddress_${AS_SERVER_THREADS}
+port=$(( 8000 + RANDOM % 10000 ))
+client_output_stem="$script_dir/infile_${AS_SERVER_THREADS}_"
+rpc_output_stem="$script_dir/rpc_outfile_${AS_SERVER_THREADS}_"
 mean_inputs=("001" "010" "100" "101" "110" "111")
 
 export HDF5_USE_FILE_LOCKING=FALSE
-export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
 background_pids=()
 
-$server_exe --addressfile $address_file --port $port &
+while lsof -i :$port; do
+  port=$(( port + 1 ))
+done
+$server_exe --addressfile "$address_file" --port $port &
 server_pid=$!
 
 function check_server_health(){
@@ -64,7 +67,7 @@ function run_test_case(){
       done
       sleep 0.2
     done
-   ) | $client_exe --addressfile $address_file --mean "$mean_in" --type "$type_in" --output "$client_output" --rpc-output "$rpc_output"
+   ) | $client_exe --addressfile "$address_file" --mean "$mean_in" --type "$type_in" --output "$client_output" --rpc-output "$rpc_output"
 
   # h5diff is somewhat inconsistent. If the files can be diffed and there are
   # no differences, the exit code is 0 and there is not stdout. If there are
