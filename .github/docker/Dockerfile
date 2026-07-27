@@ -25,5 +25,5 @@ RUN git clone --depth 1 --revision=${SPACK_COMMIT} https://github.com/spack/spac
     printf "$repo_config" > ~/.spack/repos.yaml                                       && \
     spack compiler find                                                               && \
     spack external find                                                               && \
-    spack install googletest@1.17.0 hdf5@1.14.6+cxx mochi-thallium@0.15.0             && \
+    spack install googletest@1.17.0 hdf5@1.14.6+cxx+threadsafe mochi-thallium@0.15.0  && \
     spack gc -y && rm -rf /tmp/* spack/.git
