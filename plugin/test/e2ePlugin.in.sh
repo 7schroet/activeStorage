@@ -66,7 +66,7 @@ for plugin in "as-rpc-hdf5-bulk" "as-rpc-hdf5"; do
     done
     sleep 0.1
   done
-  ) | $h5_writer_exe
+  ) | $h5_writer_exe "@CMAKE_CURRENT_BINARY_DIR@/dummyWrite.h5"
 
   # see e2eMean.in.sh for explanation
   set +e

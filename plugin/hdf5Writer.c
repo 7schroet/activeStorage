@@ -33,17 +33,23 @@
     }                                                                          \
   } while (0)
 
-#define FILE_NAME "dummyWrite.h5"
 #define DSET_NAME "dummyDataset"
 #define RANK 3
 #define DSET_X 10
 #define DSET_Y 10
 #define TSTEP_INIT 10
 
-int main()
+int main(int argc, char* argv[])
 {
+
+  if (argc != 2)
+  {
+    fprintf(stderr, "Pass the name of the output file as the only arg!\n");
+    exit(EXIT_FAILURE);
+  }
+
   const hid_t file =
-      H5Fcreate(FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+      H5Fcreate(argv[1], H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
   constexpr hsize_t initial_dims[RANK] = {TSTEP_INIT, DSET_X, DSET_Y};
   constexpr hsize_t max_dims[RANK] = {H5S_UNLIMITED, DSET_X, DSET_Y};
