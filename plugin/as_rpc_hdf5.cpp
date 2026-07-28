@@ -39,9 +39,9 @@
 #include <hdf5.h>
 
 #ifdef FILE_STAGING
-#define PLUGIN_NAME "as-rpc-hdf5"
+constexpr const char* PLUGIN_NAME = "as-rpc-hdf5";
 #else
-#define PLUGIN_NAME "as-rpc-hdf5-bulk"
+constexpr const char* PLUGIN_NAME = "as-rpc-hdf5-bulk";
 #endif
 
 namespace
