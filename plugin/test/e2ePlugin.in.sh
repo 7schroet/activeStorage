@@ -13,7 +13,7 @@ script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export AS_SERVER_THREADS=${AS_SERVER_THREADS:-1}
 
 address_file=$script_dir/e2ePluginAddress_${AS_SERVER_THREADS}
-port=$(( 8000 + RANDOM % 10000 ))
+port=$(( 8100 + RANDOM % 1000 ))
 h5file="@hdf5_writer_out@"
 
 result_mean="@plugin_out_mean@"
