@@ -12,7 +12,8 @@ option(
 )
 option(
   ENABLE_STATIC_ANALYSIS
-  "Create target 'analysis' for static analyses (requires cppcheck and clang-tidy)"
+  "Create target 'analysis' for \
+static analyses (requires cppcheck and clang-tidy)"
   OFF
 )
 
@@ -28,7 +29,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   )
   message(
     STATUS
-    "No install prefix was specified, defaulting to ${CMAKE_CURRENT_SOURCE_DIR}/install"
+    "No install prefix was specified, defaulting \
+to ${CMAKE_CURRENT_SOURCE_DIR}/install"
   )
 endif()
 
