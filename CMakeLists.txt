@@ -52,19 +52,6 @@ add_library(as-rpc-flags INTERFACE)
 include(flags)
 populate_flags(as-rpc-flags)
 
-if(ENABLE_SANITIZER)
-  target_compile_options(
-    as-rpc-flags
-    INTERFACE
-      "-fsanitize=address,leak,undefined"
-  )
-  target_link_options(
-    as-rpc-flags
-    INTERFACE
-      "-fsanitize=address,leak,undefined"
-  )
-endif()
-
 if(ENABLE_TESTS)
   include(CTest)
   find_package(GTest REQUIRED)
