@@ -39,8 +39,8 @@ public:
   std::shared_ptr<thallium::mutex> get_mutex_for(const std::string& filename)
   {
     assert(std::filesystem::path(filename).is_absolute());
-    const std::scoped_lock guard{_map_mutex};
-    auto& mutex = _mutexes[filename];
+    const std::scoped_lock guard{map_mutex_};
+    auto& mutex = mutexes_[filename];
     if (!mutex)
       mutex = std::make_shared<thallium::mutex>();
 
@@ -48,8 +48,8 @@ public:
   }
 
 private:
-  thallium::mutex _map_mutex{};
-  std::unordered_map<std::string, std::shared_ptr<thallium::mutex>> _mutexes{};
+  thallium::mutex map_mutex_{};
+  std::unordered_map<std::string, std::shared_ptr<thallium::mutex>> mutexes_{};
 };
 
 FileMutexes mutexes{};
