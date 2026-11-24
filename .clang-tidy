@@ -8,6 +8,7 @@ Checks: 'clang-diagnostic-*,
         -modernize-macro-to-enum,
         misc-*,
         -misc-include-cleaner,
+        -misc-static-assert,
         performance-*'
 WarningsAsErrors: '*'
 HeaderFileExtensions:
