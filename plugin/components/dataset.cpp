@@ -129,12 +129,15 @@ herr_t H5VL_as_rpc_dataset_read(size_t count, void* dset[], hid_t mem_type_id[],
   return 0;
 }
 
+// NOLINTBEGIN(misc-const-correctness)
+// the ifdef confuses clang-tidy on the req parameter
 herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
                                  hid_t mem_type_id[],
                                  [[maybe_unused]] hid_t mem_space_id[],
                                  hid_t file_space_id[],
                                  [[maybe_unused]] hid_t plist_id,
                                  const void* buf[], [[maybe_unused]] void** req)
+// NOLINTEND(misc-const-correctness)
 {
   log_msg("DATASET Write");
 
