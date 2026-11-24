@@ -43,6 +43,6 @@ struct ClientConfig
   bool randomize_data{};
 };
 
-ClientConfig parse_args(int argc, char** const argv);
+ClientConfig parse_args(int argc, char* const* const argv);
 
 #endif

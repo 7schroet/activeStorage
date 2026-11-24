@@ -181,7 +181,7 @@ void add_timestep(hid_t file, bool randomize)
 }
 } // namespace
 
-int main(int argc, char** argv)
+int main(int argc, char* const* const argv)
 {
   const ClientConfig config = parse_args(argc, argv);
   const std::string client_address =

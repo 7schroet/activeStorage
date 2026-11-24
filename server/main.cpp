@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -43,7 +43,7 @@ void setup_interrupt_handle()
 }
 } // namespace
 
-int main(int argc, char** argv)
+int main(int argc, char* const* const argv)
 {
   const ServerConfig config = parse_args(argc, argv);
 

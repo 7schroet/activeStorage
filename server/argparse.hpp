@@ -30,6 +30,6 @@ struct ServerConfig
   std::string port{"8080"};
 };
 
-ServerConfig parse_args(int argc, char** const argv);
+ServerConfig parse_args(int argc, char* const* const argv);
 
 #endif

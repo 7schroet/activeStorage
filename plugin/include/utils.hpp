@@ -30,6 +30,6 @@ struct H5VL_as_rpc_t
 };
 
 H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id);
-herr_t H5VL_as_rpc_t_free_obj(H5VL_as_rpc_t* obj);
+herr_t H5VL_as_rpc_t_free_obj(const H5VL_as_rpc_t* obj);
 
 #endif

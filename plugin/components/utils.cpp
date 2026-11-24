@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -30,7 +30,7 @@ H5VL_as_rpc_t* H5VL_as_rpc_t_new_obj(void* under_obj, hid_t under_vol_id)
   return new_obj;
 }
 
-herr_t H5VL_as_rpc_t_free_obj(H5VL_as_rpc_t* obj)
+herr_t H5VL_as_rpc_t_free_obj(const H5VL_as_rpc_t* obj)
 {
   log_msg("STRUCT delete");
   const hid_t err_id = H5Eget_current_stack();
