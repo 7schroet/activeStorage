@@ -59,7 +59,7 @@ public:
     std::println(stderr);
     std::println(stderr, "---------------------");
 #endif
-    auto search = kernels.find(op_);
+    const auto search = kernels.find(op_);
     if (search == kernels.end())
       return;
 
@@ -115,7 +115,7 @@ void register_rpc_client()
   rpc_kernels = as_rpc::register_kernels_at_client(engine);
   rpc_server = find_server();
 
-  auto search = rpc_kernels.find(as_rpc::Kernel::hello);
+  const auto search = rpc_kernels.find(as_rpc::Kernel::hello);
   if (search != rpc_kernels.end())
   {
     search->second.on(rpc_server)();
@@ -134,7 +134,7 @@ void register_single_operation(std::string_view filename,
 
 bool dset_is_in_ops(std::string_view filename, std::string_view dset_name)
 {
-  auto check = [=](const as_rpc_config::Operation& op)
+  const auto check = [=](const as_rpc_config::Operation& op)
   { return filename == op.infile && dset_name == op.dset; };
   return std::ranges::any_of(configured_ops, check);
 }
@@ -191,7 +191,7 @@ void dispatch_without_staging(std::string_view filename,
       else
         bulk_kernel = as_rpc::Kernel::analyse_ints;
 
-      auto search = rpc_kernels.find(bulk_kernel);
+      const auto search = rpc_kernels.find(bulk_kernel);
       if (search == rpc_kernels.end())
         return;
 

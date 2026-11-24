@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -30,6 +30,6 @@ struct ServerConfig
   std::string port{"8080"};
 };
 
-ServerConfig parse_args(int argc, char** argv);
+ServerConfig parse_args(int argc, char** const argv);
 
 #endif

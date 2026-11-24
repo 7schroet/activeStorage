@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   std::ifstream input{argv[1]};
   try
   {
-    auto ops = as_rpc_config::parse_toml(input);
+    const auto ops = as_rpc_config::parse_toml(input);
     std::println("Input validated! Echoing the config:");
     for (const auto& op : ops)
     {

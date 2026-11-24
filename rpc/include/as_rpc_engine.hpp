@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Niclas Schroeter
+ * Copyright (c) 2025 - 2026 Niclas Schroeter
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -51,7 +51,7 @@ void stop_server(Engine& engine);
  * The client must call this prior to issuing
  * any RPCs to the server.
  */
-ServerEndpoint connect_to_server(Engine& engine,
+ServerEndpoint connect_to_server(const Engine& engine,
                                  const std::string& server_address);
 
 } // namespace as_rpc

@@ -57,7 +57,7 @@ void run_server(Engine& engine) { engine.wait_for_finalize(); }
 
 void stop_server(Engine& engine) { engine.finalize(); }
 
-ServerEndpoint connect_to_server(Engine& engine,
+ServerEndpoint connect_to_server(const Engine& engine,
                                  const std::string& server_address)
 {
   return engine.lookup(server_address);

@@ -107,7 +107,7 @@ void mean([[maybe_unused]] const thallium::request& req,
 {
   H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
-  auto dtype = h5::determine_datatype(dset);
+  const auto dtype = h5::determine_datatype(dset);
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
@@ -136,7 +136,7 @@ void max([[maybe_unused]] const thallium::request& req,
 {
   H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
-  auto dtype = h5::determine_datatype(dset);
+  const auto dtype = h5::determine_datatype(dset);
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {
@@ -168,7 +168,7 @@ void min([[maybe_unused]] const thallium::request& req,
 {
   H5::H5File file{infile, H5F_ACC_RDONLY};
   auto dset = file.openDataSet(dataset);
-  auto dtype = h5::determine_datatype(dset);
+  const auto dtype = h5::determine_datatype(dset);
 
   if (dtype == H5::PredType::NATIVE_DOUBLE)
   {

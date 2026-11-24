@@ -158,7 +158,7 @@ herr_t H5VL_as_rpc_dataset_write(size_t count, void* dset[],
 
     if (dset_is_in_ops(o->filename, o->dsetname))
     {
-      auto rank = H5Sget_simple_extent_ndims(file_space_id[i]);
+      const auto rank = H5Sget_simple_extent_ndims(file_space_id[i]);
       std::vector<hsize_t> start(rank);
       H5Sget_regular_hyperslab(file_space_id[i], start.data(), nullptr, nullptr,
                                nullptr);

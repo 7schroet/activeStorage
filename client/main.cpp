@@ -67,7 +67,7 @@ hid_t create_file(const std::string& filename)
   constexpr std::array<hsize_t, RANK> max_dims = {H5S_UNLIMITED, DSET_X,
                                                   DSET_Y};
 
-  auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
+  const auto dcpl = H5Pcreate(H5P_DATASET_CREATE);
   h5checked_function(H5Pset_chunk, dcpl, RANK, dims.data());
 
   const hid_t dtype = []
@@ -80,9 +80,9 @@ hid_t create_file(const std::string& filename)
       return H5T_NATIVE_INT;
   }();
 
-  auto dspace = H5Screate_simple(RANK, dims.data(), max_dims.data());
-  auto dset = H5Dcreate(file, DSET_NAME.data(), dtype, dspace, H5P_DEFAULT,
-                        dcpl, H5P_DEFAULT);
+  const auto dspace = H5Screate_simple(RANK, dims.data(), max_dims.data());
+  const auto dset = H5Dcreate(file, DSET_NAME.data(), dtype, dspace,
+                              H5P_DEFAULT, dcpl, H5P_DEFAULT);
 
   h5checked_function(H5Pclose, dcpl);
   h5checked_function(H5Dclose, dset);
@@ -132,7 +132,7 @@ template <typename T>
 void add_timestep(hid_t file, bool randomize)
 {
   static int current_timestep = 0;
-  auto dset = H5Dopen2(file, DSET_NAME.data(), H5P_DEFAULT);
+  const auto dset = H5Dopen2(file, DSET_NAME.data(), H5P_DEFAULT);
   h5error_check(dset);
   auto dspace = H5Dget_space(dset);
   h5error_check(dspace);
@@ -167,7 +167,7 @@ void add_timestep(hid_t file, bool randomize)
       return H5T_NATIVE_INT;
   }();
 
-  auto memspace = H5Screate_simple(RANK, count.data(), nullptr);
+  const auto memspace = H5Screate_simple(RANK, count.data(), nullptr);
   h5error_check(memspace);
 
   h5checked_function(H5Dwrite, dset, dtype, memspace, dspace, H5P_DEFAULT,

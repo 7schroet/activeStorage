@@ -60,11 +60,11 @@ namespace as_rpc::h5
 
 const H5::PredType& determine_datatype(const H5::DataSet& dset)
 {
-  auto dataclass = dset.getTypeClass();
+  const auto dataclass = dset.getTypeClass();
   if (dataclass == H5T_FLOAT)
   {
-    auto float_type = dset.getFloatType();
-    auto byte_size = float_type.getSize();
+    const auto float_type = dset.getFloatType();
+    const auto byte_size = float_type.getSize();
 
     if (byte_size == 4)
     {
@@ -90,7 +90,7 @@ std::pair<std::vector<T>, std::vector<hsize_t>>
 read_data(const H5::DataSet& dset, unsigned timestep)
 {
   auto dspace = dset.getSpace();
-  auto rank = dspace.getSimpleExtentNdims();
+  const auto rank = dspace.getSimpleExtentNdims();
 
   std::vector<hsize_t> dims(rank);
   std::vector<hsize_t> offset(rank, 0);
@@ -104,7 +104,7 @@ read_data(const H5::DataSet& dset, unsigned timestep)
   dspace.selectHyperslab(H5S_SELECT_SET, count.data(), offset.data());
   H5::DataSpace memspace{rank, count.data()};
 
-  auto elements =
+  const auto elements =
       std::reduce(count.begin(), count.end(), 1, std::multiplies<>());
 
   const H5::PredType dtype = []
@@ -149,7 +149,7 @@ void write_data(const std::vector<T>& data, const std::vector<hsize_t>& dims,
                 unsigned timestep, const std::string& filename,
                 const std::string& dset_name)
 {
-  auto mutex = mutexes.get_mutex_for(filename);
+  const auto mutex = mutexes.get_mutex_for(filename);
   const std::scoped_lock lock(*mutex);
 
   H5::H5File file;

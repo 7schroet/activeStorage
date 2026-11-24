@@ -39,7 +39,7 @@ namespace
 }
 } // namespace
 
-ServerConfig parse_args(int argc, char** argv)
+ServerConfig parse_args(int argc, char** const argv)
 {
   ServerConfig config{};
 
