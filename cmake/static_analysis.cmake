@@ -17,6 +17,9 @@ add_custom_target(
   clang-tidy
   COMMAND
     ${CLANG_TIDY_EXE} -config= -p ${CMAKE_BINARY_DIR} -allow-no-checks
+    "${CMAKE_SOURCE_DIR}/client/.*" "${CMAKE_SOURCE_DIR}/parser/.*"
+    "${CMAKE_SOURCE_DIR}/plugin/.*" "${CMAKE_SOURCE_DIR}/rpc/.*"
+    "${CMAKE_SOURCE_DIR}/server/.*"
 )
 
 add_custom_target(analysis)
