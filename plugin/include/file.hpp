@@ -35,7 +35,7 @@ struct H5VL_as_rpc_file_t
 H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
                                                hid_t under_vol_id,
                                                const std::string& filename);
-herr_t H5VL_as_rpc_file_t_free_obj(H5VL_as_rpc_file_t* obj);
+herr_t H5VL_as_rpc_file_t_free_obj(const H5VL_as_rpc_file_t* obj);
 
 void* H5VL_as_rpc_file_create(const char* name, unsigned flags, hid_t fcpl_id,
                               hid_t fapl_id, hid_t dxpl_id, void** req);

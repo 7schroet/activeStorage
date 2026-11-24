@@ -37,7 +37,7 @@ H5VL_as_rpc_file_t* H5VL_as_rpc_file_t_new_obj(void* under_obj,
   return new_obj;
 }
 
-herr_t H5VL_as_rpc_file_t_free_obj(H5VL_as_rpc_file_t* obj)
+herr_t H5VL_as_rpc_file_t_free_obj(const H5VL_as_rpc_file_t* obj)
 {
   log_msg("FILE STRUCT delete");
   const hid_t err_id = H5Eget_current_stack();
