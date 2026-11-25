@@ -7,24 +7,26 @@
   "configurePresets": [
     {
       "name": "debug",
-      "generator": "Unix Makefiles",
+      "generator": "Ninja",
       "cacheVariables": {
         "ENABLE_SANITIZER": "ON",
         "ENABLE_TESTS": "ON",
         "CMAKE_BUILD_TYPE": "Debug",
         "ENABLE_STATIC_ANALYSIS": "ON",
-        "ENABLE_COVERAGE": "ON"
+        "ENABLE_COVERAGE": "ON",
+        "CMAKE_COLOR_DIAGNOSTICS": "ON"
       }
     },
     {
       "name": "release",
-      "generator": "Unix Makefiles",
+      "generator": "Ninja",
       "cacheVariables": {
         "ENABLE_SANITIZER": "OFF",
         "ENABLE_TESTS": "ON",
         "CMAKE_BUILD_TYPE": "Release",
         "ENABLE_STATIC_ANALYSIS": "OFF",
-        "ENABLE_COVERAGE": "OFF"
+        "ENABLE_COVERAGE": "OFF",
+        "CMAKE_COLOR_DIAGNOSTICS": "ON"
       }
     },
     {

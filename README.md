@@ -69,7 +69,8 @@ This will build all the components with the default build type (`Release`) and i
 the components into `${CMAKE_CURRENT_SOURCE_DIR}/install`. Tests can be enabled by
 setting the option `-DENABLE_TESTS=ON`. Run them via `ctest` after `make`.
 
-For an overview of all available CMake options, run `cmake -LH`.
+For an overview of all available CMake options, run `cmake -LH`. You can also use one
+of the available CMake presets (be aware that they use ninja instead of make).
 
 ## Using the HDF5 plugin
 
