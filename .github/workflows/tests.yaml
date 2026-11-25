@@ -55,7 +55,7 @@ jobs:
           spack load mochi-thallium googletest hdf5
           mkdir build && cd $_
           cmake .. --preset gcc-debug
-          ninja -j
+          ninja
           ninja -v coverage |& tee out
           cov=$(grep -o "lines.*:[^%]*" out | grep -o "[0-9]\+[^\.]")
           echo "cov=$cov" >> $GITHUB_ENV
