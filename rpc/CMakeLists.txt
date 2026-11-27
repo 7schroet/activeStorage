@@ -45,6 +45,15 @@ target_link_libraries(
     thallium
     HDF5::HDF5
 ) # PUBLIC because there is an include thallium in the rpc headers
+if(CAN_USE_LTO)
+  set_property(
+    TARGET
+      as-rpc
+    PROPERTY
+      INTERPROCEDURAL_OPTIMIZATION
+        ON
+  )
+endif()
 install(TARGETS as-rpc FILE_SET HEADERS)
 
 if(ENABLE_TESTS)

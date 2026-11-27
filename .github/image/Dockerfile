@@ -12,6 +12,7 @@ RUN dnf -y --setopt=tsflags=nodocs install \
       lcov \
       libasan \
       libubsan \
+      llvm \
       ninja \
       patch \
       python3-devel \

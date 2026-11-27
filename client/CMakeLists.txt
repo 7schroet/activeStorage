@@ -15,6 +15,15 @@ target_link_libraries(
     as-rpc
     HDF5::HDF5
 )
+if(CAN_USE_LTO)
+  set_property(
+    TARGET
+      as-client
+    PROPERTY
+      INTERPROCEDURAL_OPTIMIZATION
+        ON
+  )
+endif()
 install(TARGETS as-client)
 
 if(ENABLE_TESTS)

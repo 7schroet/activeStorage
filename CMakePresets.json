@@ -14,6 +14,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "ENABLE_STATIC_ANALYSIS": "ON",
         "ENABLE_COVERAGE": "ON",
+        "ENABLE_LTO": "ON",
         "CMAKE_COLOR_DIAGNOSTICS": "ON"
       }
     },
@@ -26,6 +27,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "ENABLE_STATIC_ANALYSIS": "OFF",
         "ENABLE_COVERAGE": "OFF",
+        "ENABLE_LTO": "ON",
         "CMAKE_COLOR_DIAGNOSTICS": "ON"
       }
     },
