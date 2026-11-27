@@ -18,7 +18,6 @@ static analyses (requires cppcheck and clang-tidy)"
 )
 option(ENABLE_LTO "Enables LTO for some targets" OFF)
 
-set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(
